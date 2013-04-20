@@ -25,15 +25,16 @@ public class Settings {
     private static Properties props;
     public static final String MATHMLDTD = "mathmldtd";
     
+    // TODO: add loading properties from XML
     static {
-        try {
+        //try {
             props = new Properties();
-            props.load(Settings.class.getResourceAsStream("canonicalizer.properties"));
-            System.out.println("Canonicalizer properties loaded succesfully");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            //props.load(Settings.class.getResourceAsStream("canonicalizer.properties"));
+            //System.out.println("Canonicalizer properties loaded succesfully");
+        //} catch (IOException ex) {
+        //    ex.printStackTrace();
+        //    Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        //}
     }
     
     public static String getProperty(String key) {
@@ -51,9 +52,10 @@ public class Settings {
         inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
         inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
         inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, true);
-        inputFactory.setProperty(XMLInputFactory.RESOLVER, new XMLResolver() {
+        /*inputFactory.setProperty(XMLInputFactory.RESOLVER, new XMLResolver() {
             @Override
-            public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) throws XMLStreamException {
+            public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace)
+              throws XMLStreamException {
                 if (systemID.endsWith("dtd")) {
                     try {
                         return new FileInputStream(Settings.getProperty(Settings.MATHMLDTD));
@@ -63,7 +65,7 @@ public class Settings {
                 }
                 return null;
             }
-        });
+        });*/
         return inputFactory;
     }
     
@@ -76,10 +78,12 @@ public class Settings {
         builder.setEntityResolver(new EntityResolver() {
 
             @Override
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            public InputSource resolveEntity(String publicId, String systemId)
+                    throws SAXException, IOException {
                 if (systemId.endsWith("dtd")) {
                     try {
-                        return new InputSource(new FileInputStream(Settings.getProperty(Settings.MATHMLDTD)));
+                        return new InputSource(new FileInputStream(
+                                Settings.getProperty(Settings.MATHMLDTD)));
                     } catch (FileNotFoundException ex) {
                         System.err.println(ex);
                     }

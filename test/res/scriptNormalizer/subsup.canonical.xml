@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mathml>
+  <msup>
+    <msub>
+      <mi> x </mi>
+      <mn> 1 </mn>
+    </msub>
+    <mn> 2 </mn>
+  </msup>
+</mathml>

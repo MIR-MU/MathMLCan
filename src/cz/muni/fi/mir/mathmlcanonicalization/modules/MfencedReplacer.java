@@ -39,8 +39,11 @@ public class MfencedReplacer implements DOMModule {
     
     @Override
     public void execute(Document doc) {
+        if (doc == null) {
+            throw new IllegalArgumentException("document is null");
+        }
         List<Element> toReplace = getMfenced(doc.getRootElement());
-        for (int i = 0; i < toReplace.size(); i++ ) {
+        for (int i = 0; i < toReplace.size(); i++) {
             Element e = toReplace.get(i);
             replaceMfenced(e);
         }
