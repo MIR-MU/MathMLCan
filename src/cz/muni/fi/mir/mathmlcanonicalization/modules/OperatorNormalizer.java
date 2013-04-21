@@ -19,7 +19,7 @@ import org.jdom2.Element;
  * arguments placed in parentheses and &lt;mrow&gt; (or leave &lt;mrow&gt;
  * adding for the MrowNormalizer module?)</li></ul>
  *
- * @author David Formanek
+ * @author Jaroslav Dufek
  */
 public class OperatorNormalizer implements DOMModule {
 

@@ -22,7 +22,7 @@ import org.jdom2.Document;
  * <li>maybe conversion all (under/over)scripts to (sub/super) scripts?</li>
  * </ul>
  * 
- * @author David Formanek
+ * @author Jaroslav Dufek
  */
 public class ScriptNormalizer {
     /**
