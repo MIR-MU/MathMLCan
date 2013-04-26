@@ -3,11 +3,9 @@ package cz.muni.fi.mir.mathmlcanonicalization.modules;
 import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import javax.xml.stream.*;
 
 /**

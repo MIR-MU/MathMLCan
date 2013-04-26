@@ -31,8 +31,8 @@ import org.jdom2.output.XMLOutputter;
  */
 public final class MathMLCanonicalizer {
 
-    private List<StreamModule> streamModules;
-    private List<DOMModule> domModules;
+    private List<StreamModule> streamModules = new ArrayList<StreamModule>();
+    private List<DOMModule> domModules = new ArrayList<DOMModule>();
 
     /**
      * Initializes canonicalizer with default settings
@@ -40,6 +40,7 @@ public final class MathMLCanonicalizer {
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
+        // TODO: load from properties file
         MathMLCanonicalizer result = new MathMLCanonicalizer();
         result.addModule(new ElementMinimizer());
         result.addModule(new MrowNormalizer());
@@ -49,11 +50,18 @@ public final class MathMLCanonicalizer {
     }
     
     /**
-     * Initializes modular canonizer
+     * Initializes canonicalizer with no modules
      */
-    public MathMLCanonicalizer() {
-        streamModules = new ArrayList<StreamModule>();
-        domModules = new ArrayList<DOMModule>();
+    public MathMLCanonicalizer() {    
+    }
+    
+    /**
+     * Initializes canonicalizer with initialized modules using configuration
+     * 
+     * @param xmlConfigurationStream XML configuration
+     */
+    public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     /**

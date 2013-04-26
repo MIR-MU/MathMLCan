@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+  <mrow>
+  <mi>x</mi>
+  <mo>+</mo>
+  <mrow>
+    <mo>(</mo>
+    <mrow>
+      <mi>y</mi>
+      <mo>+</mo>
+      <mi>z</mi>
+    </mrow>
+    <mo>)</mo>
+    </mrow>
+  </mrow>
+  </mrow>
+</math>
