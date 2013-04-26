@@ -24,14 +24,20 @@ import org.jdom2.Document;
  * 
  * @author Jaroslav Dufek
  */
-public class ScriptNormalizer {
+public class ScriptNormalizer extends AbstractModule implements DOMModule {
+    
     /**
-     * Normalize the occurence of &lt;msub&gt;, &lt;msup&gt;, &lt;msubsup&gt;, 
-     * &lt;munder&gt;, &lt;mover&gt;, &lt;munderover&gt;, &lt;mmultiscripts&gt;.
-     * 
-     * @param doc DOM document to be canonicalized
+     * Path to the property file with module settings.
      */
-    public static void execute(Document doc) {
+    private static final String PROPERTIES_FILENAME = "/res/script-normalizer.properties";
+    
+    public ScriptNormalizer() {
+        loadDefaultProperties(PROPERTIES_FILENAME);
+        // TODO: put some properties to the file
+    }
+    
+    @Override
+    public void execute(Document doc) {
         // TODO: ScriptNormalizer implementation
     }
 }

@@ -21,9 +21,19 @@ import org.jdom2.Element;
  *
  * @author Jaroslav Dufek
  */
-public class OperatorNormalizer implements DOMModule {
-
+public class OperatorNormalizer extends AbstractModule implements DOMModule {
+    
+    /**
+     * Path to the property file with module settings.
+     */
+    private static final String PROPERTIES_FILENAME = "/res/operator-normalizer.properties";
+    
     final static Map<String, List<String>> replaceMap = new HashMap<String, List<String>>();
+    
+    public OperatorNormalizer() {
+        loadDefaultProperties(PROPERTIES_FILENAME);
+        // TODO: put some properties to the file
+    }
     
     @Override
     public void execute(Document doc) {
@@ -48,9 +58,11 @@ public class OperatorNormalizer implements DOMModule {
     static {
         BufferedReader br = null;
         try {
+            // TODO: rewrite this using getProperty()
             br = new BufferedReader(new InputStreamReader(
                     OperatorNormalizer.class.getResourceAsStream(
-                        "OperatorNormalizer.properties"), "UTF-8"));
+                        "operator-normalizer.properties"), "UTF-8"));
+            // TODO: improve parsing
             String line;
             while ((line = br.readLine()) != null) {
                 String representant = line.substring(0, line.indexOf("="));
@@ -65,93 +77,15 @@ public class OperatorNormalizer implements DOMModule {
                 replaceMap.put(representant, replaceesList);
             }
         } catch (Exception e) {
+            // TODO: better exception handling
             e.printStackTrace();
         }
         try {
+            // TODO: handle null pointer
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         
     }
-    // OperatorNormalizer is a DOM module for now
-    /*
-    public static ByteArrayOutputStream execute(final InputStream input) {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            // stream for reading event from input stream
-            XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
-            // stream that writes events to given output stream
-            final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
-            writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
-            // check for event
-            boolean mo = false;
-            while (reader.hasNext()) {
-                // get event code
-                final int event = reader.next();
-                // based on event code choose action
-                switch (event) {
-                    case XMLStreamConstants.START_ELEMENT: {
-                        String localName = reader.getLocalName();
-                        writer.writeStartElement(reader.getName().getPrefix(), localName, reader.getName().getNamespaceURI());
-                        for (int index = 0; index < reader.getAttributeCount(); ++index) {
-                            if (reader.getAttributeNamespace(index)!=null) {
-                                writer.writeAttribute(reader.getAttributePrefix(index), reader.getAttributeNamespace(index), reader.getAttributeLocalName(index), reader.getAttributeValue(index));
-                            } else {
-                                writer.writeAttribute(reader.getAttributeLocalName(index), reader.getAttributeValue(index));
-                            }
-                        }
-                        for (int index = 0; index < reader.getNamespaceCount(); ++index) {
-                            writer.writeNamespace(reader.getNamespacePrefix(index), reader.getNamespaceURI(index));
-                        }
-
-                        if (localName.equals("mo")) {
-                            mo = true;
-                        }
-                        break;
-                    }
-                    case XMLStreamConstants.END_ELEMENT: {
-                        writer.writeEndElement();
-                        break;
-                    }
-                    case XMLStreamConstants.CHARACTERS: {
-                        String text = reader.getText();
-                        if (mo) {
-                            for (Map.Entry<String, List<String>> map : replaceMap.entrySet())
-                            if (map.getValue().contains(text)) {
-                                text = map.getKey();
-                                break;
-                            }
-                        }
-                        writer.writeCharacters(text);
-                        break;
-                    }
-                    case XMLStreamConstants.ENTITY_REFERENCE: {
-                        break;
-                    }
-                    case XMLStreamConstants.END_DOCUMENT: {
-                        writer.writeEndDocument();
-                        break;
-                    }
-                    case XMLStreamConstants.COMMENT: {
-                        break;
-                    }
-                    case XMLStreamConstants.DTD: {
-                        writer.writeDTD(reader.getText());
-                    }
-                    default: {
-                        break;
-                    }
-                }
-            }
-            writer.flush();
-            writer.close();
-        } catch (final XMLStreamException ex) {
-            ex.printStackTrace();
-        }
-        return outputStream;
-    }
-    */
 }

@@ -35,6 +35,20 @@ public final class MathMLCanonicalizer {
     private List<DOMModule> domModules;
 
     /**
+     * Initializes canonicalizer with default settings
+     * 
+     * @return itialized canonicalizer
+     */
+    public static MathMLCanonicalizer getDefaultCanonicalizer() {
+        MathMLCanonicalizer result = new MathMLCanonicalizer();
+        result.addModule(new ElementMinimizer());
+        result.addModule(new MrowNormalizer());
+        result.addModule(new OperatorNormalizer());
+        result.addModule(new MfencedReplacer());
+        return result;
+    }
+    
+    /**
      * Initializes modular canonizer
      */
     public MathMLCanonicalizer() {
@@ -105,14 +119,5 @@ public final class MathMLCanonicalizer {
         // convertong the JDOM representation back to stream
         XMLOutputter serializer = new XMLOutputter();
         serializer.output(document, out);
-    }
-
-    public static MathMLCanonicalizer getDefaultCanonicalizer() {
-        MathMLCanonicalizer result = new MathMLCanonicalizer();
-        result.addModule(new ElementMinimizer());
-        result.addModule(new MrowNormalizer());
-        result.addModule(new OperatorNormalizer());
-        result.addModule(new MfencedReplacer());
-        return result;
     }
 }

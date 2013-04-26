@@ -30,7 +30,17 @@ import javax.xml.stream.*;
  * @author Maros Kucbel
  * @date 2012-10-08T21:34:49+0200
  */
-public class ElementMinimizer implements StreamModule {
+public class ElementMinimizer extends AbstractModule implements StreamModule {
+    
+    /**
+     * Path to the property file with module settings.
+     */
+    private static final String PROPERTIES_FILENAME = "/res/elements-minimizer.properties";
+    
+    public ElementMinimizer() {
+        loadDefaultProperties(PROPERTIES_FILENAME);
+        // TODO: put some properties to the file
+    }
     
     /**
      * Removes attributes using StAX instead of DOM.
@@ -42,16 +52,11 @@ public class ElementMinimizer implements StreamModule {
      */
     @Override
     public ByteArrayOutputStream execute(final InputStream input) {
-        Properties properties = new Properties();
-        try {
-            properties.load(ElementMinimizer.class.getResourceAsStream("ElementMinimizer.properties"));
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        String property = properties.getProperty("remove_all");
+        
+        String property = getProperty("remove_all");
         String[] removeAll = property.split(" ");
         List<String> removeWithChildren = Arrays.asList(removeAll);
-        property = properties.getProperty("remove");
+        property = getProperty("remove");
         String[] remove = property.split(" ");
         List<String> removeKeepChildren = Arrays.asList(remove);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -168,6 +173,7 @@ public class ElementMinimizer implements StreamModule {
                     }    
                     case XMLStreamConstants.DTD: {
                         writer.writeDTD(reader.getText());
+                        break;
                     }
                     default: {
                         break;

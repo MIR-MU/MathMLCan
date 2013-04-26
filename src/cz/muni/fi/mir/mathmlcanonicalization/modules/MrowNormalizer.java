@@ -34,9 +34,19 @@ import org.jdom2.Element;
  * 
  * @author David Formánek
  */
-public class MrowNormalizer implements DOMModule {
-
+public class MrowNormalizer extends AbstractModule implements DOMModule {
+    
+    /**
+     * Path to the property file with module settings.
+     */
+    private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
+    
     private static HashMap<String, Integer> childCount;
+    
+    public MrowNormalizer() {
+        loadDefaultProperties(PROPERTIES_FILENAME);
+        // TODO: put some properties to the file
+    }
     
     @Override
     public void execute(Document doc) {

@@ -35,7 +35,17 @@ import org.jdom2.Element;
  * 
  * @author David Formanek
  */
-public class MfencedReplacer implements DOMModule {
+public class MfencedReplacer extends AbstractModule implements DOMModule{
+    
+    /**
+     * Path to the property file with module settings.
+     */
+    private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
+    
+    public MfencedReplacer() {
+        loadDefaultProperties(PROPERTIES_FILENAME);
+        // TODO: put some properties to the file
+    }
     
     @Override
     public void execute(Document doc) {
@@ -50,7 +60,7 @@ public class MfencedReplacer implements DOMModule {
             
     }
     
-    private static List<Element> getMfenced(Element element) {
+    private List<Element> getMfenced(Element element) {
         List<Element> toReplace = new ArrayList<Element>();
         Iterator<Element> iterator = element.getChildren().iterator();
         while (iterator.hasNext()) {
@@ -64,7 +74,7 @@ public class MfencedReplacer implements DOMModule {
         return toReplace;
     }
     
-    private static void replaceMfenced(Element element) {
+    private void replaceMfenced(Element element) {
         String openStr = element.getAttributeValue("open", "(");
         String closeStr = element.getAttributeValue("close", ")");
         char[] separators = element.getAttributeValue("separators", ",").trim().toCharArray();
