@@ -63,7 +63,7 @@ public final class MathMLCanonicalization {
         try {
             System.out.println(f.getAbsolutePath());
             
-            MathMLCanonizer.getDefaultCanonizer().canonicalize(new FileInputStream(f), System.out);
+            MathMLCanonicalizer.getDefaultCanonicalizer().canonicalize(new FileInputStream(f), System.out);
             
         } catch (JDOMException ex) {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);

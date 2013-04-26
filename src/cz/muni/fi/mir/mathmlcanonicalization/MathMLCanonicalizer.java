@@ -29,7 +29,7 @@ import org.jdom2.output.XMLOutputter;
  *
  * @author David Formanek
  */
-public final class MathMLCanonizer {
+public final class MathMLCanonicalizer {
 
     private List<StreamModule> streamModules;
     private List<DOMModule> domModules;
@@ -37,7 +37,7 @@ public final class MathMLCanonizer {
     /**
      * Initializes modular canonizer
      */
-    public MathMLCanonizer() {
+    public MathMLCanonicalizer() {
         streamModules = new ArrayList<StreamModule>();
         domModules = new ArrayList<DOMModule>();
     }
@@ -51,7 +51,7 @@ public final class MathMLCanonizer {
      * @param module the module to be used in canonicalization
      * @return the canonizer object to allow adding more modules at once
      */
-    public MathMLCanonizer addModule(Module module) {
+    public MathMLCanonicalizer addModule(Module module) {
         if (module instanceof StreamModule) {
             streamModules.add((StreamModule) module);
         } else if (module instanceof DOMModule) {
@@ -107,8 +107,8 @@ public final class MathMLCanonizer {
         serializer.output(document, out);
     }
 
-    public static MathMLCanonizer getDefaultCanonizer() {
-        MathMLCanonizer result = new MathMLCanonizer();
+    public static MathMLCanonicalizer getDefaultCanonicalizer() {
+        MathMLCanonicalizer result = new MathMLCanonicalizer();
         result.addModule(new ElementMinimizer());
         result.addModule(new MrowNormalizer());
         result.addModule(new OperatorNormalizer());
