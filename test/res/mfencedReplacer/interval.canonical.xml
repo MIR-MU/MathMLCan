@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mathml>
+<math>
   <mrow>
     <mo> [ </mo>
     <mrow>
@@ -9,4 +9,4 @@
     </mrow>
     <mo> ) </mo>
   </mrow>
-</mathml>
+</math>

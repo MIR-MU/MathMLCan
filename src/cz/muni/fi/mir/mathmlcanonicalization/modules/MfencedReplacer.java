@@ -42,7 +42,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
 
     public MfencedReplacer() {
-        loadDefaultProperties(PROPERTIES_FILENAME);
+        loadProperties(PROPERTIES_FILENAME);
         // TODO: put some properties to the file
     }
 

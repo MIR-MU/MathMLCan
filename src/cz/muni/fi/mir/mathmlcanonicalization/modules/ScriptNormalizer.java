@@ -32,7 +32,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private static final String PROPERTIES_FILENAME = "/res/script-normalizer.properties";
     
     public ScriptNormalizer() {
-        loadDefaultProperties(PROPERTIES_FILENAME);
+        loadProperties(PROPERTIES_FILENAME);
         // TODO: put some properties to the file
     }
     

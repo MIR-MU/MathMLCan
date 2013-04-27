@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DOMModule implementation with property loading
+ * Module implementation with property loading
  * 
  * @author David Formanek
  */
@@ -26,7 +26,7 @@ abstract class AbstractModule implements Module {
         properties.setProperty(key, value);
     }
     
-    protected void loadDefaultProperties(String propertiesFilename) {
+    protected void loadProperties(String propertiesFilename) {
         try {
             InputStream resourceAsStream = this.getClass().getResourceAsStream(propertiesFilename);
             if (resourceAsStream == null) {

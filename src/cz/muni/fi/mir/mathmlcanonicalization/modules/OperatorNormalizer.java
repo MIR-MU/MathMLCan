@@ -31,7 +31,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     final static Map<String, List<String>> replaceMap = new HashMap<String, List<String>>();
     
     public OperatorNormalizer() {
-        loadDefaultProperties(PROPERTIES_FILENAME);
+        loadProperties(PROPERTIES_FILENAME);
         // TODO: put some properties to the file
     }
     

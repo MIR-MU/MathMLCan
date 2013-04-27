@@ -44,7 +44,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     private static HashMap<String, Integer> childCount;
     
     public MrowNormalizer() {
-        loadDefaultProperties(PROPERTIES_FILENAME);
+        loadProperties(PROPERTIES_FILENAME);
         // TODO: put some properties to the file
     }
     

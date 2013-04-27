@@ -1,6 +1,5 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import java.io.IOException;
 import org.junit.Test;
 
 /**
@@ -10,33 +9,30 @@ import org.junit.Test;
  */
 public class MfencedReplacerTest extends AbstractModuleTest {
 
+    private static final Module defaultInstance = new MfencedReplacer();
+    
     @Test
-    public void testSimpleInterval() throws IOException {
-        MfencedReplacer instance = new MfencedReplacer();
-        testXML(instance, "mfencedreplacer/interval");
+    public void testSimpleInterval() {
+        testXML(defaultInstance, "mfencedReplacer/interval");
     }
 
     @Test
-    public void testMoreSeparators() throws IOException {
-        MfencedReplacer instance = new MfencedReplacer();
-        testXML(instance, "mfencedreplacer/sequence-separators");
+    public void testMoreSeparators() {
+        testXML(defaultInstance, "mfencedReplacer/sequence-separators");
     }
     
     @Test
-    public void testBlankSeparators() throws IOException {
-        MfencedReplacer instance = new MfencedReplacer();
-        testXML(instance, "mfencedreplacer/blank-separators");
+    public void testBlankSeparators() {
+        testXML(defaultInstance, "mfencedReplacer/blank-separators");
     }
     
     @Test
-    public void testNoChildren() throws IOException {
-        MfencedReplacer instance = new MfencedReplacer();
-        testXML(instance, "mfencedreplacer/no-children");
+    public void testNoChildren() {
+        testXML(defaultInstance, "mfencedReplacer/no-children");
     }
     
     @Test
-    public void testNestedMfenced() throws IOException {
-        MfencedReplacer instance = new MfencedReplacer();
-        testXML(instance, "mfencedreplacer/nested");
+    public void testNestedMfenced() {
+        testXML(defaultInstance, "mfencedReplacer/nested");
     }
 }

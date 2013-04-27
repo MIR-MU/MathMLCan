@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mathml>
+<math>
+  <mrow>
   <mo> ( </mo>
     <mrow>
       <mi> x </mi>
@@ -7,4 +8,5 @@
       <mi> y </mi>
     </mrow>
   <mo> ) </mo>
-</mathml>
+  </mrow>
+</math>

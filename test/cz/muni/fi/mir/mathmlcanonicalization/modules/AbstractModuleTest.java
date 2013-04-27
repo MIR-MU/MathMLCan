@@ -28,7 +28,7 @@ abstract class AbstractModuleTest {
 
     private static final String PATH_TO_TESTFILES = "/res/";
 
-    protected void testXML(Module instance, String testFile) throws IOException {
+    protected void testXML(Module instance, String testFile) {
         final InputStreamReader processed = getProcessed(instance, testFile);
         final InputStreamReader canonical = getCanonical(testFile);
         XMLUnit.setIgnoreWhitespace(true);
@@ -36,7 +36,11 @@ abstract class AbstractModuleTest {
             new XMLTestCase() {
             }.assertXMLEqual(canonical, processed);
         } catch (SAXException ex) {
-            Logger.getLogger(MfencedReplacerTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(this.getClass().getName())
+                    .log(Level.SEVERE, "cannot compare XML streams", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass().getName())
+                    .log(Level.SEVERE, "problem with streams", ex);
         }
     }
 

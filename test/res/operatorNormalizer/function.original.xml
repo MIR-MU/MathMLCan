@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mathml>
+<math>
   <mi> f </mi>
   <mo> &#x2061;</mo>
   <mrow>
@@ -7,4 +7,4 @@
     <mi> x </mi>
     <mo> ) </mo>
   </mrow>
-</mathml>
+</math>

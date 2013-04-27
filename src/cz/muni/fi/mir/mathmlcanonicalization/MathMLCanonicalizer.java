@@ -19,6 +19,8 @@ import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -61,6 +63,7 @@ public final class MathMLCanonicalizer {
      * @param xmlConfigurationStream XML configuration
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
+        // TODO: XML loading implementation
         throw new UnsupportedOperationException("not implemented yet");
     }
 
@@ -75,11 +78,16 @@ public final class MathMLCanonicalizer {
      */
     public MathMLCanonicalizer addModule(Module module) {
         if (module instanceof StreamModule) {
+            if (module instanceof DOMModule) {
+                Logger.getLogger(Settings.class.getName()).log(
+                    Level.INFO, "Module is stream and DOM module at the same"
+                        + " time, it will be used as a stream module.");
+            }
             streamModules.add((StreamModule) module);
         } else if (module instanceof DOMModule) {
             domModules.add((DOMModule) module);
         } else {
-            throw new IllegalArgumentException("Module type not supported");
+            throw new UnsupportedOperationException("Module type not supported");
         }
         return this;
     }
