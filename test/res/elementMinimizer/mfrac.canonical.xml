@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mathml>
+<math>
   <mfrac>
     <mi> a </mi>
     <mi> b </mi>
   </mfrac>
-</mathml>
+</math>

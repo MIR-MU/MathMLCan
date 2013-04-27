@@ -8,7 +8,7 @@ import org.junit.Test;
  * 
  * @author David Formanek
  */
-public class MfencedReplacerTest extends AbstractDOMModuleTest {
+public class MfencedReplacerTest extends AbstractModuleTest {
 
     @Test
     public void testSimpleInterval() throws IOException {
