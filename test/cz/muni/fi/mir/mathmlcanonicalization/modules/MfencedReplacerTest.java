@@ -33,4 +33,10 @@ public class MfencedReplacerTest extends AbstractDOMModuleTest {
         MfencedReplacer instance = new MfencedReplacer();
         testXML(instance, "mfencedreplacer/no-children");
     }
+    
+    @Test
+    public void testNestedMfenced() throws IOException {
+        MfencedReplacer instance = new MfencedReplacer();
+        testXML(instance, "mfencedreplacer/nested");
+    }
 }
