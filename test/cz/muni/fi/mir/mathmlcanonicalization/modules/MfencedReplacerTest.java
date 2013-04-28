@@ -9,30 +9,34 @@ import org.junit.Test;
  */
 public class MfencedReplacerTest extends AbstractModuleTest {
 
-    private static final Module defaultInstance = new MfencedReplacer();
+    private static final Module DEFAULT_INSTANCE = new MfencedReplacer();
+
+    public MfencedReplacerTest() {
+        setPrintProcessed(false);
+    }
     
     @Test
     public void testSimpleInterval() {
-        testXML(defaultInstance, "mfencedReplacer/interval");
+        testXML(DEFAULT_INSTANCE, "mfencedReplacer/interval");
     }
 
     @Test
     public void testMoreSeparators() {
-        testXML(defaultInstance, "mfencedReplacer/sequence-separators");
+        testXML(DEFAULT_INSTANCE, "mfencedReplacer/sequence-separators");
     }
     
     @Test
     public void testBlankSeparators() {
-        testXML(defaultInstance, "mfencedReplacer/blank-separators");
+        testXML(DEFAULT_INSTANCE, "mfencedReplacer/blank-separators");
     }
     
     @Test
     public void testNoChildren() {
-        testXML(defaultInstance, "mfencedReplacer/no-children");
+        testXML(DEFAULT_INSTANCE, "mfencedReplacer/no-children");
     }
     
     @Test
     public void testNestedMfenced() {
-        testXML(defaultInstance, "mfencedReplacer/nested");
+        testXML(DEFAULT_INSTANCE, "mfencedReplacer/nested");
     }
 }

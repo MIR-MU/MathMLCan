@@ -9,25 +9,25 @@ import org.junit.Test;
  */
 public class MrowNormalizerTest extends AbstractModuleTest{
     
-    private static final Module defaultInstance = new MrowNormalizer();
+    private static final Module DEFAULT_INSTANCE = new MrowNormalizer();
     
     @Test
     public void testSquareRoot() {
-        testXML(defaultInstance, "mrowNormalizer/sqrt");
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/sqrt");
     }
     
     @Test
     public void testTuple() {
-        testXML(defaultInstance, "mrowNormalizer/tuple");
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/tuple");
     }
     
     @Test
     public void testParentheses1() {
-        testXML(defaultInstance, "mrowNormalizer/parentheses1");
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/parentheses1");
     }
     
     @Test
     public void testParentheses2() {
-        testXML(defaultInstance, "mrowNormalizer/parentheses2");
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/parentheses2");
     }
 }

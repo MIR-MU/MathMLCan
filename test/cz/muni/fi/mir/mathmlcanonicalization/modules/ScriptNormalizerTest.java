@@ -9,15 +9,15 @@ import org.junit.Test;
  */
 public class ScriptNormalizerTest extends AbstractModuleTest {
 
-    private static final Module defaultInstance = new ScriptNormalizer();
+    private static final Module DEFAULT_INSTANCE = new ScriptNormalizer();
     
     @Test
     public void testNestedSuperscript() {
-        testXML(defaultInstance, "scriptNormalizer/sub-sup");
+        testXML(DEFAULT_INSTANCE, "scriptNormalizer/sub-sup");
     }
 
     @Test
     public void testMoreSubsup() {
-        testXML(defaultInstance, "scriptNormalizer/subsup");
+        testXML(DEFAULT_INSTANCE, "scriptNormalizer/subsup");
     }
 }

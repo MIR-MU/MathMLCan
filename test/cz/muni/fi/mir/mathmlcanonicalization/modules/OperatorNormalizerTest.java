@@ -9,15 +9,15 @@ import org.junit.Test;
  */
 public class OperatorNormalizerTest extends AbstractModuleTest{
     
-    private static final Module defaultInstance = new MrowNormalizer();
+    private static final Module DEFAULT_INSTANCE = new MrowNormalizer();
     
     @Test
     public void testFunction() {
-        testXML(defaultInstance, "operatorNormalizer/function");
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function");
     }
     
     @Test
     public void testSine() {
-        testXML(defaultInstance, "operatorNormalizer/sin");
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/sin");
     }
 }

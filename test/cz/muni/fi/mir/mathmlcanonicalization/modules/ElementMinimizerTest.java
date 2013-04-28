@@ -9,15 +9,15 @@ import org.junit.Test;
  */
 public class ElementMinimizerTest extends AbstractModuleTest {
 
-    private static final Module defaultInstance = new ElementMinimizer();
+    private static final Module DEFAULT_INSTANCE = new ElementMinimizer();
     
     @Test
     public void testPhantom() {
-        testXML(defaultInstance, "elementMinimizer/mphantom");
+        testXML(DEFAULT_INSTANCE, "elementMinimizer/mphantom");
     }
     
     @Test
     public void testFraction() {
-        testXML(defaultInstance, "elementMinimizer/mfrac");
+        testXML(DEFAULT_INSTANCE, "elementMinimizer/mfrac");
     }
 }

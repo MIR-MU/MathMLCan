@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Abstract class to allow descendants to simple compare desired and produced
- * xml
+ * XML documents by calling testXML method (tests idempotence by default)
  *
  * @author David Formanek
  */
@@ -27,67 +27,89 @@ import org.xml.sax.SAXException;
 abstract class AbstractModuleTest {
 
     private static final String PATH_TO_TESTFILES = "/res/";
+    private static final Logger LOGGER = Logger.getLogger(
+            AbstractModuleTest.class.getName());
+    private boolean shouldPrintProcessed = true;
+
+    protected void setPrintProcessed(boolean shouldPrintProcessed) {
+        this.shouldPrintProcessed = shouldPrintProcessed;
+    }
 
     protected void testXML(Module instance, String testFile) {
-        final InputStreamReader processed = getProcessed(instance, testFile);
-        final InputStreamReader canonical = getCanonical(testFile);
+        testXML(instance, testFile, true);
+    }
+
+    protected void testXML(Module instance, String testFile, boolean testIdempotence) {
+        final InputStream processed = getProcessed(instance, testFile, shouldPrintProcessed);
+        final InputStream canonical = getCanonical(testFile);
         XMLUnit.setIgnoreWhitespace(true);
         try {
             new XMLTestCase() {
-            }.assertXMLEqual(canonical, processed);
+            }.assertXMLEqual(getReader(canonical), getReader(processed));
         } catch (SAXException ex) {
-            Logger.getLogger(this.getClass().getName())
-                    .log(Level.SEVERE, "cannot compare XML streams", ex);
+            LOGGER.log(Level.SEVERE, "cannot compare XML streams", ex);
         } catch (IOException ex) {
-            Logger.getLogger(this.getClass().getName())
-                    .log(Level.SEVERE, "problem with streams", ex);
+            LOGGER.log(Level.SEVERE, "problem with streams", ex);
+        }
+        if (testIdempotence) {
+            testIdempotence(instance, testFile);
         }
     }
 
-    protected InputStreamReader getProcessed(Module instance, String testFile) {
-        InputStream resource = this.getClass().
-                getResourceAsStream(PATH_TO_TESTFILES + testFile + ".original.xml");
-        return getProcessed(instance, resource);
-    }
-
-    protected InputStreamReader getCanonical(String testFile) {
-        InputStream resource = this.getClass().
-                getResourceAsStream(PATH_TO_TESTFILES + testFile + ".canonical.xml");
-        return new InputStreamReader(resource);
-    }
-
-    private InputStreamReader getProcessed(Module instance, InputStream in) {
-        if (instance instanceof StreamModule) {
-            return getProcessed((StreamModule) instance, in);
-        } else if (instance instanceof DOMModule) {
-            return getProcessed((DOMModule) instance, in);
-        } else {
-            throw new UnsupportedOperationException("Module type not supported");
+    protected void testIdempotence(Module instance, String testFile) {
+        final InputStream processed = getProcessed(instance, testFile, false);
+        final InputStream processedTwice = getProcessed(
+                instance, getProcessed(instance, testFile, false), false);
+        try {
+            new XMLTestCase() {
+            }.assertXMLEqual(getReader(processed), getReader(processedTwice));
+        } catch (SAXException ex) {
+            LOGGER.log(Level.SEVERE, "cannot compare XML streams", ex);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "problem with streams", ex);
         }
     }
-    
+
+    private InputStream getProcessed(Module instance, String testFile, boolean shouldPrint) {
+        InputStream resourceStream = this.getClass().getResourceAsStream(
+                PATH_TO_TESTFILES + testFile + ".original.xml");
+        return getProcessed(instance, resourceStream, shouldPrint);
+    }
+
     /**
      * Get input processed by specified module.
      *
      * @param instance a configured instance of the tested module
      * @param in input stream with original XML document
-     * @return stream reader for processed input
+     * @return input stream with processed input
      */
-    private InputStreamReader getProcessed(DOMModule instance, InputStream in) {
+    private InputStream getProcessed(Module instance, InputStream in, boolean shouldPrint) {
+        if (instance instanceof StreamModule) {
+            return getProcessed((StreamModule) instance, in, shouldPrint);
+        } else if (instance instanceof DOMModule) {
+            return getProcessed((DOMModule) instance, in, shouldPrint);
+        } else {
+            throw new UnsupportedOperationException("Module type not supported");
+        }
+    }
+
+    private InputStream getProcessed(StreamModule instance, InputStream in, boolean shouldPrint) {
+        ByteArrayOutputStream output = instance.execute(in);
+        if (shouldPrint) {
+            printDocument(output, "Output of " + instance);
+        }
+        return getInputStream(output);
+    }
+
+    private InputStream getProcessed(DOMModule instance, InputStream in, boolean shouldPrint) {
         SAXBuilder builder = Settings.setupSAXBuilder();
         Document doc;
+        XMLOutputter serializer = new XMLOutputter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             doc = builder.build(in);
             instance.execute(doc);
-
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            XMLOutputter serializer = new XMLOutputter();
             serializer.output(doc, output);
-
-            printDocument(output, "Output of " + instance);
-
-            return new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
-
         } catch (JDOMException ex) {
             Logger.getLogger(this.getClass().getName()).log(
                     Level.SEVERE, "cannot build document", ex);
@@ -95,15 +117,25 @@ abstract class AbstractModuleTest {
             Logger.getLogger(this.getClass().getName()).log(
                     Level.SEVERE, "cannot convert between stream and DOM", ex);
         }
-        return null;
+        if (shouldPrint) {
+            printDocument(output, "Output of " + instance);
+        }
+        return getInputStream(output);
     }
 
-    private InputStreamReader getProcessed(StreamModule instance, InputStream in) {
-        ByteArrayOutputStream output = instance.execute(in);
-        printDocument(output, "Output of " + instance);
-        return new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
+    private InputStream getCanonical(String testFile) {
+        return this.getClass().getResourceAsStream(
+                PATH_TO_TESTFILES + testFile + ".canonical.xml");
     }
 
+    private InputStreamReader getReader(InputStream inputStream) {
+        return new InputStreamReader(inputStream);
+    }
+
+    private InputStream getInputStream(ByteArrayOutputStream output) {
+        return new ByteArrayInputStream(output.toByteArray());
+    }
+    
     private void printDocument(ByteArrayOutputStream output, String header) {
         System.out.println(header);
         System.out.println("--------------------");
