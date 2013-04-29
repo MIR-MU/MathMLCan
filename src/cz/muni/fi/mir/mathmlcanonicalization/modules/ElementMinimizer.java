@@ -49,8 +49,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
      * using {@link ByteArrayInputStream#ByteArrayInputStream(byte[])}.
      */
     @Override
-    public ByteArrayOutputStream execute(final InputStream input) {
-        
+    public ByteArrayOutputStream execute(final InputStream input) {        
         String property = getProperty("remove_all");
         String[] removeAll = property.split(" ");
         List<String> removeWithChildren = Arrays.asList(removeAll);
@@ -164,11 +163,6 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                         writer.writeEndDocument();
                         break;
                     }
-                    case XMLStreamConstants.COMMENT: {
-                        // comment in input file is ignored, no comment event is received...
-                        writer.writeComment(reader.getText());
-                        break;
-                    }    
                     case XMLStreamConstants.DTD: {
                         writer.writeDTD(reader.getText());
                         break;
