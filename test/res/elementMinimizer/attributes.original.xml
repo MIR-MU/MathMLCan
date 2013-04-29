@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+  <mfrac linethickness="1">
+    <mi dummy="foo"> a </mi>
+    <mi> b </mi>
+  </mfrac>
+  <mo mathvariant="bold"> = </mo>
+  <mfrac linethickness="0">
+    <mi> a </mi>
+    <mi> b </mi>
+  </mfrac>  
+</math>

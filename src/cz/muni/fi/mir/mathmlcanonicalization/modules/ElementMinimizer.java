@@ -41,6 +41,32 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
     }
     
     /**
+     * Decides which attributes to keep based on keepAttributes properties.
+     * 
+     */
+    private boolean keepAttribute(final String name, final String attributeName, final String attributeValue) {
+        String property = getProperty("keepAttributes");
+        String elementSpecific = getProperty("keepAttributes." + name);
+        if (elementSpecific != null) {
+            property += " " + elementSpecific;
+        }
+        
+        String[] keep = property.split(" ");
+        List<String> whitelist = Arrays.asList(keep);
+        
+        for (String attribute : whitelist) {
+            if (attributeName.equals(attribute) ||
+                    attribute.contains("=") &&
+                        attributeName.equals(attribute.substring(0, attribute.lastIndexOf("="))) &&
+                        attributeValue.equals(attribute.substring(attribute.lastIndexOf("=") + 1))) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Removes attributes using StAX instead of DOM.
      * So far I haven't been able to receive all types of events (i.e. comment, start document 
      * are never received). Maybe it can be configured somehow, but I haven't figured it out yet.
@@ -53,9 +79,11 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         String property = getProperty("remove_all");
         String[] removeAll = property.split(" ");
         List<String> removeWithChildren = Arrays.asList(removeAll);
+        
         property = getProperty("remove");
         String[] remove = property.split(" ");
         List<String> removeKeepChildren = Arrays.asList(remove);
+
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             final XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
@@ -101,9 +129,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                             final String attributePrefix = reader.getAttributePrefix(index);
                             final String attributeNamespace = reader.getAttributeNamespace(index);
                             // write only chosen attributes
-                            if (!math || (math && ("mathvariant".equals(attributeName)
-                                    || ("linethickness".equals(attributeName) && "0".equals(attributeValue))
-                                    || ("annotation-xml".equals(name) && "encoding".equals(attributeName))))) {
+                            if (!math || (math && keepAttribute(name, attributeName, attributeValue))) {
                                 if (attributeNamespace==null) {
                                     writer.writeAttribute(attributeName, attributeValue);
                                 } else {
@@ -144,21 +170,6 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                         writer.writeCharacters(reader.getText());
                         break;
                     }   
-                    case XMLStreamConstants.ATTRIBUTE: {
-                        String name = reader.getLocalName();
-                        // I never got this event...
-                        for (int index = 0; index < reader.getAttributeCount(); ++index) {
-                            final String attributeName = reader.getAttributeLocalName(index);
-                            final String attributeValue = reader.getAttributeValue(index);
-                            // write only chosen attributes
-                            if (!math || (math && ("mathvariant".equals(attributeName)
-                                    || ("linethickness".equals(attributeName) && "0".equals(attributeValue))
-                                    || ("annotation-xml".equals(name) && "encoding".equals(attributeName))))) {
-                                writer.writeAttribute(attributeName, attributeValue);
-                            }
-                        }
-                        break;
-                    }
                     case XMLStreamConstants.END_DOCUMENT: {
                         writer.writeEndDocument();
                         break;
