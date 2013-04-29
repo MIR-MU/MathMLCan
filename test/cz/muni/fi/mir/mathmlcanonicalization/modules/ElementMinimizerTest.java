@@ -20,4 +20,14 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     public void testFraction() {
         testXML(DEFAULT_INSTANCE, "elementMinimizer/mfrac");
     }
+    
+    @Test
+    public void testComments() {
+        testXML(DEFAULT_INSTANCE, "elementMinimizer/comments");
+    }
+    
+    @Test
+    public void testAttributes() {
+        testXML(DEFAULT_INSTANCE, "elementMinimizer/attributes");
+    }
 }
