@@ -37,7 +37,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
     
     public ElementMinimizer() {
         loadProperties(PROPERTIES_FILENAME);
-        // TODO: put some properties to the file
+        loadConfiguration();
     }
     
     /**
