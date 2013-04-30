@@ -58,17 +58,29 @@ public final class MathMLCanonicalizer {
     /**
      * Initializes canonicalizer with no modules
      */
-    public MathMLCanonicalizer() {    
+    public MathMLCanonicalizer() {
     }
     
     /**
-     * Initializes canonicalizer with initialized modules using configuration
+     * Initializes canonicalizer with default modules unless
+     * changed using configuration file.
      * 
      * @param xmlConfigurationStream XML configuration
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
-        // TODO: XML loading implementation
-        throw new UnsupportedOperationException("not implemented yet");
+        if (xmlConfigurationStream != null) {
+            Settings.loadConfiguration(xmlConfigurationStream);
+        }
+        
+        String property = Settings.getProperty("modules");
+        if (property != null) {
+            String[] modules = property.split(" ");
+            List<String> listOfModules = Arrays.asList(modules);
+        
+            for (String moduleName : listOfModules) {
+                addModule(moduleName);
+            }
+        }
     }
 
     /**
