@@ -18,6 +18,7 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,29 +43,44 @@ public final class MathMLCanonicalizer {
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
-        // TODO: load from properties file
+        String property = Settings.getProperty("modules");
+        String[] modules = property.split(" ");
+        List<String> listOfModules = Arrays.asList(modules);
+        
         MathMLCanonicalizer result = new MathMLCanonicalizer();
-        result.addModule(new ElementMinimizer());
-        result.addModule(new MrowNormalizer());
-        result.addModule(new OperatorNormalizer());
-        result.addModule(new MfencedReplacer());
+        for (String moduleName : listOfModules) {
+            result.addModule(moduleName);
+        }
+        
         return result;
     }
     
     /**
      * Initializes canonicalizer with no modules
      */
-    public MathMLCanonicalizer() {    
+    public MathMLCanonicalizer() {
     }
     
     /**
-     * Initializes canonicalizer with initialized modules using configuration
+     * Initializes canonicalizer with default modules unless
+     * changed using configuration file.
      * 
      * @param xmlConfigurationStream XML configuration
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
-        // TODO: XML loading implementation
-        throw new UnsupportedOperationException("not implemented yet");
+        if (xmlConfigurationStream != null) {
+            Settings.loadConfiguration(xmlConfigurationStream);
+        }
+        
+        String property = Settings.getProperty("modules");
+        if (property != null) {
+            String[] modules = property.split(" ");
+            List<String> listOfModules = Arrays.asList(modules);
+        
+            for (String moduleName : listOfModules) {
+                addModule(moduleName);
+            }
+        }
     }
 
     /**
@@ -90,6 +106,32 @@ public final class MathMLCanonicalizer {
             throw new UnsupportedOperationException("Module type not supported");
         }
         return this;
+    }
+    
+    /**
+     * Adds the module by its class name.
+     * Useful for setting modules from config files.
+     * 
+     * When the module can't be found or instantiated 
+     * the module is skipped and the warning is produced.
+     */
+    public MathMLCanonicalizer addModule(String moduleName) {
+        try {
+            String fullyQualified = this.getClass().getPackage().getName() + ".modules." + moduleName;
+            Class<?> moduleClass = Class.forName(fullyQualified);
+            
+            return addModule((Module) moduleClass.newInstance());
+        } catch (ClassNotFoundException e) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+                Level.WARNING, "cannot load module " + moduleName, e);
+        } catch (InstantiationException e) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+                Level.WARNING, "cannot instantiate module " + moduleName, e);
+        } catch (IllegalAccessException e) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+                Level.WARNING, "cannot access module " + moduleName, e);
+        }
+        return null;
     }
 
     /**

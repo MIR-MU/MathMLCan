@@ -31,27 +31,30 @@ import org.jdom2.JDOMException;
  * @author David Formanek
  */
 public final class MathMLCanonicalization {
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
         String inputFilePath = null;
-        if (args.length != 1) {
+        
+        File config = null;
+        if (args.length < 1) {
             System.err.println("Usage:\n\tjava -jar "
                     + new File(cz.muni.fi.mir.mathmlcanonicalization.
                         MathMLCanonicalization.class.getProtectionDomain().
                         getCodeSource().getLocation().getFile()).getName()
-                    + " \"/path/to/input.xhtml\"");
+                    + " \"/path/to/input.xhtml\" [\"/path/to/config.xml\"]");
             System.exit(1);
         } else {
+            if (args.length == 2) {
+                config = new File(args[1]);
+            }
             inputFilePath = args[0];
         }
         try {
             List<File> files = getFiles(new File(inputFilePath));
             for (File f : files) {
-                canonicalize(f);
+                canonicalize(f, config);
             }
         } catch (IOException ex) {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
@@ -59,11 +62,19 @@ public final class MathMLCanonicalization {
 
     }
     
-    private static void canonicalize(File f) {
+    private static void canonicalize(File f, File config) {
         try {
             System.out.println(f.getAbsolutePath());
             
-            MathMLCanonicalizer.getDefaultCanonicalizer().canonicalize(new FileInputStream(f), System.out);
+            FileInputStream configInputStream = null;
+            if (config != null) {
+                configInputStream = new FileInputStream(config);
+            }
+            
+            MathMLCanonicalizer mlcan = new MathMLCanonicalizer(configInputStream);
+            mlcan.canonicalize(new FileInputStream(f), System.out);
+            
+            //MathMLCanonicalizer.getDefaultCanonicalizer().canonicalize(new FileInputStream(f), System.out);
             
         } catch (JDOMException ex) {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
