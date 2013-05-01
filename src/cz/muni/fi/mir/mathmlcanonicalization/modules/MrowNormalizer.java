@@ -58,7 +58,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         /* initialize childCount according to http://www.w3.org/TR/MathML3/chapter3.html#id.3.1.3.2
            value 1 indicates an inferred mrow as described in the document above */
         childCount = new HashMap<String, Integer>();
-        //childCount.put("mrow", 0);
+        //childCount.put("mrow", 0); //
         //childCount.put("mfrac", 2);
         childCount.put("msqrt", 1);
         //childCount.put("mroot", 2);
@@ -66,7 +66,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         childCount.put("merror", 1);
         childCount.put("mpadded", 1);
         childCount.put("mphantom", 1);
-        //childCount.put("mfenced", 0);
+        //childCount.put("mfenced", 0); //
         childCount.put("menclose", 1);
         //childCount.put("msub", 2);
         //childCount.put("msup", 2);
@@ -74,18 +74,18 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         //childCount.put("munder", 2);
         //childCount.put("mover", 2);
         //childCount.put("munderover", 3);
-        //childCount.put("mmultiscripts", 1);
+        //childCount.put("mmultiscripts", 1); //
         //childCount.put("mtable", 0);
-        //childCount.put("mlabeledtr", 1);
-        //childCount.put("mtr", 0);
+        //childCount.put("mlabeledtr", 1); //
+        //childCount.put("mtr", 0); //
         childCount.put("mtd", 1);
-        //childCount.put("mstack", 0);
-        //childCount.put("longdiv", 3);
-        //childCount.put("gsgroup", 0);
-        //childCount.put("msrow", 0);
-        //childCount.put("mscarries", 0);
+        //childCount.put("mstack", 0); //
+        //childCount.put("longdiv", 3); //
+        //childCount.put("gsgroup", 0); //
+        //childCount.put("msrow", 0); //
+        //childCount.put("mscarries", 0); //
         childCount.put("mscarry", 1);
-        //childCount.put("maction", 1);
+        //childCount.put("maction", 1); //
         //childCount.put("math", 1);
 
         parentheses = new HashMap<String, String>();
@@ -129,19 +129,29 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         
         parentElement = (Element) parent;
         
-        // unknown parent element
-        if (!childCount.containsKey(parentElement.getName()))
-            return;
-
         List<Element> children = element.getChildren();
+        List<Element> siblings = parentElement.getChildren();
+
+        if (children.size() == 1) {
+            removeElement(element, parentElement);
+            return;
+        }
+
+        // unknown parent element
+        if (!childCount.containsKey(parentElement.getName())) {
+            return;
+        }
         
         if ( childCount.get(parentElement.getName()) == 1 || // parent can accept any number of elements so we can remove mrow
-                children.size() + parentElement.getChildren().size() - 1 == childCount.get(parentElement.getName()) ||
-                children.size() == 1 ) {
-            // remove mrow
-            parentElement.addContent(parentElement.indexOf(element), element.cloneContent());
-            element.detach();
+                //children.size() + parentElement.getChildren().size() - 1 == childCount.get(parentElement.getName()) ||
+                siblings.indexOf(element) >= childCount.get(parentElement.getName()) ) {
+            removeElement(element, parentElement);
         }
+    }
+
+    private static void removeElement(Element element, Element parent) {
+        parent.addContent(parent.indexOf(element), element.cloneContent());
+        element.detach();
     }
     
     /**
