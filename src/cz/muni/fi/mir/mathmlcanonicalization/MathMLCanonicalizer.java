@@ -162,7 +162,7 @@ public final class MathMLCanonicalizer {
                         break;
                     }
                     
-                    if (name.equals("module")) {
+                    if (config && name.equals("module")) {
                         if (reader.getAttributeCount() == 1) {
                             final String attributeName = reader.getAttributeLocalName(0);
                             final String attributeValue = reader.getAttributeValue(0);
@@ -201,10 +201,14 @@ public final class MathMLCanonicalizer {
                     break;
                 }
                 case XMLStreamConstants.END_ELEMENT : {
-                    if (reader.getLocalName().equals("module")) {
+                    if (config && reader.getLocalName().equals("module")) {
                         addModule(module);
                         
                         module = null;
+                    }
+                    
+                    if (config && reader.getLocalName().equals("config")) {
+                        config = false;
                     }
                 }
             }
