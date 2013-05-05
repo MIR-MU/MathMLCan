@@ -22,6 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -69,16 +73,21 @@ public final class MathMLCanonicalizer {
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
         if (xmlConfigurationStream != null) {
-            Settings.loadConfiguration(xmlConfigurationStream);
-        }
+            try {
+                loadXMLConfiguration(xmlConfigurationStream);
+            } catch (XMLStreamException ex) {
+                Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+                    Level.WARNING, "cannot load configuration. ", ex);
+            }
+        } else {
+            String property = Settings.getProperty("modules");
+            if (property != null) {
+                String[] modules = property.split(" ");
+                List<String> listOfModules = Arrays.asList(modules);
         
-        String property = Settings.getProperty("modules");
-        if (property != null) {
-            String[] modules = property.split(" ");
-            List<String> listOfModules = Arrays.asList(modules);
-        
-            for (String moduleName : listOfModules) {
-                addModule(moduleName);
+                for (String moduleName : listOfModules) {
+                    addModule(moduleName);
+                }
             }
         }
     }
@@ -132,6 +141,74 @@ public final class MathMLCanonicalizer {
                 Level.WARNING, "cannot access module " + moduleName, e);
         }
         return null;
+    }
+    
+    /**
+     * Loads configuration from XML file, overriding the properties.
+     */
+    private void loadXMLConfiguration(InputStream xmlConfigurationStream) throws XMLStreamException {
+        final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
+
+        boolean config = false;
+        Module module = null;
+        while (reader.hasNext()) {
+            final int event = reader.next();
+            switch (event) {
+                case XMLStreamConstants.START_ELEMENT: {
+                    String name = reader.getLocalName();
+                    if (name.equals("config")) {
+                        config = true;
+                        break;
+                    }
+                    
+                    if (name.equals("module")) {
+                        if (reader.getAttributeCount() == 1) {
+                            final String attributeName = reader.getAttributeLocalName(0);
+                            final String attributeValue = reader.getAttributeValue(0);
+                            
+                            if (attributeName.equals("name") && attributeValue != null) {
+                                String fullyQualified = Settings.class.getPackage().getName() + ".modules." + attributeValue;
+                                try {
+                                    Class<?> moduleClass = Class.forName(fullyQualified);
+                                    module = (Module) moduleClass.newInstance();
+                                } catch (InstantiationException ex) {
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IllegalAccessException ex) {
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (ClassNotFoundException ex) {
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (config && name.equals("property")) {
+                        if (reader.getAttributeCount() == 1) {
+                            final String attributeName = reader.getAttributeLocalName(0);
+                            final String attributeValue = reader.getAttributeValue(0);
+                            
+                            if (attributeName.equals("name") && attributeValue != null) {
+                                if (module == null) {
+                                    Settings.setProperty(attributeValue, reader.getElementText());
+                                } else {
+                                    module.setProperty(attributeValue, reader.getElementText());
+                                }
+                            }
+                        }
+                    }
+                    
+                    break;
+                }
+                case XMLStreamConstants.END_ELEMENT : {
+                    if (reader.getLocalName().equals("module")) {
+                        addModule(module);
+                        
+                        module = null;
+                    }
+                }
+            }
+        }
     }
 
     /**
