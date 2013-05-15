@@ -42,6 +42,11 @@ public class MrowNormalizerTest extends AbstractModuleTest{
     }
     
     @Test
+    public void testParentheses5() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/parentheses5");
+    }
+    
+    @Test
     public void testInterval() {
         testXML(DEFAULT_INSTANCE, "mrowNormalizer/interval");
     }
