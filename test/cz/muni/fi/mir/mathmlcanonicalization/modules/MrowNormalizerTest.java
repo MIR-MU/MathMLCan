@@ -42,6 +42,11 @@ public class MrowNormalizerTest extends AbstractModuleTest{
     }
     
     @Test
+    public void testParentheses5() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/parentheses5");
+    }
+    
+    @Test
     public void testInterval() {
         testXML(DEFAULT_INSTANCE, "mrowNormalizer/interval");
     }
@@ -49,5 +54,25 @@ public class MrowNormalizerTest extends AbstractModuleTest{
     @Test
     public void testFrac() {
         testXML(DEFAULT_INSTANCE, "mrowNormalizer/frac");
+    }
+    
+    @Test
+    public void testMixed1() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/mixed1");
+    }
+    
+    @Test
+    public void testMixed2() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/mixed2");
+    }
+    
+    @Test
+    public void testMixed3() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/mixed3");
+    }
+    
+    @Test
+    public void testMixed4() {
+        testXML(DEFAULT_INSTANCE, "mrowNormalizer/mixed4");
     }
 }

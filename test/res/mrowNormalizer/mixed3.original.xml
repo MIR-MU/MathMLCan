@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+    <msup>
+        <mrow>
+            <mn>2</mn>
+        </mrow>
+        <mrow>
+            <mrow>
+                <mi>a</mi>
+            </mrow>
+            <mo>+</mo>
+            <mi>b</mi>
+        </mrow>
+    </msup>
+</math>
