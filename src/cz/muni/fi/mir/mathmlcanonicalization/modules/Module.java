@@ -1,5 +1,7 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.util.Set;
+
 /**
  * Every canonicalization module
  * 
@@ -21,4 +23,11 @@ public interface Module {
      * @param value property value
      */
     public void setProperty(String key, String value);
+    
+    /**
+     * Gets the module property names
+     * 
+     * @return the module property names of type String
+     */
+    public Set<String> getPropertyNames();
 }

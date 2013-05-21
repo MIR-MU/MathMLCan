@@ -137,6 +137,7 @@ public final class MathMLCanonicalizer {
      * Loads configuration from XML file, overriding the properties.
      */
     private void loadXMLConfiguration(InputStream xmlConfigurationStream) throws XMLStreamException {
+        // TODO: add control of the right format, do not allow adding new property keys (use getPropertyNames() to check)
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
 
