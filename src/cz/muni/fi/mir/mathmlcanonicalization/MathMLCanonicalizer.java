@@ -43,52 +43,42 @@ public final class MathMLCanonicalizer {
 
     /**
      * Initializes canonicalizer with default settings
-     * 
+     *
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
         String property = Settings.getProperty("modules");
         String[] modules = property.split(" ");
         List<String> listOfModules = Arrays.asList(modules);
-        
+
         MathMLCanonicalizer result = new MathMLCanonicalizer();
         for (String moduleName : listOfModules) {
             result.addModule(moduleName);
         }
-        
+
         return result;
     }
-    
+
     /**
      * Initializes canonicalizer with no modules
      */
     public MathMLCanonicalizer() {
     }
-    
+
     /**
-     * Initializes canonicalizer with default modules unless
-     * changed using configuration file.
-     * 
+     * Initializes canonicalizer using configuration file.
+     *
      * @param xmlConfigurationStream XML configuration
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
-        if (xmlConfigurationStream != null) {
-            try {
-                loadXMLConfiguration(xmlConfigurationStream);
-            } catch (XMLStreamException ex) {
-                Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+        if (xmlConfigurationStream == null) {
+            throw new IllegalArgumentException("xmlConfigurationStream is null");
+        }
+        try {
+            loadXMLConfiguration(xmlConfigurationStream);
+        } catch (XMLStreamException ex) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
                     Level.WARNING, "cannot load configuration. ", ex);
-            }
-        } else {
-            String property = Settings.getProperty("modules");
-            if (property != null) {
-                String[] modules = property.split(" ");
-                List<String> listOfModules = Arrays.asList(modules);
-        
-                for (String moduleName : listOfModules) {
-                    addModule(moduleName);
-                }
-            }
         }
     }
 
@@ -105,7 +95,7 @@ public final class MathMLCanonicalizer {
         if (module instanceof StreamModule) {
             if (module instanceof DOMModule) {
                 Logger.getLogger(Settings.class.getName()).log(
-                    Level.INFO, "Module is stream and DOM module at the same"
+                        Level.INFO, "Module is stream and DOM module at the same"
                         + " time, it will be used as a stream module.");
             }
             streamModules.add((StreamModule) module);
@@ -116,33 +106,33 @@ public final class MathMLCanonicalizer {
         }
         return this;
     }
-    
+
     /**
-     * Adds the module by its class name.
-     * Useful for setting modules from config files.
-     * 
-     * When the module can't be found or instantiated 
-     * the module is skipped and the warning is produced.
+     * Adds the module by its class name. Useful for setting modules from config
+     * files.
+     *
+     * When the module can't be found or instantiated the module is skipped and
+     * the warning is produced.
      */
     public MathMLCanonicalizer addModule(String moduleName) {
         try {
             String fullyQualified = this.getClass().getPackage().getName() + ".modules." + moduleName;
             Class<?> moduleClass = Class.forName(fullyQualified);
-            
+
             return addModule((Module) moduleClass.newInstance());
         } catch (ClassNotFoundException e) {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                Level.WARNING, "cannot load module " + moduleName, e);
+                    Level.WARNING, "cannot load module " + moduleName, e);
         } catch (InstantiationException e) {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                Level.WARNING, "cannot instantiate module " + moduleName, e);
+                    Level.WARNING, "cannot instantiate module " + moduleName, e);
         } catch (IllegalAccessException e) {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                Level.WARNING, "cannot access module " + moduleName, e);
+                    Level.WARNING, "cannot access module " + moduleName, e);
         }
         return null;
     }
-    
+
     /**
      * Loads configuration from XML file, overriding the properties.
      */
@@ -161,12 +151,12 @@ public final class MathMLCanonicalizer {
                         config = true;
                         break;
                     }
-                    
+
                     if (config && name.equals("module")) {
                         if (reader.getAttributeCount() == 1) {
                             final String attributeName = reader.getAttributeLocalName(0);
                             final String attributeValue = reader.getAttributeValue(0);
-                            
+
                             if (attributeName.equals("name") && attributeValue != null) {
                                 String fullyQualified = Settings.class.getPackage().getName() + ".modules." + attributeValue;
                                 try {
@@ -182,12 +172,12 @@ public final class MathMLCanonicalizer {
                             }
                         }
                     }
-                    
+
                     if (config && name.equals("property")) {
                         if (reader.getAttributeCount() == 1) {
                             final String attributeName = reader.getAttributeLocalName(0);
                             final String attributeValue = reader.getAttributeValue(0);
-                            
+
                             if (attributeName.equals("name") && attributeValue != null) {
                                 if (module == null) {
                                     Settings.setProperty(attributeValue, reader.getElementText());
@@ -197,16 +187,16 @@ public final class MathMLCanonicalizer {
                             }
                         }
                     }
-                    
+
                     break;
                 }
-                case XMLStreamConstants.END_ELEMENT : {
+                case XMLStreamConstants.END_ELEMENT: {
                     if (config && reader.getLocalName().equals("module")) {
                         addModule(module);
-                        
+
                         module = null;
                     }
-                    
+
                     if (config && reader.getLocalName().equals("config")) {
                         config = false;
                     }
