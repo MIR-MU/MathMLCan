@@ -20,4 +20,10 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     public void testSine() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/sin");
     }
+    
+    @Test
+    public void testMultiplication() {
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-cdot");
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-blank");
+    }
 }
