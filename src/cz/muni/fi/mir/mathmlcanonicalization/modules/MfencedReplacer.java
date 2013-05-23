@@ -41,6 +41,8 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
+    private static final String MROW = "mrow";
+    private static final String MO = "mo";
 
     public MfencedReplacer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -48,7 +50,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
 
     @Override
     public void execute(Document doc) {
-        // TODO: optimization
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
@@ -57,7 +58,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
             Element e = toReplace.get(i);
             replaceMfenced(e);
         }
-
     }
 
     private List<Element> getMfenced(Element element) {
@@ -75,7 +75,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     }
 
     private void replaceMfenced(Element element) {
-        Namespace namespace = element.getNamespace();
         String openStr = getProperty("open");
         if (!isEnabled("forceopen")) {
             openStr = element.getAttributeValue("open", openStr);
@@ -84,43 +83,47 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         if (!isEnabled("forceclose")) {
             closeStr = element.getAttributeValue("close", closeStr);
         }
-        char[] separators = getProperty("separators").toCharArray();
-        if (!isEnabled("forceseparators")) {
+        char[] separators;
+        if (isEnabled("forceseparators")) {
+            separators = getProperty("separators").toCharArray();
+        } else {
             separators = element.getAttributeValue("separators",
                     getProperty("separators")).trim().toCharArray();
         }
+        
+        Namespace namespace = element.getNamespace();
         List<Element> children = element.getChildren();
         int nChildren = children.size();
         int last = Math.min(separators.length - 1, nChildren - 2);
 
-        Element replacement = new Element("mrow").setNamespace(namespace);
+        Element replacement = new Element(MROW).setNamespace(namespace);
         Element inside;
-        if (nChildren == 1 && children.get(0).getName().equals("mrow")) {
-            inside = children.get(0).clone();
+        if (nChildren == 1 && children.get(0).getName().equals(MROW)) {
+            inside = children.get(0).detach();
         } else {
-            inside = new Element("mrow").setNamespace(namespace);
-            for (int i = 0; i < children.size(); i++) {
+            inside = new Element(MROW).setNamespace(namespace);
+            for (int i = 0; i < nChildren; i++) {
                 if (i > 0 && last >= 0) {
                     char separatorChar = separators[(i - 1 > last) ? last : i - 1];
                     String separatorString = Character.toString(separatorChar);
-                    inside.addContent(new Element("mo").setText(separatorString)
+                    inside.addContent(new Element(MO).setText(separatorString)
                             .setNamespace(namespace));
                 }
-                inside.addContent(children.get(i).clone());
+                inside.addContent(children.get(0).detach());
             }
         }
 
-        replacement.addContent(new Element("mo").setText(openStr)
+        replacement.addContent(new Element(MO).setText(openStr)
                 .setNamespace(namespace));
         if (nChildren != 0) {
             replacement.addContent(inside);
         }
-        replacement.addContent(new Element("mo").setText(closeStr)
+        replacement.addContent(new Element(MO).setText(closeStr)
                 .setNamespace(namespace));
 
         Element parent = element.getParentElement();
         int index = parent.indexOf(element);
-        parent.removeContent(element);
+        parent.removeContent(index);
         parent.addContent(index, replacement);
     }
 }
