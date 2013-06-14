@@ -20,6 +20,7 @@ public class MfencedReplacerTest extends AbstractModuleTest {
         CONFIGURED_INSTANCE.setProperty("forceopen", "1");
         CONFIGURED_INSTANCE.setProperty("forceclose", "1");
         CONFIGURED_INSTANCE.setProperty("forceseparators", "1");
+        CONFIGURED_INSTANCE.setProperty("outermrow", "0");
     }
     
     @Test

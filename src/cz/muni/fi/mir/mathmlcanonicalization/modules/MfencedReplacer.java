@@ -55,6 +55,8 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private static final String FORCE_DEFAULT_OPEN = "forceopen";
     private static final String FORCE_DEFAULT_CLOSE = "forceclose";
     private static final String FORCE_DEFAULT_SEPARATORS = "forceseparators";
+    private static final String ADD_OUTER_ROW = "outermrow";
+    private static final String ADD_INNER_ROW = "innermrow";
 
     public MfencedReplacer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -124,14 +126,22 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         
         replacement.addContent(new Element(OPERATOR, NS).setText(openStr));
         if (insideContent != null) {
-            replacement.addContent(insideContent);
+            if (isEnabled(ADD_INNER_ROW)) {
+                replacement.addContent(insideContent);
+            } else {
+                replacement.addContent(insideContent.removeContent());
+            }
         }
         replacement.addContent(new Element(OPERATOR, NS).setText(closeStr));
 
         final Element parent = mfencedElement.getParentElement();
         final int index = parent.indexOf(mfencedElement);
         parent.removeContent(index);
-        parent.addContent(index, replacement);
+        if (isEnabled(ADD_OUTER_ROW)) {
+            parent.addContent(index, replacement);
+        } else {
+            parent.addContent(index, replacement.removeContent());
+        }
     }
     
     private char[] getSeparators(final Element element) {
