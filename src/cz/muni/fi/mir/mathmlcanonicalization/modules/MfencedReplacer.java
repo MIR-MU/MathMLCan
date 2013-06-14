@@ -5,6 +5,7 @@ import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.jdom2.filter.ElementFilter;
 
 /**
  * Replace mfenced elements in MathML for equivalent.
@@ -16,7 +17,9 @@ import org.jdom2.Namespace;
  * The original code containing no &lt;mfenced&gt; elements, originally fenced
  * formulas are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
  * (from &lt;mfenced&gt; attributes) in &lt;mo&gt; elements, inner content is
- * placed into another &lt;mrow&gt; element.
+ * placed into another &lt;mrow&gt; element. Module can be configured not to
+ * add mrow outside and inside or your own fixed or default parentheses and
+ * separators for fenced expressions can be specified.
  * <h4>Example</h4>
  * <pre> &lt;mfenced open="["&gt;
  *     &lt;mi&gt;x&lt;mi&gt;
@@ -40,6 +43,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
+    
     // MathML elements
     private static final String ROW = "mrow";
     private static final String OPERATOR = "mo";
@@ -67,22 +71,13 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
-        List<Element> toReplace = getMfenced(doc.getRootElement());
-        for (int i = 0; i < toReplace.size(); i++) {
-            Element e = toReplace.get(i);
-            replaceMfenced(e);
+        final List<Element> toReplace = new ArrayList<Element>();
+        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED))) {
+            toReplace.add(mfenced);
         }
-    }
-
-    private List<Element> getMfenced(final Element element) {
-        List<Element> toReplace = new ArrayList<Element>();
-        for (Element e : element.getChildren()) {
-            toReplace.addAll(getMfenced(e));
-            if (e.getName().equals(FENCED)) {
-                toReplace.add(e);
-            }
+        for (Element mfenced : toReplace) {
+            replaceMfenced(mfenced);
         }
-        return toReplace;
     }
 
     private void replaceMfenced(final Element mfencedElement) {
@@ -94,6 +89,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
 
         Element insideFence = null;
         if (nChildren == 1 && children.get(0).getName().equals(ROW)) {
+            // we do not want to add another mrow
             insideFence = children.get(0).detach();
         } else if (nChildren != 0) {
             insideFence = new Element(ROW, ns);
@@ -112,8 +108,8 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     }
     
     private void replaceMfenced(final Element mfencedElement, final Element insideContent) {
-        final Namespace NS = mfencedElement.getNamespace();
-        Element replacement = new Element(ROW, NS);
+        final Namespace ns = mfencedElement.getNamespace();
+        Element replacement = new Element(ROW, ns);
         String openStr = getProperty(DEFAULT_OPEN);
         String closeStr = getProperty(DEFAULT_CLOSE);
         
@@ -124,7 +120,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
             closeStr = mfencedElement.getAttributeValue(CLOSE_FENCE, closeStr);
         }
         
-        replacement.addContent(new Element(OPERATOR, NS).setText(openStr));
+        replacement.addContent(new Element(OPERATOR, ns).setText(openStr));
         if (insideContent != null) {
             if (isEnabled(ADD_INNER_ROW)) {
                 replacement.addContent(insideContent);
@@ -132,7 +128,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
                 replacement.addContent(insideContent.removeContent());
             }
         }
-        replacement.addContent(new Element(OPERATOR, NS).setText(closeStr));
+        replacement.addContent(new Element(OPERATOR, ns).setText(closeStr));
 
         final Element parent = mfencedElement.getParentElement();
         final int index = parent.indexOf(mfencedElement);
