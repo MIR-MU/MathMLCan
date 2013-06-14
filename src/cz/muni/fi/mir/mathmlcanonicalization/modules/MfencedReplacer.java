@@ -1,7 +1,6 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -41,15 +40,28 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
-    private static final String MROW = "mrow";
-    private static final String MO = "mo";
+    // MathML elements
+    private static final String ROW = "mrow";
+    private static final String OPERATOR = "mo";
+    private static final String FENCED = "mfenced";
+    // MathML attributes
+    private static final String OPEN_FENCE = "open";
+    private static final String CLOSE_FENCE = "close";
+    private static final String SEPARATORS = "separators";
+    // properties key names
+    private static final String DEFAULT_OPEN = "open";
+    private static final String DEFAULT_CLOSE = "close";
+    private static final String DEFAULT_SEPARATORS = "separators";
+    private static final String FORCE_DEFAULT_OPEN = "forceopen";
+    private static final String FORCE_DEFAULT_CLOSE = "forceclose";
+    private static final String FORCE_DEFAULT_SEPARATORS = "forceseparators";
 
     public MfencedReplacer() {
         loadProperties(PROPERTIES_FILENAME);
     }
 
     @Override
-    public void execute(Document doc) {
+    public void execute(final Document doc) {
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
@@ -60,70 +72,73 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         }
     }
 
-    private List<Element> getMfenced(Element element) {
+    private List<Element> getMfenced(final Element element) {
         List<Element> toReplace = new ArrayList<Element>();
-        Iterator<Element> iterator = element.getChildren().iterator();
-        while (iterator.hasNext()) {
-            Element e = iterator.next();
+        for (Element e : element.getChildren()) {
             toReplace.addAll(getMfenced(e));
-
-            if (e.getName().equals("mfenced")) {
+            if (e.getName().equals(FENCED)) {
                 toReplace.add(e);
             }
         }
         return toReplace;
     }
 
-    private void replaceMfenced(Element element) {
-        String openStr = getProperty("open");
-        if (!isEnabled("forceopen")) {
-            openStr = element.getAttributeValue("open", openStr);
-        }
-        String closeStr = getProperty("close");
-        if (!isEnabled("forceclose")) {
-            closeStr = element.getAttributeValue("close", closeStr);
-        }
-        char[] separators;
-        if (isEnabled("forceseparators")) {
-            separators = getProperty("separators").toCharArray();
-        } else {
-            separators = element.getAttributeValue("separators",
-                    getProperty("separators")).trim().toCharArray();
-        }
-        
-        Namespace namespace = element.getNamespace();
-        List<Element> children = element.getChildren();
-        int nChildren = children.size();
-        int last = Math.min(separators.length - 1, nChildren - 2);
+    private void replaceMfenced(final Element mfencedElement) {
+        final char[] separators = getSeparators(mfencedElement);
+        final Namespace ns = mfencedElement.getNamespace();
+        final List<Element> children = mfencedElement.getChildren();
+        final int nChildren = children.size();
+        final int last = Math.min(separators.length - 1, nChildren - 2);
 
-        Element replacement = new Element(MROW).setNamespace(namespace);
-        Element inside;
-        if (nChildren == 1 && children.get(0).getName().equals(MROW)) {
-            inside = children.get(0).detach();
-        } else {
-            inside = new Element(MROW).setNamespace(namespace);
+        Element insideFence = null;
+        if (nChildren == 1 && children.get(0).getName().equals(ROW)) {
+            insideFence = children.get(0).detach();
+        } else if (nChildren != 0) {
+            insideFence = new Element(ROW, ns);
             for (int i = 0; i < nChildren; i++) {
-                if (i > 0 && last >= 0) {
+                // add separator
+                if (i > 0 && last >= 0) { // not before first or when blank separators
                     char separatorChar = separators[(i - 1 > last) ? last : i - 1];
-                    String separatorString = Character.toString(separatorChar);
-                    inside.addContent(new Element(MO).setText(separatorString)
-                            .setNamespace(namespace));
+                    String separatorStr = Character.toString(separatorChar);
+                    insideFence.addContent(new Element(OPERATOR, ns).setText(separatorStr));
                 }
-                inside.addContent(children.get(0).detach());
+                // add original child
+                insideFence.addContent(children.get(0).detach());
             }
         }
-
-        replacement.addContent(new Element(MO).setText(openStr)
-                .setNamespace(namespace));
-        if (nChildren != 0) {
-            replacement.addContent(inside);
+        replaceMfenced(mfencedElement, insideFence);
+    }
+    
+    private void replaceMfenced(final Element mfencedElement, final Element insideContent) {
+        final Namespace NS = mfencedElement.getNamespace();
+        Element replacement = new Element(ROW, NS);
+        String openStr = getProperty(DEFAULT_OPEN);
+        String closeStr = getProperty(DEFAULT_CLOSE);
+        
+        if (!isEnabled(FORCE_DEFAULT_OPEN)) {
+            openStr = mfencedElement.getAttributeValue(OPEN_FENCE, openStr);
         }
-        replacement.addContent(new Element(MO).setText(closeStr)
-                .setNamespace(namespace));
+        if (!isEnabled(FORCE_DEFAULT_CLOSE)) {
+            closeStr = mfencedElement.getAttributeValue(CLOSE_FENCE, closeStr);
+        }
+        
+        replacement.addContent(new Element(OPERATOR, NS).setText(openStr));
+        if (insideContent != null) {
+            replacement.addContent(insideContent);
+        }
+        replacement.addContent(new Element(OPERATOR, NS).setText(closeStr));
 
-        Element parent = element.getParentElement();
-        int index = parent.indexOf(element);
+        final Element parent = mfencedElement.getParentElement();
+        final int index = parent.indexOf(mfencedElement);
         parent.removeContent(index);
         parent.addContent(index, replacement);
+    }
+    
+    private char[] getSeparators(final Element element) {
+        if (isEnabled(FORCE_DEFAULT_SEPARATORS)) {
+            return getProperty(DEFAULT_SEPARATORS).toCharArray();
+        }
+        return element.getAttributeValue(SEPARATORS,
+                getProperty(DEFAULT_SEPARATORS)).trim().toCharArray();
     }
 }
