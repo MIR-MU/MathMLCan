@@ -9,7 +9,7 @@ import org.junit.Test;
  */
 public class OperatorNormalizerTest extends AbstractModuleTest{
     
-    private static final Module DEFAULT_INSTANCE = new MrowNormalizer();
+    private static final Module DEFAULT_INSTANCE = new OperatorNormalizer();
     
     @Test
     public void testFunction() {
@@ -22,8 +22,12 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     }
     
     @Test
-    public void testMultiplication() {
+    public void testMultiplicationCdot() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-cdot");
+    }
+    
+    @Test
+    public void testMultiplicationBlank() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-blank");
     }
 }

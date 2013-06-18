@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <mo>sin</mo>
+  <mi>sin</mi>
   <mrow>
     <mo>(</mo>
     <mi>x</mi>

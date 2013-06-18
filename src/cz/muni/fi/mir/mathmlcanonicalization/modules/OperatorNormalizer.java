@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.jdom2.Document;
@@ -28,64 +30,57 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/operator-normalizer.properties";
     
-    final static Map<String, List<String>> replaceMap = new HashMap<String, List<String>>();
+    private static List<String> removeList;
+    private static List<String> functionOperatorsList;
     
     public OperatorNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
-        // TODO: put some properties to the file
     }
     
     @Override
     public void execute(Document doc) {
-        normalizeOperators(doc.getRootElement());
+        if (isEnabled("remove_empty") || isEnabled("remove")) {
+            removeList = Arrays.asList(getProperty("remove.operators").split(" "));
+            removeSpareOperators(doc.getRootElement());
+        }
+        if (isEnabled("function_app")) {
+            functionOperatorsList = Arrays.asList(getProperty("function_app.operators").split(" "));
+            //normalizeFunctionApplication(doc.getRootElement());
+        }
     }
     
-    private static void normalizeOperators(Element element) {
+    private void removeSpareOperators(Element element) {
         if (element.getName().equals("mo")) {
-            for (Map.Entry<String, List<String>> map : replaceMap.entrySet()) {
-                if (map.getValue().contains(element.getText())) {
-                    element.setText(map.getKey());
-                    break;
-                }
+            if (isEnabled("remove_empty") && element.getText().isEmpty()) element.detach();
+            else if (isEnabled("remove") && removeList.contains(element.getText())) element.detach();
+        } else {
+            List<Element> children = element.getChildren();
+            for(int i = 0; i < children.size(); i++) { // can't use iterator, due to detaching
+                removeSpareOperators(children.get(i));
             }
-
-        }
-        for (Element e : element.getChildren()) {
-            normalizeOperators(e);
         }
     }
     
-    static {
-        BufferedReader br = null;
-        try {
-            // TODO: rewrite this using getProperty()
-            br = new BufferedReader(new InputStreamReader(
-                    OperatorNormalizer.class.getResourceAsStream(
-                        "operator-normalizer.properties"), "UTF-8"));
-            // TODO: improve parsing
-            String line;
-            while ((line = br.readLine()) != null) {
-                String representant = line.substring(0, line.indexOf("="));
-                String[] replacees = (line.substring(line.indexOf("=") + 1)).split(",");
-                List<String> replaceesList = new ArrayList<String>();
-                for (String s : replacees) {
-                    if (s.length() > 1) {
-                        s = Character.valueOf((char) Integer.parseInt(s, 16)).toString();
+    /*private void normalizeFunctionApplication(Element element) {
+        if (element.getName().equals("mo")) {
+            if (isEnabled("remove") && removeList.contains(element.getText())) element.detach();
+            else if (element.getText().isEmpty() && isEnabled("remove_empty")) element.detach();
+        } else {
+            List<Element> children = element.getChildren();
+            for(int i = 0; i < (children.size()-2); i++) { // can't use iterator, due to detaching
+                if(children.get(i).getName().equals("mi") && children.get(i+1).getName().equals("mo")) {
+                    if (functionOperatorsList.contains(children.get(i+1).getText())) {
+                        Element parameter = children.get(i+2);
+                        Element newParameter = new Element("mrow");
+                        if (parameter.getName().equals("mo") && parameter.getText().equals("(")) {
+                            for 
+                        }
+                        
                     }
-                    replaceesList.add(s);
+                    
                 }
-                replaceMap.put(representant, replaceesList);
+                normalizeFunctionApplication();
             }
-        } catch (Exception e) {
-            // TODO: better exception handling
-            e.printStackTrace();
         }
-        try {
-            // TODO: handle null pointer
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-    }
+    }*/
 }
