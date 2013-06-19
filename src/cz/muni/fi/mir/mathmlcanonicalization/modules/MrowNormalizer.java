@@ -1,7 +1,7 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.jdom2.Document;
@@ -44,59 +44,20 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
-    private static HashMap<String, Integer> childCount;
-    private static HashSet<String> openingParentheses;
-    private static HashSet<String> closingParentheses;
+    private final HashSet<String> openingParentheses;
+    private final HashSet<String> closingParentheses;
 
     public MrowNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
-        // TODO: put some properties to the file
+        String openingProperty = getProperty("open");
+        openingParentheses = new HashSet<String>(Arrays.asList(openingProperty.split(" ")));
+
+        String closingProperty = getProperty("close");
+        closingParentheses = new HashSet<String>(Arrays.asList(closingProperty.split(" ")));
     }
 
     @Override
     public void execute(Document doc) {
-        /* initialize childCount according to http://www.w3.org/TR/MathML3/chapter3.html#id.3.1.3.2
-        value 1 indicates an inferred mrow as described in the document above */
-        childCount = new HashMap<String, Integer>();
-        //childCount.put("mrow", 0); //
-        //childCount.put("mfrac", 2);
-        childCount.put("msqrt", 1);
-        //childCount.put("mroot", 2);
-        childCount.put("mstyle", 1);
-        childCount.put("merror", 1);
-        childCount.put("mpadded", 1);
-        childCount.put("mphantom", 1);
-        //childCount.put("mfenced", 0); //
-        childCount.put("menclose", 1);
-        //childCount.put("msub", 2);
-        //childCount.put("msup", 2);
-        //childCount.put("msubsup", 3);
-        //childCount.put("munder", 2);
-        //childCount.put("mover", 2);
-        //childCount.put("munderover", 3);
-        //childCount.put("mmultiscripts", 1); //
-        //childCount.put("mtable", 0);
-        //childCount.put("mlabeledtr", 1); //
-        //childCount.put("mtr", 0); //
-        childCount.put("mtd", 1);
-        //childCount.put("mstack", 0); //
-        //childCount.put("longdiv", 3); //
-        //childCount.put("gsgroup", 0); //
-        //childCount.put("msrow", 0); //
-        //childCount.put("mscarries", 0); //
-        childCount.put("mscarry", 1);
-        //childCount.put("maction", 1); //
-        //childCount.put("math", 1);
-
-        openingParentheses = new HashSet<String>();
-        openingParentheses.add("(");
-        openingParentheses.add("[");
-        openingParentheses.add("{");
-
-        closingParentheses = new HashSet<String>();
-        closingParentheses.add(")");
-        closingParentheses.add("]");
-        closingParentheses.add("}");
 
         traverseChildrenElements(doc.getRootElement());
     }
@@ -105,7 +66,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Recursively searches element content to possibly remove or add mrow where needed.
      * @param element element to start at
      */
-    private static void traverseChildrenElements(Element element) {
+    private void traverseChildrenElements(Element element) {
         List<Element> children = new ArrayList<Element>(element.getChildren());
 
         for (Element child : children) {
@@ -123,7 +84,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Removes a mrow element if possible.
      * @param element the mrow element
      */
-    private static void checkRemoval(Element element) {
+    private void checkRemoval(Element element) {
         Parent parent = element.getParent();
         Element parentElement;
 
@@ -143,13 +104,20 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         }
 
         // unknown parent element
-        if (!childCount.containsKey(parentElement.getName())) {
+        if (getProperty("childCount." + parentElement.getName()) == null) {
             return;
         }
 
-        if (childCount.get(parentElement.getName()) == 1 || // parent can accept any number of elements so we can remove mrow
-                children.size() + parentElement.getChildren().size() - 1 == childCount.get(parentElement.getName()) ||
-                siblings.indexOf(element) >= childCount.get(parentElement.getName())) {
+        int childCount;
+        try {
+            childCount = Integer.parseInt(getProperty("childCount." + parentElement.getName()));
+        } catch (NumberFormatException e) {
+            return;
+        }
+
+        if (childCount == 1 || // parent can accept any number of elements so we can remove mrow
+                children.size() + parentElement.getChildren().size() - 1 == childCount
+                || siblings.indexOf(element) >= childCount) {
             removeElement(element, parentElement);
         }
     }
@@ -163,7 +131,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Wrap fenced expressions with mrow (if not) to be same as would be after mfenced replacement
      * @param element
      */
-    private static void checkAddition(Element element) {
+    private void checkAddition(Element element) {
 
         Parent parent;
         Element parentElement;
@@ -180,7 +148,6 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         // element is an opening parenthesis
         if (element.getName().equals("mo") && openingParentheses.contains(element.getTextNormalize())) {
             int nesting = 0;
-            String openingStr = element.getTextNormalize();
 
             List<Element> children = new ArrayList<Element>();
             int openingIndex = parentElement.indexOf(element);
@@ -202,7 +169,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                         }
 
                         Element innerElement;
-                        if (children.isEmpty()) {
+                        if (children.isEmpty() || !isEnabled("wrapInside")) {
                             innerElement = null;
                         } else if (children.size() == 1/* && children.get(0).getName().equals("mrow")*/) {
                             innerElement = children.get(0);
@@ -212,10 +179,12 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                         }
 
                         // parentheses already wrapped in mrow
-                        if (parentElement.getName().equals("mrow")
+                        if ((parentElement.getName().equals("mrow")
                                 && siblings.get(0) == element
-                                && siblings.get(siblings.size() - 1) == current) {
-                            if (innerElement != null) {
+                                && siblings.get(siblings.size() - 1) == current) || !isEnabled("wrapOutside")) {
+                            if (innerElement == null) {
+                                parentElement.addContent(openingIndex + 1, children);
+                            } else {
                                 parentElement.addContent(openingIndex + 1, innerElement);
                             }
                         } else {
@@ -227,6 +196,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                             outerMrowElement.addContent(element);
                             if (innerElement != null) {
                                 outerMrowElement.addContent(innerElement);
+                            } else {
+                                outerMrowElement.addContent(children);
                             }
                             outerMrowElement.addContent(current);
                             parentElement.addContent(openingIndex, outerMrowElement);
