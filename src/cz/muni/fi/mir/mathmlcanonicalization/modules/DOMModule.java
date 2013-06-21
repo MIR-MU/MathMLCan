@@ -14,5 +14,5 @@ public interface DOMModule extends Module {
      * 
      * @param doc document to be modified according to the module specification
      */
-    public void execute(Document doc);
+    public void execute(Document doc) throws ModuleException;
 }
