@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.stream.*;
 
 /**
@@ -74,7 +76,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
      * using {@link ByteArrayInputStream#ByteArrayInputStream(byte[])}.
      */
     @Override
-    public ByteArrayOutputStream execute(final InputStream input) {        
+    public ByteArrayOutputStream execute(final InputStream input) throws ModuleException {
         String property = getProperty("remove_all");
         String[] removeAll = property.split(" ");
         List<String> removeWithChildren = Arrays.asList(removeAll);
@@ -185,7 +187,9 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
             writer.flush();
             writer.close();
         } catch (final XMLStreamException ex) {
-            System.err.println(ex);
+            Logger.getLogger(this.getClass().getName()).log(
+                    Level.SEVERE, "error while parsing the input file. ", ex);
+            throw new ModuleException("Error while parsing the input file: " + ex.getMessage());
         }
         return outputStream;
     }

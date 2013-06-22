@@ -215,7 +215,7 @@ public final class MathMLCanonicalizer {
      * @throws IOException problem with streams
      */
     public void canonicalize(InputStream in, OutputStream out)
-            throws JDOMException, IOException {
+            throws JDOMException, IOException, ModuleException {
 
         ByteArrayOutputStream outputStream = null;
 
