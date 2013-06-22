@@ -15,5 +15,5 @@ public interface StreamModule extends Module {
      * @param input input stream to be processed
      * @return the result in accordance with the module specification
      */
-    public ByteArrayOutputStream execute(InputStream input);
+    public ByteArrayOutputStream execute(InputStream input) throws ModuleException;
 }

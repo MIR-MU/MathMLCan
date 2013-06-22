@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frame size="800,480" title="MathML Canonicalization" defaultCloseOperation="JFrame.EXIT_ON_CLOSE">
+    <panel layout="BorderLayout">
+        <vbox>
+
+            <panel id="c1" layout="BorderLayout" border="TitledBorder(MathML canonicalization)">
+                <vbox>
+                    <scrollpane>
+                        <textarea id="textarea" rows="17" />
+                    </scrollpane>
+
+                    <panel  layout="GridLayout(1,2)">
+                        <button text="Canonicalize" action="canonicalize" />
+                        <scrollpane>
+                            <textarea id="statusbar" foreground="red" editable="false" />
+                        </scrollpane>
+                    </panel>
+                </vbox>
+            </panel>
+  
+            <hbox>
+                <label id="config" />
+                <glue />
+                <button text="Select configuration" action="selectConfig"/>
+            </hbox>
+      
+            <hbox>
+                <glue />
+                <button text="Quit" action="quit" />
+            </hbox>
+      
+        </vbox>
+    </panel>
+</frame>
