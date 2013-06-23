@@ -22,14 +22,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
+import org.xml.sax.SAXException;
+
+
 
 /**
  * An input class for MathML canonicalization.
@@ -70,15 +79,24 @@ public final class MathMLCanonicalizer {
      *
      * @param xmlConfigurationStream XML configuration
      */
-    public MathMLCanonicalizer(InputStream xmlConfigurationStream) {
+    public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {
         if (xmlConfigurationStream == null) {
             throw new IllegalArgumentException("xmlConfigurationStream is null");
         }
         try {
-            loadXMLConfiguration(xmlConfigurationStream);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(xmlConfigurationStream, baos);
+            
+            validateXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
+            loadXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
         } catch (XMLStreamException ex) {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.WARNING, "cannot load configuration. ", ex);
+                    Level.SEVERE, "cannot load configuration. ", ex);
+            throw new ConfigException("cannot load configuration", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
+                    Level.SEVERE, "cannot load configuration. ", ex);
+            throw new ConfigException("cannot load configuration", ex);
         }
     }
 
@@ -134,10 +152,26 @@ public final class MathMLCanonicalizer {
     }
 
     /**
+     * Validate the configuration against XML Schema.
+     * If not valid, the methods throws ConfigException.
+     */
+    private void validateXMLConfiguration(InputStream xmlConfigurationStream) throws IOException, ConfigException {
+        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
+                    Settings.getProperty("configSchema")));
+
+            Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(xmlConfigurationStream));
+        } catch (SAXException ex) {
+            throw new ConfigException("configuration not valid\n" + ex.getMessage(), ex);
+        }
+    }
+    
+    /**
      * Loads configuration from XML file, overriding the properties.
      */
-    private void loadXMLConfiguration(InputStream xmlConfigurationStream) throws XMLStreamException {
-        // TODO: add control of the right format, do not allow adding new property keys (use getPropertyNames() to check)
+    private void loadXMLConfiguration(InputStream xmlConfigurationStream) throws ConfigException, XMLStreamException {
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
 
@@ -164,11 +198,14 @@ public final class MathMLCanonicalizer {
                                     Class<?> moduleClass = Class.forName(fullyQualified);
                                     module = (Module) moduleClass.newInstance();
                                 } catch (InstantiationException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot instantiate module " + attributeValue, ex);
                                 } catch (IllegalAccessException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot access module "  + attributeValue, ex);
                                 } catch (ClassNotFoundException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot load module "  + attributeValue, ex);
                                 }
                             }
                         }
@@ -181,9 +218,17 @@ public final class MathMLCanonicalizer {
 
                             if (attributeName.equals("name") && attributeValue != null) {
                                 if (module == null) {
-                                    Settings.setProperty(attributeValue, reader.getElementText());
+                                    if (Settings.getProperty(attributeValue) != null) {
+                                        Settings.setProperty(attributeValue, reader.getElementText());
+                                    } else {
+                                        throw new ConfigException("configuration not valid\nTried to override non-existing global property " + attributeValue);
+                                    }
                                 } else {
-                                    module.setProperty(attributeValue, reader.getElementText());
+                                    if (module.getProperty(attributeValue) != null) {
+                                        module.setProperty(attributeValue, reader.getElementText());
+                                    } else {
+                                        throw new ConfigException("configuration not valid\nconfiguration tried to override non-existing property " + attributeValue);
+                                    }
                                 }
                             }
                         }
