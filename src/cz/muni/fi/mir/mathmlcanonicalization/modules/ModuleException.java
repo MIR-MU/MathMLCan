@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 /**
- *
- * @author rob
+ * 
+ * General purpose exception for problems with modules.
  */
 public class ModuleException extends Exception {
     public ModuleException(String message) {
