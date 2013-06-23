@@ -94,11 +94,17 @@ abstract class AbstractModuleTest {
     }
 
     private InputStream getProcessed(StreamModule instance, InputStream in, boolean shouldPrint) {
-        ByteArrayOutputStream output = instance.execute(in);
-        if (shouldPrint) {
-            printDocument(output, "Output of " + instance);
+        try {
+            ByteArrayOutputStream output = instance.execute(in);
+            if (shouldPrint) {
+                printDocument(output, "Output of " + instance);
+            }
+            return getInputStream(output);
+        } catch (ModuleException ex) {
+            Logger.getLogger(this.getClass().getName()).log(
+                    Level.SEVERE, "cannot execute the module", ex);
+            return null;
         }
-        return getInputStream(output);
     }
 
     private InputStream getProcessed(DOMModule instance, InputStream in, boolean shouldPrint) {
@@ -116,6 +122,9 @@ abstract class AbstractModuleTest {
         } catch (IOException ex) {
             Logger.getLogger(this.getClass().getName()).log(
                     Level.SEVERE, "cannot convert between stream and DOM", ex);
+        } catch (ModuleException ex) {
+            Logger.getLogger(this.getClass().getName()).log(
+                    Level.SEVERE, "cannot execute the module", ex);
         }
         if (shouldPrint) {
             printDocument(output, "Output of " + instance);

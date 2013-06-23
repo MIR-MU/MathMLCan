@@ -4,6 +4,7 @@ import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,16 +32,18 @@ import javax.xml.stream.*;
  * @date 2012-10-08T21:34:49+0200
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
-    
+
     /**
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/element-minimizer.properties";
-    
+    private List<String> removeWithChildren;
+    private List<String> removeKeepChildren;
+
     public ElementMinimizer() {
         loadProperties(PROPERTIES_FILENAME);
     }
-    
+
     /**
      * Decides which attributes to keep based on keepAttributes properties.
      * 
@@ -51,22 +54,22 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         if (elementSpecific != null) {
             property += " " + elementSpecific;
         }
-        
+
         String[] keep = property.split(" ");
         List<String> whitelist = Arrays.asList(keep);
-        
+
         for (String attribute : whitelist) {
-            if (attributeName.equals(attribute) ||
-                    attribute.contains("=") &&
-                        attributeName.equals(attribute.substring(0, attribute.lastIndexOf("="))) &&
-                        attributeValue.equals(attribute.substring(attribute.lastIndexOf("=") + 1))) {
+            if (attributeName.equals(attribute)
+                    || attribute.contains("=")
+                    && attributeName.equals(attribute.substring(0, attribute.lastIndexOf("=")))
+                    && attributeValue.equals(attribute.substring(attribute.lastIndexOf("=") + 1))) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Removes attributes using StAX instead of DOM.
      * So far I haven't been able to receive all types of events (i.e. comment, start document 
@@ -79,118 +82,123 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
     public ByteArrayOutputStream execute(final InputStream input) throws ModuleException {
         String property = getProperty("remove_all");
         String[] removeAll = property.split(" ");
-        List<String> removeWithChildren = Arrays.asList(removeAll);
-        
+        removeWithChildren = Arrays.asList(removeAll);
+
         property = getProperty("remove");
         String[] remove = property.split(" ");
-        List<String> removeKeepChildren = Arrays.asList(remove);
+        removeKeepChildren = Arrays.asList(remove);
 
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            final XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
-            final XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            // stream for reading event from input stream
-            final XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
-            // stream that writes events to given output stream
-            final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
-            writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
-            // depth of current branch, used when removing element with all its children
-            int depth = 0;
-            boolean math = false;
-            // check for event
-            while (reader.hasNext()) {
-                // get event code
-                final int event = reader.next();
-                // based on event code choose action
-                switch (event) {
-                    case XMLStreamConstants.START_ELEMENT: {
-                        // write this element
-                        // omit if it should be skipped
-                        String name = reader.getLocalName();
-                        if (name.equals("math")) {
-                            math = true;
-                        }
-                        if (math) {
-                            if (removeKeepChildren.contains(name)) {
-                                continue;
-                            }
-                            // omit this element if it is marked to skip or is a child
-                            // of such an element
-                            if (removeWithChildren.contains(name)) {
-                                depth++;
-                            }
-                            if (depth > 0) {
-                                continue;
-                            }
-                        }
-                        writer.writeStartElement(reader.getName().getPrefix(), name, reader.getName().getNamespaceURI());
-                        for (int index = 0; index < reader.getAttributeCount(); ++index) {
-                            final String attributeName = reader.getAttributeLocalName(index);
-                            final String attributeValue = reader.getAttributeValue(index);
-                            final String attributePrefix = reader.getAttributePrefix(index);
-                            final String attributeNamespace = reader.getAttributeNamespace(index);
-                            // write only chosen attributes
-                            if (!math || (math && keepAttribute(name, attributeName, attributeValue))) {
-                                if (attributeNamespace==null) {
-                                    writer.writeAttribute(attributeName, attributeValue);
-                                } else {
-                                    writer.writeAttribute(attributePrefix, attributeNamespace, attributeName, attributeValue);
-                                }
-                            }
-                        }
-                        for (int index = 0; index < reader.getNamespaceCount(); ++index) {
-                            writer.writeNamespace(reader.getNamespacePrefix(index), reader.getNamespaceURI(index));
-                        }
-
-                        break;
-                    }
-                    case XMLStreamConstants.END_ELEMENT: {
-                        if (math) {
-                            String name = reader.getLocalName();
-                            if (name.equals("math")) {
-                                math = false;
-                            }
-                            if (removeKeepChildren.contains(name)) {
-                                continue;
-                            }
-                            if (depth > 0) {
-                                if (removeWithChildren.contains(name)) {
-                                    depth--;
-                                }
-                                continue;
-                            }
-                        }
-                        writer.writeEndElement();
-                        break;
-                    }
-                    case XMLStreamConstants.CHARACTERS: {
-                        // warning: white space is counted as CHARACTER event (new line after element)
-                        if (depth > 0) {
-                            continue;
-                        }
-                        writer.writeCharacters(reader.getText());
-                        break;
-                    }   
-                    case XMLStreamConstants.END_DOCUMENT: {
-                        writer.writeEndDocument();
-                        break;
-                    }
-                    case XMLStreamConstants.DTD: {
-                        writer.writeDTD(reader.getText());
-                        break;
-                    }
-                    default: {
-                        break;
-                    }   
-                }
-            }
-            writer.flush();
-            writer.close();
-        } catch (final XMLStreamException ex) {
+            minimizeElements(input, output);
+        } catch (XMLStreamException ex) {
             Logger.getLogger(this.getClass().getName()).log(
                     Level.SEVERE, "error while parsing the input file. ", ex);
             throw new ModuleException("Error while parsing the input file: " + ex.getMessage());
         }
-        return outputStream;
+
+        return output;
+    }
+
+    private void minimizeElements(final InputStream input, OutputStream outputStream) throws XMLStreamException {
+        final XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
+        final XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+        // stream for reading event from input stream
+        final XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
+        // stream that writes events to given output stream
+        final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
+        writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
+        // depth of current branch, used when removing element with all its children
+        int depth = 0;
+        boolean mathElement = false;
+        // check for event
+        while (reader.hasNext()) {
+            // get event code
+            final int event = reader.next();
+            // based on event code choose action
+            switch (event) {
+                case XMLStreamConstants.START_ELEMENT: {
+                    // write this element
+                    // omit if it should be skipped
+                    String name = reader.getLocalName();
+                    if (name.equals("math")) {
+                        mathElement = true;
+                    }
+                    if (mathElement) {
+                        if (removeKeepChildren.contains(name)) {
+                            continue;
+                        }
+                        // omit this element if it is marked to skip or is a child
+                        // of such an element
+                        if (removeWithChildren.contains(name)) {
+                            depth++;
+                        }
+                        if (depth > 0) {
+                            continue;
+                        }
+                    }
+                    writer.writeStartElement(reader.getName().getPrefix(), name, reader.getName().getNamespaceURI());
+                    for (int index = 0; index < reader.getAttributeCount(); ++index) {
+                        final String attributeName = reader.getAttributeLocalName(index);
+                        final String attributeValue = reader.getAttributeValue(index);
+                        final String attributePrefix = reader.getAttributePrefix(index);
+                        final String attributeNamespace = reader.getAttributeNamespace(index);
+                        // write only chosen attributes
+                        if (!mathElement || (mathElement && keepAttribute(name, attributeName, attributeValue))) {
+                            if (attributeNamespace == null) {
+                                writer.writeAttribute(attributeName, attributeValue);
+                            } else {
+                                writer.writeAttribute(attributePrefix, attributeNamespace, attributeName, attributeValue);
+                            }
+                        }
+                    }
+                    for (int index = 0; index < reader.getNamespaceCount(); ++index) {
+                        writer.writeNamespace(reader.getNamespacePrefix(index), reader.getNamespaceURI(index));
+                    }
+
+                    break;
+                }
+                case XMLStreamConstants.END_ELEMENT: {
+                    if (mathElement) {
+                        String name = reader.getLocalName();
+                        if (name.equals("math")) {
+                            mathElement = false;
+                        }
+                        if (removeKeepChildren.contains(name)) {
+                            continue;
+                        }
+                        if (depth > 0) {
+                            if (removeWithChildren.contains(name)) {
+                                depth--;
+                            }
+                            continue;
+                        }
+                    }
+                    writer.writeEndElement();
+                    break;
+                }
+                case XMLStreamConstants.CHARACTERS: {
+                    // warning: white space is counted as CHARACTER event (new line after element)
+                    if (depth > 0) {
+                        continue;
+                    }
+                    writer.writeCharacters(reader.getText());
+                    break;
+                }
+                case XMLStreamConstants.END_DOCUMENT: {
+                    writer.writeEndDocument();
+                    break;
+                }
+                case XMLStreamConstants.DTD: {
+                    writer.writeDTD(reader.getText());
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+        writer.flush();
+        writer.close();
     }
 }

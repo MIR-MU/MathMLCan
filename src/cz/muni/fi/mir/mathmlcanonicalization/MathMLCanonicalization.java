@@ -60,31 +60,30 @@ public final class MathMLCanonicalization {
                 canonicalize(f, config);
             }
         } catch (Exception ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
     }
     
-    private static void canonicalize(File f, File config) {
+    private static void canonicalize(File f, File config) throws ConfigException {
         try {
-            System.out.println(f.getAbsolutePath());
+            MathMLCanonicalizer mlcan;
             
             FileInputStream configInputStream = null;
             if (config != null) {
                 configInputStream = new FileInputStream(config);
+                mlcan = new MathMLCanonicalizer(configInputStream);
+            } else {
+                mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
             }
             
-            MathMLCanonicalizer mlcan = new MathMLCanonicalizer(configInputStream);
             mlcan.canonicalize(new FileInputStream(f), System.out);
-            
-            //MathMLCanonicalizer.getDefaultCanonicalizer().canonicalize(new FileInputStream(f), System.out);
-            
         } catch (JDOMException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (ModuleException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
     

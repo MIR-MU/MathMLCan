@@ -1,23 +1,6 @@
-/**
- * Copyright 2013 MIRMU
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-
 package cz.muni.fi.mir.mathmlcanonicalization;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
-import java.awt.CardLayout;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +23,7 @@ import java.io.OutputStream;
  */
 public class GraphicalUserInterface {
     
-    private static final String DESCRIPTOR = "/res/gui/layout.xml";
+    private static final String DESCRIPTOR = "gui.layout";
     private SwingEngine swix;
     
     public JPanel pnl;
@@ -89,7 +72,13 @@ public class GraphicalUserInterface {
             
             MathMLCanonicalizer mlcan = null;
             if (configPath != null && !configPath.isEmpty()) {
-                mlcan = new MathMLCanonicalizer(configInputStream);
+                try {
+                    mlcan = new MathMLCanonicalizer(configInputStream);
+                } catch (ConfigException ex) {
+                    Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    statusbar.setText(ex.getMessage());
+                    return;
+                }
             } else {
                 mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
             }
@@ -101,16 +90,16 @@ public class GraphicalUserInterface {
                 mlcan.canonicalize(input, output);
                 textarea.setText(output.toString());
             } catch (JDOMException ex) {
-                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 statusbar.setText(ex.getMessage());
             } catch (IOException ex) {
-                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 statusbar.setText(ex.getMessage());
             } catch (ModuleException ex) {
-                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 statusbar.setText(ex.getMessage());
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 statusbar.setText(ex.getMessage());
             }
         }
@@ -118,7 +107,7 @@ public class GraphicalUserInterface {
     
     public GraphicalUserInterface() throws Exception {
         swix = new SwingEngine(this);
-        InputStream layoutXml = this.getClass().getResourceAsStream(DESCRIPTOR);
+        InputStream layoutXml = this.getClass().getResourceAsStream(Settings.getProperty(DESCRIPTOR));
         swix.render(layoutXml);
         swix.getRootComponent().setVisible(true);
     }
