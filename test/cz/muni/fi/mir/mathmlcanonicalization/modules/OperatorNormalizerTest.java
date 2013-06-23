@@ -17,6 +17,16 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     }
     
     @Test
+    public void testFunction2() {
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function2");
+    }
+    
+    @Test
+    public void testFunction3() {
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function3");
+    }
+    
+    @Test
     public void testSine() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/sin");
     }
