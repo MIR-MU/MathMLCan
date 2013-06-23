@@ -16,6 +16,7 @@
 
 package cz.muni.fi.mir.mathmlcanonicalization;
 
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,11 +53,13 @@ public final class MathMLCanonicalization {
             inputFilePath = args[0];
         }
         try {
+            GraphicalUserInterface GUI = new GraphicalUserInterface();
+            
             List<File> files = getFiles(new File(inputFilePath));
             for (File f : files) {
                 canonicalize(f, config);
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -80,6 +83,8 @@ public final class MathMLCanonicalization {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ModuleException ex) {
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -99,4 +104,6 @@ public final class MathMLCanonicalization {
         }
         return result;
     }
+    
+    
 }
