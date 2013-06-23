@@ -128,9 +128,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             return;
         }
 
-        if (childCount == 1 // parent can accept any number of elements so we can remove mrow
-               || (children.size() + parentElement.getChildren().size() - 1) == childCount
-               || siblings.indexOf(element) >= childCount) {
+        if (childCount == 1 || // parent can accept any number of elements so we can remove mrow
+                children.size() + parentElement.getChildren().size() - 1 == childCount) {
             removeElement(element, parentElement);
         }
     }
