@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+  <mi>a</mi>
+  <mo>*</mo>
+  <mrow>
+    <mo>(</mo>
+    <msup>
+      <msub>
+        <mi>x</mi>
+        <msub>
+          <mi>y</mi>
+          <mn>0.95</mn>
+        </msub>
+      </msub>
+      <mn>2</mn>
+    </msup>
+    <mo>-</mo>
+    <mi>z</mi>
+    <mo>)</mo>
+  </mrow>
+  <mo>-</mo>
+  <msup>
+    <msub>
+      <mi>b</mi>
+      <mn>1</mn>
+    </msub>
+    <mn>3</mn>
+  </msup>
+</math>

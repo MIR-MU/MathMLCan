@@ -1,14 +1,7 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -50,13 +43,18 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private void removeSpareOperators(Element element) {
-        if (element.getName().equals("mo")) {
-            if (isEnabled("remove_empty") && element.getText().isEmpty()) element.detach();
-            else if (isEnabled("remove") && removeList.contains(element.getText())) element.detach();
-        } else {
-            List<Element> children = element.getChildren();
-            for(int i = 0; i < children.size(); i++) { // can't use iterator, due to detaching
-                removeSpareOperators(children.get(i));
+        List<Element> children = element.getChildren();
+        for(int i = 0; i < children.size(); i++) {
+            Element actual = children.get(i); // actual element
+            
+            if (actual.getName().equals("mo")) {
+                if ((isEnabled("remove_empty") && actual.getText().isEmpty())
+                || (isEnabled("remove") && removeList.contains(actual.getText()))) {
+                    actual.detach();
+                    i--; // move iterator back after detaching so it points to next element
+                }
+            } else {
+                removeSpareOperators(actual);
             }
         }
     }
