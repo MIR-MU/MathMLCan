@@ -22,13 +22,13 @@
                 <label id="config" />
                 <glue />
                 <button text="Select configuration" action="selectConfig"/>
+                <button id="backButton" text="Back" action="back" enabled="false" />                
             </hbox>
-      
+            
             <hbox>
                 <glue />
                 <button text="Quit" action="quit" />
             </hbox>
-      
         </vbox>
     </panel>
 </frame>
