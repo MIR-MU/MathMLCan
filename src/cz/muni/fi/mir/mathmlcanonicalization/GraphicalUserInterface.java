@@ -22,18 +22,21 @@ import java.io.OutputStream;
  * @author RobSis
  */
 public class GraphicalUserInterface {
-    
+
     private static final String DESCRIPTOR = "gui.layout";
     private SwingEngine swix;
     
-    public JPanel pnl;
+    private JPanel pnl;
     
-    public JTextArea textarea;
-    public JTextArea statusbar;
+    private JTextArea textarea;
+    private JTextArea statusbar;
     
-    public JLabel config;
+    private JLabel config;
+    private JButton backButton;
     
-    public JFileChooser fc = new JFileChooser();
+    private JFileChooser fc = new JFileChooser();
+    
+    private String previous;
     
     public Action quit = new AbstractAction() {
         @Override
@@ -85,7 +88,12 @@ public class GraphicalUserInterface {
 
             OutputStream output = new ByteArrayOutputStream();
             try {
-                InputStream input = new ByteArrayInputStream(textarea.getText().getBytes("UTF-8"));
+                String inputString = textarea.getText();
+                previous = inputString;                
+                backButton.setEnabled(true);
+
+                
+                InputStream input = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
                 statusbar.setText("");
                 mlcan.canonicalize(input, output);
                 textarea.setText(output.toString());
@@ -102,6 +110,14 @@ public class GraphicalUserInterface {
                 Logger.getLogger(GraphicalUserInterface.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 statusbar.setText(ex.getMessage());
             }
+        }
+    };
+    
+    public Action back = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            textarea.setText(previous);
+            backButton.setEnabled(false);
         }
     };
     
