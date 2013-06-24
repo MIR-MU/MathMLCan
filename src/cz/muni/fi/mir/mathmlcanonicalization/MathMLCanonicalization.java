@@ -17,13 +17,24 @@
 package cz.muni.fi.mir.mathmlcanonicalization;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FileUtils;
 import org.jdom2.JDOMException;
 
 /**
@@ -31,78 +42,120 @@ import org.jdom2.JDOMException;
  * 
  * @author David Formanek
  */
-public final class MathMLCanonicalization {
+public final class MathMLCanonicalization { 
+    private static final String EXECUTABLE = "mathmlcan";
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String inputFilePath = null;
+        Options options = new Options();
+        options.addOption("c", true, "load configuration file");
+        options.addOption("w", false, "overwrite files");
+        options.addOption("h", false, "this text");
+        
+        CommandLineParser parser = new PosixParser();
+        CommandLine line = null;
+        try {
+            line = parser.parse(options, args);
+        } catch (ParseException ex) {
+            printHelp(options);
+            System.exit(1);
+        }
         
         File config = null;
-        if (args.length < 1) {
-            System.err.println("Usage:\n\tjava -jar "
-                    + new File(cz.muni.fi.mir.mathmlcanonicalization.
-                        MathMLCanonicalization.class.getProtectionDomain().
-                        getCodeSource().getLocation().getFile()).getName()
-                    + " \"/path/to/input.xhtml\" [\"/path/to/config.xml\"]");
-            System.exit(1);
-        } else {
-            if (args.length == 2) {
+        boolean overwrite = false;
+        if (line != null) {
+            if (line.hasOption('c')) {
                 config = new File(args[1]);
             }
-            inputFilePath = args[0];
-        }
-        try {
-            GraphicalUserInterface GUI = new GraphicalUserInterface();
             
-            List<File> files = getFiles(new File(inputFilePath));
-            for (File f : files) {
-                canonicalize(f, config);
+            if (line.hasOption('w')) {
+                overwrite = true;
             }
-        } catch (Exception ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            
+            if (line.hasOption('h')) {
+                printHelp(options);
+                System.exit(1);
+            }
+            
+            List<String> arguments = line.getArgList();
+            if (arguments.size() > 0) {
+                for (String arg : arguments) {
+                    try {
+                        List<File> files = getFiles(new File(arg));
+                        for (File file : files) {
+                            canonicalize(file, config, overwrite);
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } catch (ConfigException ex) {
+                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } catch (JDOMException ex) {
+                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    } catch (ModuleException ex) {
+                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                    }
+                }
+            } else {
+                try {
+                    GraphicalUserInterface GUI = new GraphicalUserInterface();
+                } catch (Exception ex) {
+                    Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                }
+            }
         }
-
     }
     
-    private static void canonicalize(File f, File config) throws ConfigException {
-        try {
-            MathMLCanonicalizer mlcan;
+    private static void canonicalize(File f, File config, boolean overwrite) throws ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException {
+        MathMLCanonicalizer mlcan;
+
+        FileInputStream configInputStream = null;
+        if (config != null) {
+            configInputStream = new FileInputStream(config);
+            mlcan = new MathMLCanonicalizer(configInputStream);
+        } else {
+            mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
+        }
+
+        if (overwrite) {
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.INFO, "overwriting the file {0}", f.getAbsolutePath());
+            ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(f));
             
-            FileInputStream configInputStream = null;
-            if (config != null) {
-                configInputStream = new FileInputStream(config);
-                mlcan = new MathMLCanonicalizer(configInputStream);
-            } else {
-                mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
-            }
-            
+            mlcan.canonicalize(source, new FileOutputStream(f));
+        } else {
             mlcan.canonicalize(new FileInputStream(f), System.out);
-        } catch (JDOMException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (ModuleException ex) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
     
     private static List<File> getFiles(File file) throws IOException {
         List<File> result = new ArrayList<File>();
-        if (file.canRead()) {
-            if (file.isDirectory()) {
-                File[] files = file.listFiles();
-                if (files != null) {
-                    for (int i = 0; i < files.length; i++) {
-                        result.addAll(getFiles(files[i]));
-                    }
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    result.addAll(getFiles(files[i]));
                 }
-            } else {
-                result.add(file);
             }
+        } else {
+            result.add(file);
         }
         return result;
     }
     
-    
+    /**
+     * Print help text.
+     * 
+     */
+    private static void printHelp(Options options) {
+        System.err.println("Usage: " + EXECUTABLE +
+                    " [-c /path/to/config.xml] [-w] [/path/to/input.xhtml | /path/to/directory]...");
+        
+        System.err.println("Convert MathML to canonical form.");
+        System.err.println("If no arguments are specified, the GUI will start.");
+        System.err.println();
+
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printOptions(new PrintWriter(System.err, true), 80, options, 8, 8);
+    }
 }
