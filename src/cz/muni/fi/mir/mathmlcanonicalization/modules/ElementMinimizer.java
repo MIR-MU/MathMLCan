@@ -46,7 +46,6 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
 
     /**
      * Decides which attributes to keep based on keepAttributes properties.
-     * 
      */
     private boolean keepAttribute(final String name, final String attributeName, final String attributeValue) {
         String property = getProperty("keepAttributes");
@@ -55,8 +54,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
             property += " " + elementSpecific;
         }
 
-        String[] keep = property.split(" ");
-        List<String> whitelist = Arrays.asList(keep);
+        List<String> whitelist = Arrays.asList(property.split(" "));
 
         for (String attribute : whitelist) {
             if (attributeName.equals(attribute)
@@ -70,23 +68,13 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         return false;
     }
 
-    /**
-     * Removes attributes using StAX instead of DOM.
-     * So far I haven't been able to receive all types of events (i.e. comment, start document 
-     * are never received). Maybe it can be configured somehow, but I haven't figured it out yet.
-     * 
-     * Returned {@link ByteArrayOutputStream} can be converted to {@link InputStream} instance
-     * using {@link ByteArrayInputStream#ByteArrayInputStream(byte[])}.
-     */
     @Override
     public ByteArrayOutputStream execute(final InputStream input) throws ModuleException {
         String property = getProperty("remove_all");
-        String[] removeAll = property.split(" ");
-        removeWithChildren = Arrays.asList(removeAll);
+        removeWithChildren = Arrays.asList(property.split(" "));
 
         property = getProperty("remove");
-        String[] remove = property.split(" ");
-        removeKeepChildren = Arrays.asList(remove);
+        removeKeepChildren = Arrays.asList(property.split(" "));
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
@@ -94,7 +82,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         } catch (XMLStreamException ex) {
             Logger.getLogger(this.getClass().getName()).log(
                     Level.SEVERE, "error while parsing the input file. ", ex);
-            throw new ModuleException("Error while parsing the input file: " + ex.getMessage());
+            throw new ModuleException("Error while parsing the input file", ex);
         }
 
         return output;

@@ -12,8 +12,7 @@ import org.junit.Test;
 
 
 /**
- * Test cases for MathMLCanonicalizer class.
- * 
+ * Test cases for MathMLCanonicalizer class. 
  */
 public class MathMLCanonicalizerTest {
     
@@ -23,13 +22,14 @@ public class MathMLCanonicalizerTest {
     }
     
     @Test
-    public void testLoadingProperties() throws UnsupportedEncodingException, IOException, JDOMException, ModuleException {
-        String config = XML_DECLARATION +
+    public void testLoadingProperties() throws
+            UnsupportedEncodingException, IOException, JDOMException, ModuleException {
+        final String config = XML_DECLARATION +
                 "<config>" +
                 " <property name=\"existing\">value</property>" +
                 " <property name=\"nonExisting\">value</property>" +
                 "</config>";
-        InputStream configStream = new ByteArrayInputStream(config.getBytes("UTF-8"));
+        final InputStream configStream = new ByteArrayInputStream(config.getBytes("UTF-8"));
         
         Settings.setProperty("existing", "");
         

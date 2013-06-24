@@ -34,34 +34,38 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/script-normalizer.properties";
     
-    private static List<String> scripts;
+    private List<String> scripts;
     
     public ScriptNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
     }
     
     @Override
-    public void execute(Document doc) {
+    public void execute(final Document doc) {
         if (isEnabled("remove_empty") || isEnabled("normalize_oneitem")) {
             scripts = Arrays.asList(getProperty("scripts").split(" "));
         }
-        if (isEnabled("remove_empty"))
+        if (isEnabled("remove_empty")) {
             removeEmptyScripts(doc.getRootElement());
-        if (isEnabled("normalize_oneitem"))
+        }
+        if (isEnabled("normalize_oneitem")) {
             normalizeOneItemScripts(doc.getRootElement());
-        if (isEnabled("normalize_sub_in_sup"))
+        }
+        if (isEnabled("normalize_sub_in_sup")) {
             normalizeSupInSub(doc.getRootElement());
-        if (isEnabled("normalize_msubsup"))
+        }
+        if (isEnabled("normalize_msubsup")) {
             normalizeMsubsup(doc.getRootElement());
+        }
     }
     
-    private void removeEmptyScripts(Element element) {
-        List<Element> children = element.getChildren();
-        for(int i = 0; i < children.size(); i++) {
-            Element actual = children.get(i); // actual element
+    private void removeEmptyScripts(final Element element) {
+        final List<Element> children = element.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            final Element actual = children.get(i); // actual element
             removeEmptyScripts(actual);
             if (scripts.contains(actual.getName())) {
-                List<Element> actualList = actual.getChildren();
+                final List<Element> actualList = actual.getChildren();
                 
                 if(actualList.size() < 1) { // no entry at all
                     actual.detach();
@@ -71,32 +75,33 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         }
     }
     
-    private void normalizeOneItemScripts(Element element) {
-        List<Element> children = element.getChildren();
-        for(int i = 0; i < children.size(); i++) {
-            Element actual = children.get(i); // actual element
+    private void normalizeOneItemScripts(final Element element) {
+        final List<Element> children = element.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            final Element actual = children.get(i); // actual element
             normalizeOneItemScripts(actual);
             if (scripts.contains(actual.getName())) {
-                List<Element> actualList = actual.getChildren();
+                final List<Element> actualList = actual.getChildren();
                 
-                if(actualList.size() == 1) // one element entry
+                if(actualList.size() == 1) {
                     children.set(i, actualList.get(0).detach());
+                }
             }
         }
     }
     
-    private void normalizeSupInSub (Element element) {
-        List<Element> children = element.getChildren();
-        for(int i = 0; i < children.size(); i++) {
-            Element actual = children.get(i); // actual element
+    private void normalizeSupInSub (final Element element) {
+        final List<Element> children = element.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            final Element actual = children.get(i); // actual element
             normalizeSupInSub(actual);
             if (actual.getName().equals("msub")) {
                 List<Element> msubList = actual.getChildren();
                 if (msubList.size() > 1) { // well-formed msub, spare elements are discarded
                     if (msubList.get(0).getName().equals("msup")) {
-                        List<Element> msupList = msubList.get(0).getChildren();
+                        final List<Element> msupList = msubList.get(0).getChildren();
                         if (msupList.size() > 1) { // well-formed msup, spare elements are discarded
-                            Element newMsub = new Element("msub");
+                            final Element newMsub = new Element("msub");
                             newMsub.addContent(msupList.get(0).detach());
                             newMsub.addContent(msubList.get(1).detach());
 
@@ -111,12 +116,12 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         }
     }
     
-    private void normalizeMsubsup (Element element) {
-        List<Element> children = element.getChildren();
-        for(int i = 0; i < children.size(); i++) {
-            Element actual = children.get(i); // actual element
+    private void normalizeMsubsup (final Element element) {
+        final List<Element> children = element.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            final Element actual = children.get(i); // actual element
             if (actual.getName().equals("msubsup")) {
-                List<Element> actualList = actual.getChildren();
+                final List<Element> actualList = actual.getChildren();
                 
                 if (actualList.size() == 2) { // just entry with base and subscript
                     Element newMsub = new Element("msub");
