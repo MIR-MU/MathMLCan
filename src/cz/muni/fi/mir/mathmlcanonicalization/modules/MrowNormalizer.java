@@ -2,7 +2,6 @@ package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -56,17 +55,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     private static final String WRAP_ISIDE = "wrapInside";
     private static final String WRAP_OUTSIDE = "wrapOutside";
 
-    private final HashSet<String> openingParentheses;
-    private final HashSet<String> closingParentheses;
-
     public MrowNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
-
-        String openingProperty = getProperty(OPENING);
-        openingParentheses = new HashSet<String>(Arrays.asList(openingProperty.split(" ")));
-
-        String closingProperty = getProperty(CLOSING);
-        closingParentheses = new HashSet<String>(Arrays.asList(closingProperty.split(" ")));
     }
 
     @Override
@@ -139,14 +129,21 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         element.detach();
     }
 
-    private Boolean isOpening(final Element element) {
-        return element.getName().equals(OPERATOR)
-            && openingParentheses.contains(element.getTextNormalize());
-    }
+    /**
+     * Test if element is an operator representing an opening or closing parenthesis according to properties
+     * @param element element to test
+     * @param propertyName name of property specifiyng opening or closing parentheses
+     * @return true if element is a parentheses according to propertyName
+     */
+    private Boolean isParenthesis(final Element element, String propertyName) {
 
-    private Boolean isClosing(final Element element) {
-        return element.getName().equals(OPERATOR)
-            && closingParentheses.contains(element.getTextNormalize());
+        if (!element.getName().equals(OPERATOR))
+            return false;
+
+        String property = getProperty(propertyName);
+        if (property == null)
+            return false;
+        return Arrays.asList(property.split(" ")).contains(element.getTextNormalize());
     }
 
     /**
@@ -221,7 +218,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
         final List<Element> siblings = parentElement.getChildren();
 
-        if (isOpening(element)) {
+        if (isParenthesis(element, OPENING)) {
             // Element is an opening parenthesis.
             // Need to find matching closing parenthesis and register the elements between them.
             int nesting = 0;
@@ -232,10 +229,10 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             for (int i = siblings.indexOf(element) + 1; i < siblings.size(); i++) {
                 Element current = siblings.get(i);
 
-                if (isOpening(current)) {
+                if (isParenthesis(current, OPENING)) {
                     // opening parenthase reached
                     nesting++;
-                } else if (isClosing(current)) {
+                } else if (isParenthesis(current, CLOSING)) {
                     // closing parenthase reached
                     if (nesting == 0) {
                         // matching closing parenthase
