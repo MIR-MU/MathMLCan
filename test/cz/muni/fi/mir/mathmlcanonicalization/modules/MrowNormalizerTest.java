@@ -10,6 +10,12 @@ import org.junit.Test;
 public class MrowNormalizerTest extends AbstractModuleTest{
     
     private static final Module DEFAULT_INSTANCE = new MrowNormalizer();
+    private static final Module CONFIGURED_INSTANCE = new MrowNormalizer();
+
+    public MrowNormalizerTest() {
+        CONFIGURED_INSTANCE.setProperty("open", "left");
+        CONFIGURED_INSTANCE.setProperty("close", "right");
+    }
     
     @Test
     public void testSquareRoot() {
@@ -74,5 +80,10 @@ public class MrowNormalizerTest extends AbstractModuleTest{
     @Test
     public void testMixed4() {
         testXML(DEFAULT_INSTANCE, "mrowNormalizer/mixed4");
+    }
+    
+    @Test
+    public void testConfigured() {
+        testXML(CONFIGURED_INSTANCE, "mrowNormalizer/configured");
     }
 }
