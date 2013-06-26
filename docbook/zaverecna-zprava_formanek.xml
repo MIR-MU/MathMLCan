@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<article>
+    <articleinfo>
+        <title>Závěrečná zpráva k projektu MathMLCan - David Formánek</title>
+    </articleinfo>
+    <para>
+        Jako vedoucí týmu jsem koordinoval práci, rozděloval úkoly ostatním a 
+        kontroloval jejich provedení. Kromě toho jsem se zabýval následujícími 
+        oblastmi:
+    </para>
+    <section>
+        <title>Návth architektury nástroje</title>
+        <para>
+            Třídou poskytující aplikační rozhraní pro kanonizaci je 
+            <emphazis>MathMLCanonicalizer</emphazis>. Kanonizátor je možné
+            inicializovat s výchozím nastavením, s využitím konfiguračního
+            XML souboru nebo ručním přidáním nakonfigurovaných instancí modulů
+            pomocí metody <code>addModule</code>. Samotná kanonizace proudu dat 
+            je pak provedena spuštěním metody <code>canonicalize</code>.
+            Aplikační rozhraní využívá třída <emphasis>MathMLCanonicalization
+            </emphasis>, která poskytuje rozhraní příkazového řádku pro dávkové 
+            zpracování a jednoduché grafické rozhraní pro snadné použití.
+        </para>
+        <para>
+            Moduly zajišťují jádro kanonizace, každý je zodpovědný za určitou 
+            oblast. Modul je třída rozšiřující rozhraní <emphasis>Module
+            </emphasis>, resp. v současnosti jedno z rozhraní <emphasis>
+            StreamModule</emphasis> nebo <emphasis>DOMModule</emphasis>. Moduly 
+            prvního typu zpracovávají přímo vstupní proud, ostatní pracují 
+            nad JDOM2 dokumentem. Kanonizátor vstup nejprve transformuje pomocí 
+            proudových modulů, poté převede výsledek na DOM reprezentaci, nad 
+            kterou provedou kanonizaci postupně ostatní moduly, a výstup
+            serializuje do výstupního proudu. Jednotlivé moduly obsahují vlastní
+            konfigurační volby, jejichž výchozí hodnoty jsou zapsány
+            v textovém souboru. Tato modulární architektura umožňuje použití 
+            kanonizátoru pro různé účely a okamžitou možnost přizpůsobení při 
+            přehodnocení požadavků na výstup kanonizace.
+        </para>
+    </section>
+    <section>
+        <title>Rozhraní pro testování modulů</title>
+        <para>
+            Při vývoji modulů, přidávání dalších konfiguračních voleb a 
+            optimalizaci je důležité mít pro každý modul sadu jednotkových 
+            testů. S využitím knihovny <emphasis>XMLUnit</emphasis> bylo
+            vytvořeno rozhraní umožňující snadno testovat funkčnost daného
+            modulu pouze zavoláním metody s názvem souboru (bez připony), který 
+            v případě přípony .original.xml obsahuje testovaný MathMl kód 
+            a v případě přípony .canonical.xml očekávaný výstup kanonizace.
+            Třída <emphasis>AbstractModuleTest</emphasis> zařídí transformaci 
+            prvního souboru testovaným modulem (ať už využívá proudové
+            zpracování nebo DOM) a provede porovnání s druhým souborem na úrovni
+            struktury XML (bílé znaky jsou ignorovány). Rovněž provede opětovné 
+            zpracování již kanonizovaného výstupu a zkontroluje, zda nedošlo 
+            k dalším změnám (modul by měl kanonizaci provést již při prvním 
+            průchodu, tuto kontrolu lze ale vypnout). Lze též nastavit 
+            vypisování výstupu v průběhu testů pro ruční kontrolu.
+        </para>
+    </section>
+    <section>
+        <title>Implementace modulu MfencedReplacer</title>
+        <para>
+            Úkolem modulu <emphasis>MfencedReplacer</emphasis> typu DOM je 
+            vhodně nahradit výskyt všech elementů <code>mfenced</code> v MathML 
+            dokumentu. Potomci těchto elementů jsou ve výchozím nastavení 
+            odděleny separátory, obaleny elementem <code>mrow</code>, 
+            obklopeny závorkami a znovu obaleny <code>mrow</code>. Separátory a 
+            závorky jsou umístěny v elementu <code>mo</code> a specifikovány 
+            v atributech nahrazovaného elementu <code>mfenced</code>. Nejsou-li 
+            přítomny, použity jsou výchozí hodnoty. V konfiguraci je možné 
+            vypnout vkládání vnitřních a vnějších <code>mrow</code> elementů, 
+            specifikovat vlastní výchozí hodnoty závorek a separátorů a také 
+            vynutit použití výchozích hodnot bez ohledu na aktuální hodnoty 
+            atributů elementu <code>mfenced</code>.
+        </para>
+    </section>
+</article>

@@ -15,7 +15,7 @@ import org.jdom2.filter.ElementFilter;
  * not processed by MrowMinimizer yet
  * <h4>Output</h4>
  * The original code containing no &lt;mfenced&gt; elements, originally fenced
- * formulas are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
+ * formulae are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
  * (from &lt;mfenced&gt; attributes) in &lt;mo&gt; elements, inner content is
  * placed into another &lt;mrow&gt; element. Module can be configured not to
  * add mrow outside and inside or your own fixed or default parentheses and
