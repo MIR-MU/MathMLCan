@@ -44,21 +44,33 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
+
+    // MathML elements
+    private static final String ROW = "mrow";
+    private static final String OPERATOR = "mo";
+
+    // properties
+    private static final String CHILD_COUNT_PREFIX = "childCount.";
+    private static final String OPENING = "open";
+    private static final String CLOSING = "close";
+    private static final String WRAP_ISIDE = "wrapInside";
+    private static final String WRAP_OUTSIDE = "wrapOutside";
+
     private final HashSet<String> openingParentheses;
     private final HashSet<String> closingParentheses;
 
     public MrowNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
-        String openingProperty = getProperty("open");
+
+        String openingProperty = getProperty(OPENING);
         openingParentheses = new HashSet<String>(Arrays.asList(openingProperty.split(" ")));
 
-        String closingProperty = getProperty("close");
+        String closingProperty = getProperty(CLOSING);
         closingParentheses = new HashSet<String>(Arrays.asList(closingProperty.split(" ")));
     }
 
     @Override
-    public void execute(Document doc) {
-
+    public void execute(final Document doc) {
         traverseChildrenElements(doc.getRootElement());
     }
 
@@ -66,14 +78,14 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Recursively searches element content to possibly remove or add mrow where needed.
      * @param element element to start at
      */
-    private void traverseChildrenElements(Element element) {
-        List<Element> children = new ArrayList<Element>(element.getChildren());
+    private void traverseChildrenElements(final Element element) {
+        final List<Element> children = new ArrayList<Element>(element.getChildren());
 
         for (Element child : children) {
             traverseChildrenElements(child);
         }
 
-        if (element.getName().equals("mrow")) {
+        if (element.getName().equals(ROW)) {
             checkRemoval(element);
         } else {
             checkAddition(element);
@@ -82,11 +94,12 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
     /**
      * Removes a mrow element if possible.
+     * 
      * @param element the mrow element
      */
-    private void checkRemoval(Element element) {
-        Parent parent = element.getParent();
-        Element parentElement;
+    private void checkRemoval(final Element element) {
+        final Parent parent = element.getParent();
+        final Element parentElement;
 
         // no parent element
         if (!(parent instanceof Element)) {
@@ -104,111 +117,124 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         }
 
         // unknown parent element
-        if (getProperty("childCount." + parentElement.getName()) == null) {
+        if (getProperty(CHILD_COUNT_PREFIX + parentElement.getName()) == null) {
             return;
         }
 
-        int childCount;
+        final int childCount;
         try {
-            childCount = Integer.parseInt(getProperty("childCount." + parentElement.getName()));
+            childCount = Integer.parseInt(getProperty(CHILD_COUNT_PREFIX + parentElement.getName()));
         } catch (NumberFormatException e) {
             return;
         }
 
-        if (childCount == 1 || // parent can accept any number of elements so we can remove mrow
-                children.size() + parentElement.getChildren().size() - 1 == childCount
-                || siblings.indexOf(element) >= childCount) {
+        if (childCount == 1 // parent can accept any number of elements so we can remove mrow
+               || (children.size() + parentElement.getChildren().size() - 1) == childCount
+               || siblings.indexOf(element) >= childCount) {
             removeElement(element, parentElement);
         }
     }
 
-    private static void removeElement(Element element, Element parent) {
+    private static void removeElement(final Element element, final Element parent) {
         parent.addContent(parent.indexOf(element), element.cloneContent());
         element.detach();
     }
 
+    private Boolean isOpening(final Element element) {
+        return element.getName().equals(OPERATOR)
+            && openingParentheses.contains(element.getTextNormalize());
+    }
+
+    private Boolean isClosing(final Element element) {
+        return element.getName().equals(OPERATOR)
+            && closingParentheses.contains(element.getTextNormalize());
+    }
+
+    private void wrapFenced(final Element parent, final List<Element> siblings,
+            final List<Element> fenced, final Element opening, final Element closing) {
+
+        for (Element e : fenced) {
+            e.detach();
+        }
+
+        final int openingIndex = parent.indexOf(opening);
+
+        final Element innerElement;
+        if (fenced.isEmpty() || !isEnabled(WRAP_ISIDE)) {
+            innerElement = null;
+        } else if (fenced.size() == 1) {
+            innerElement = fenced.get(0);
+        } else {
+            innerElement = new Element(ROW);
+            innerElement.addContent(fenced);
+        }
+
+        // parentheses already wrapped in mrow
+        if ((parent.getName().equals(ROW)
+                && siblings.get(0) == opening
+                && siblings.get(siblings.size() - 1) == closing) || !isEnabled(WRAP_OUTSIDE)) {
+            if (innerElement == null) {
+                parent.addContent(openingIndex + 1, fenced);
+            } else {
+                parent.addContent(openingIndex + 1, innerElement);
+            }
+        } else {
+            opening.detach();
+            closing.detach();
+
+            final Element outerMrowElement = new Element(ROW);
+
+            outerMrowElement.addContent(opening);
+            if (innerElement != null) {
+                outerMrowElement.addContent(innerElement);
+            } else {
+                outerMrowElement.addContent(fenced);
+            }
+            outerMrowElement.addContent(closing);
+            parent.addContent(openingIndex, outerMrowElement);
+        }
+    }
+
     /**
-     * Wrap fenced expressions with mrow (if not) to be same as would be after mfenced replacement
-     * @param element
+     * Wrap fenced expressions with mrow (if not) to be same as would be after
+     * mfenced replacement
      */
-    private void checkAddition(Element element) {
+    private void checkAddition(final Element element) {
 
-        Parent parent;
-        Element parentElement;
-
-        // get parent element
-        parent = element.getParent();
+        final Parent parent = element.getParent();
+        
         if (!(parent instanceof Element)) {
             return;
         }
-        parentElement = (Element) parent;
+        final Element parentElement = (Element) parent;
 
-        List<Element> siblings = parentElement.getChildren();
+        final List<Element> siblings = parentElement.getChildren();
 
         // element is an opening parenthesis
-        if (element.getName().equals("mo") && openingParentheses.contains(element.getTextNormalize())) {
+        if (isOpening(element)) {
             int nesting = 0;
 
-            List<Element> children = new ArrayList<Element>();
-            int openingIndex = parentElement.indexOf(element);
+            final List<Element> fenced = new ArrayList<Element>();
 
             for (int i = siblings.indexOf(element) + 1; i < siblings.size(); i++) {
                 Element current = siblings.get(i);
 
-                if (current.getName().equals("mo") && openingParentheses.contains(current.getTextNormalize())) {
+                if (isOpening(current)) {
                     // opening parenthase reached
                     nesting++;
                 }
 
-                if (current.getName().equals("mo") && closingParentheses.contains(current.getTextNormalize())) {
+                if (isClosing(current)) {
                     // closing parenthase reached
-
                     if (nesting == 0) {
-                        for (Element e : children) {
-                            e.detach();
-                        }
-
-                        Element innerElement;
-                        if (children.isEmpty() || !isEnabled("wrapInside")) {
-                            innerElement = null;
-                        } else if (children.size() == 1/* && children.get(0).getName().equals("mrow")*/) {
-                            innerElement = children.get(0);
-                        } else {
-                            innerElement = new Element("mrow");
-                            innerElement.addContent(children);
-                        }
-
-                        // parentheses already wrapped in mrow
-                        if ((parentElement.getName().equals("mrow")
-                                && siblings.get(0) == element
-                                && siblings.get(siblings.size() - 1) == current) || !isEnabled("wrapOutside")) {
-                            if (innerElement == null) {
-                                parentElement.addContent(openingIndex + 1, children);
-                            } else {
-                                parentElement.addContent(openingIndex + 1, innerElement);
-                            }
-                        } else {
-                            element.detach();
-                            current.detach();
-
-                            Element outerMrowElement = new Element("mrow");
-
-                            outerMrowElement.addContent(element);
-                            if (innerElement != null) {
-                                outerMrowElement.addContent(innerElement);
-                            } else {
-                                outerMrowElement.addContent(children);
-                            }
-                            outerMrowElement.addContent(current);
-                            parentElement.addContent(openingIndex, outerMrowElement);
-                        }
+                        // matching closing parenthase
+                        wrapFenced(parentElement, siblings, fenced, element, current);
                         break;
                     } else {
                         nesting--;
                     }
-
                 }
-                children.add(current);
+                fenced.add(current);
             }
         }
     }

@@ -8,6 +8,7 @@ import java.util.Set;
  * @author David Formanek
  */
 public interface Module {
+    
     /**
      * Gets given property of the module
      * 
