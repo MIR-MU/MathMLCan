@@ -111,7 +111,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         List<Element> children = element.getChildren();
         List<Element> siblings = parentElement.getChildren();
 
-        if (children.size() == 1) {
+        if (children.size() <= 1) {
             removeElement(element, parentElement);
             return;
         }
@@ -149,6 +149,14 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             && closingParentheses.contains(element.getTextNormalize());
     }
 
+    /**
+     * Wrap previously detected fenced expressions in mrow to be same as output of MfencedReplacer
+     * @param parent parent element
+     * @param siblings children of parent element
+     * @param fenced list of elements inside parentheses, children of parent element
+     * @param opening opening parenthesis, child of parent element
+     * @param closing closing parenthesis, child of parent element
+     */
     private void wrapFenced(final Element parent, final List<Element> siblings,
             final List<Element> fenced, final Element opening, final Element closing) {
 
@@ -158,26 +166,31 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
         final int openingIndex = parent.indexOf(opening);
 
+        // Element to be placed inside parentheses..
+        // If null, the original 'fenced' list will be used.
         final Element innerElement;
         if (fenced.isEmpty() || !isEnabled(WRAP_ISIDE)) {
+            // will not wrap inside in mrow
             innerElement = null;
         } else if (fenced.size() == 1) {
+            // no need to wrap just one element
             innerElement = fenced.get(0);
         } else {
             innerElement = new Element(ROW);
             innerElement.addContent(fenced);
         }
 
-        // parentheses already wrapped in mrow
         if ((parent.getName().equals(ROW)
                 && siblings.get(0) == opening
                 && siblings.get(siblings.size() - 1) == closing) || !isEnabled(WRAP_OUTSIDE)) {
+            // will not wrap outside in mrow
             if (innerElement == null) {
                 parent.addContent(openingIndex + 1, fenced);
             } else {
                 parent.addContent(openingIndex + 1, innerElement);
             }
         } else {
+            // wrap outside in mrow
             opening.detach();
             closing.detach();
 
@@ -195,8 +208,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     }
 
     /**
-     * Wrap fenced expressions with mrow (if not) to be same as would be after
-     * mfenced replacement
+     * Add mrow if necessary
      */
     private void checkAddition(final Element element) {
 
@@ -209,10 +221,12 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
         final List<Element> siblings = parentElement.getChildren();
 
-        // element is an opening parenthesis
         if (isOpening(element)) {
+            // Element is an opening parenthesis.
+            // Need to find matching closing parenthesis and register the elements between them.
             int nesting = 0;
 
+            // list of elements inside parentheses
             final List<Element> fenced = new ArrayList<Element>();
 
             for (int i = siblings.indexOf(element) + 1; i < siblings.size(); i++) {
@@ -221,9 +235,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                 if (isOpening(current)) {
                     // opening parenthase reached
                     nesting++;
-                }
-
-                if (isClosing(current)) {
+                } else if (isClosing(current)) {
                     // closing parenthase reached
                     if (nesting == 0) {
                         // matching closing parenthase
