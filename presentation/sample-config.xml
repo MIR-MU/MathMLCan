@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <module name="ElementMinimizer">
+        <property name="keepAttributes.mfrac">linethickness=0 linethickness=1</property>
+    </module>
+
+    <module name="ScriptNormalizer" />
+    <module name="MrowNormalizer" />
+    <!--    <module name="MfencedReplacer" />-->
+    <module name="OperatorNormalizer">
+        <property name="remove_empty">true</property>
+    </module>
+</config>
