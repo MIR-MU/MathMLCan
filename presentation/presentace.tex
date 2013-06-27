@@ -1,0 +1,97 @@
+\documentclass{beamer}
+\usepackage{beamerthemesplit}
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+\title{MathMLCan: Kanonizace MathML}
+\date{\today}
+\frame{\titlepage}
+
+\section{Projekt MathMLCan}
+\frame{\frametitle{Projekt MathMLCan}
+    \begin{itemize}
+        \item David Formánek
+        \item Robert Šiška
+        \item Jakub Adler
+        \item Jaroslav Dufek
+    \end{itemize}
+}
+
+\section{Kanonizace MathML}
+\frame{\frametitle{Kanonizace MathML}
+    \begin{itemize}
+        \item kanonizace
+        \item využití
+        \item výsledky
+    \end{itemize}
+}
+
+\section{Architektura nástroje}
+\frame{\frametitle{Architektura nástroje}
+    \begin{itemize}
+        \item moduly (stream a DOM)
+        \item kanonizátor
+        \item možnosti konfigurace
+        \item CLI a GUI
+    \end{itemize}
+}
+
+\section{Moduly}
+\frame{\frametitle{ElementMinimizer}
+    \begin{itemize}
+        \item v současnosti jediný stream modul (ostatní DOM)
+        \item zahazuje nesémantické a nepodstatné elementy a atributy
+        \item zmenšuje velikost DOM reprezentace potřebné pro DOM moduly
+    \end{itemize}
+}
+
+\frame{\frametitle{MrowNormalizer}
+    \begin{itemize}
+        \item \texttt{mrow} = element pro sdružování jiných elementů
+        \item přidává \texttt{mrow} elementy kolem závorek
+        \item odstraňuje nepotřebné \texttt{mrow} elementy
+    \end{itemize}
+}
+
+\frame{\frametitle{OperatorNormalizer}
+        \begin{itemize}
+        \item odstraňuje nepotřebné operátory
+        \item převádí aplikaci funkce do jednotného formátu
+    \end{itemize}
+}
+
+\frame{\frametitle{ScriptNormalizer}
+    \begin{itemize}
+        \item převádí vnořené elementy \texttt{msub} a \texttt{msup} do tvaru s vnitřním \texttt{msub}
+        \item nahrazuje \texttt{msubsup} s identifikátorem za \texttt{msub} a \texttt{msup}
+        \item opravuje "script" elementy se špatným počtem prvků
+    \end{itemize}
+}
+
+\frame{\frametitle{MfencedReplacer}
+    \begin{itemize}
+        \item nahrazuje element \texttt{mfenced} pro uzávorkované výrazy
+        \item \uv{rozbalí} výraz -- operátory z atributů \texttt{mfenced} do \texttt{mo} elementů
+        \item obsah závorek v elementu \texttt{mrow} a celý výraz v dalším \texttt{mrow}
+    \end{itemize}
+}
+
+\section{Testy}
+\frame{\frametitle{Testy}
+    \begin{itemize}
+        \item XMLUnit
+        \item rozhraní pro testování
+        \item 37 jednotkových testů
+    \end{itemize}
+}
+
+\section{Závěr}
+\frame{\frametitle{Děkujeme za pozornost}
+    \begin{itemize}
+        \item dotazy?
+    \end{itemize}
+}
+
+\end{document}
