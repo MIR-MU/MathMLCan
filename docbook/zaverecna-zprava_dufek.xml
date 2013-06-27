@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<article>
+    <articleinfo>
+        <title>Závěrečná zpráva - Jaroslav Dufek</title>
+    </articleinfo>
+        <para>Mým úkolem bylo vymyslet testy a implementovat dva moduly: OperatorNormalizer a ScriptNormalizer</para>
+
+    <section>
+        <title>Modul OperatorNormalizer</title>
+
+	<para>OperatorNormalizer je DOM modul, starající se o normalizaci <programlisting>mo</programlisting> elementů.</para>
+
+	<para>Umí vyhledat a odstranit prázdné elementy <programlisting>mo</programlisting>, které nejsou potřeba, a odstranit elementy <programlisting>mo</programlisting>, které mají jako svůj obsah některý
+	z operátorů zadaných v konfiguračním souboru. Mazání jak prázdných, tak definovaných operátorů lze vypnout nebo zapnou v konfuguračním souboru.</para>
+
+	<para>Dále modul umí najít aplikaci funkce ve formátu <programlisting>mi</programlisting> s názvem funkce, následovanou elementem <programlisting>mo</programlisting>, který obsahuje jeden z operátorů
+	na aplikaci funkce, zadaných v konfiguračním souboru, následovaný argumentem, na který se má funkce aplikovat. Argument může být ve třech formátech. Prvním je
+	jednoduchý element jako číslo nebo proměnná apod. uzavřená v elementu <programlisting>mn</programlisting> resp. <programlisting>mi</programlisting> apod. Druhým je <programlisting>mrow</programlisting> element, ve kterém
+	je sada argumentů, které můžou být celé ohraničeny závorkami, což zkontroluje funkce <programlisting>hasInsideBrackets</programlisting>, které nejsou součástí argumentů. Třetí případ
+	je, že za operátorem pro aplikaci funkce následuje element <programlisting>mo</programlisting> s levou závorkou, v tomto případě se bere jako sada argumentů všechny následující
+	elementy, dokud až po odpovídající pravou závorku, nebo konec rodičovského elementu. Funkce je poté normalizována do tvaru <programlisting>mi</programlisting> s názvem funkce
+	následovaným elementem <programlisting>mrow</programlisting>, v němž je vložena sada argumentů ohraničená závorkami.</para>
+    </section>
+
+    <section>
+        <title>Modul ScriptNormalizer</title>
+
+        <para>ScriptNormalizer je také DOM modul, mající na starost normalizaci <programlisting>msup</programlisting>, <programlisting>msub</programlisting> a <programlisting>msubsup</programlisting> elementů.</para>
+
+	<para>Modul umí smazat prázdné elementy, se jmény definovanými v konfiguračním souboru a také smazat definované script elementy s pouze jedním vnitřním elementem,
+	který je poté dosazen na jeho místo, protože je zbytečné aby byl sám uvnitř nějakého script elementu.</para>
+
+	<para>Modul dále normalizuje <programlisting>msubsup</programlisting> elementy s alespoň třemi vnitřními elementy do tvaru <programlisting>msup</programlisting> elementu, jehož prvním vnitřním elementem
+	je <programlisting>msub</programlisting> element, uvnitř něhož je první a druhý element původního <programlisting>msubsup</programlisting>; a jehož druhým elementem je třetí element původního <programlisting>msubsup</programlisting>.
+	V případě že <programlisting>msubsup</programlisting> má jenom dva vniřní elementy, je normalizován do tvaru pouze <programlisting>msub</programlisting> elementu, kter obsahuje tyto dva elementy.</para>
+
+	<para>Modul také převádí výrazy ve formátu <programlisting>msub</programlisting> elementu s vniřním elementem <programlisting>msup</programlisting> do stejného a logičtějšího tvaru <programlisting>msup</programlisting>
+	elementu s vnitřním <programlisting>msub</programlisting>.</para>
+    </section>
+</article>
