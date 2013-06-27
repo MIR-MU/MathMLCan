@@ -49,6 +49,7 @@ public final class MathMLCanonicalizer {
 
     private List<StreamModule> streamModules = new ArrayList<StreamModule>();
     private List<DOMModule> domModules = new ArrayList<DOMModule>();
+    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizer.class.getName());
 
     /**
      * Initializes canonicalizer with default settings
@@ -75,9 +76,11 @@ public final class MathMLCanonicalizer {
     }
 
     /**
-     * Initializes canonicalizer using configuration file.
+     * Initializes canonicalizer using configuration file
      *
-     * @param xmlConfigurationStream XML configuration
+     * @param xmlConfigurationStream XML configuration constrained by XML Schema
+     *                               in res/configuration.xsd file
+     * @throws ConfigException when configuration cannot be loaded 
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {
         if (xmlConfigurationStream == null) {
@@ -90,12 +93,10 @@ public final class MathMLCanonicalizer {
             validateXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
             loadXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
         } catch (XMLStreamException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.SEVERE, "cannot load configuration. ", ex);
+            LOGGER.log(Level.SEVERE, "cannot load configuration. ", ex);
             throw new ConfigException("cannot load configuration", ex);
         } catch (IOException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.SEVERE, "cannot load configuration. ", ex);
+            LOGGER.log(Level.SEVERE, "cannot load configuration. ", ex);
             throw new ConfigException("cannot load configuration", ex);
         }
     }
@@ -112,9 +113,8 @@ public final class MathMLCanonicalizer {
     public MathMLCanonicalizer addModule(Module module) {
         if (module instanceof StreamModule) {
             if (module instanceof DOMModule) {
-                Logger.getLogger(Settings.class.getName()).log(
-                        Level.INFO, "Module is stream and DOM module at the same"
-                        + " time, it will be used as a stream module.");
+                LOGGER.log(Level.INFO, "Module is stream and DOM module at the"
+                        + " same time, it will be used as a stream module.");
             }
             streamModules.add((StreamModule) module);
         } else if (module instanceof DOMModule) {
@@ -126,36 +126,37 @@ public final class MathMLCanonicalizer {
     }
 
     /**
-     * Adds the module by its class name. Useful for setting modules from config
-     * files.
-     *
-     * When the module can't be found or instantiated the module is skipped and
-     * the warning is produced.
+     * Adds the module by its class name.
+     * 
+     * Useful for setting modules from config files. When the module can't be
+     * found or instantiated the module is skipped and the warning is produced.
+     * 
+     * @param moduleName the name of the module class
+     * @return the canonizer object to allow adding more modules at once
      */
     public MathMLCanonicalizer addModule(String moduleName) {
         try {
-            String fullyQualified = this.getClass().getPackage().getName() + ".modules." + moduleName;
+            String fullyQualified = this.getClass().getPackage().getName()
+                    + ".modules." + moduleName;
             Class<?> moduleClass = Class.forName(fullyQualified);
 
             return addModule((Module) moduleClass.newInstance());
-        } catch (ClassNotFoundException e) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.WARNING, "cannot load module " + moduleName, e);
-        } catch (InstantiationException e) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.WARNING, "cannot instantiate module " + moduleName, e);
-        } catch (IllegalAccessException e) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(
-                    Level.WARNING, "cannot access module " + moduleName, e);
+        } catch (ClassNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "cannot load module " + moduleName, ex);
+        } catch (InstantiationException ex) {
+            LOGGER.log(Level.WARNING, "cannot instantiate module " + moduleName, ex);
+        } catch (IllegalAccessException ex) {
+            LOGGER.log(Level.WARNING, "cannot access module " + moduleName, ex);
         }
-        return null;
+        return this;
     }
 
     /**
      * Validate the configuration against XML Schema.
-     * If not valid, the methods throws ConfigException.
+     * @throws ConfigException if not valid
      */
-    private void validateXMLConfiguration(InputStream xmlConfigurationStream) throws IOException, ConfigException {
+    private void validateXMLConfiguration(InputStream xmlConfigurationStream)
+            throws IOException, ConfigException {
         SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
@@ -171,7 +172,8 @@ public final class MathMLCanonicalizer {
     /**
      * Loads configuration from XML file, overriding the properties.
      */
-    private void loadXMLConfiguration(InputStream xmlConfigurationStream) throws ConfigException, XMLStreamException {
+    private void loadXMLConfiguration(InputStream xmlConfigurationStream)
+            throws ConfigException, XMLStreamException {
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
 
@@ -193,19 +195,23 @@ public final class MathMLCanonicalizer {
                             final String attributeValue = reader.getAttributeValue(0);
 
                             if (attributeName.equals("name") && attributeValue != null) {
-                                String fullyQualified = Settings.class.getPackage().getName() + ".modules." + attributeValue;
+                                String fullyQualified = Settings.class.getPackage().getName()
+                                        +".modules." + attributeValue;
                                 try {
                                     Class<?> moduleClass = Class.forName(fullyQualified);
                                     module = (Module) moduleClass.newInstance();
                                 } catch (InstantiationException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                                    throw new ConfigException("cannot instantiate module " + attributeValue, ex);
+                                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot instantiate module "
+                                            + attributeValue, ex);
                                 } catch (IllegalAccessException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                                    throw new ConfigException("cannot access module "  + attributeValue, ex);
+                                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot access module "
+                                            + attributeValue, ex);
                                 } catch (ClassNotFoundException ex) {
-                                    Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                                    throw new ConfigException("cannot load module "  + attributeValue, ex);
+                                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                                    throw new ConfigException("cannot load module "
+                                            + attributeValue, ex);
                                 }
                             }
                         }
@@ -221,13 +227,17 @@ public final class MathMLCanonicalizer {
                                     if (Settings.getProperty(attributeValue) != null) {
                                         Settings.setProperty(attributeValue, reader.getElementText());
                                     } else {
-                                        throw new ConfigException("configuration not valid\nTried to override non-existing global property " + attributeValue);
+                                        throw new ConfigException("configuration not valid\n"
+                                                + "Tried to override non-existing global property "
+                                                + attributeValue);
                                     }
                                 } else {
                                     if (module.getProperty(attributeValue) != null) {
                                         module.setProperty(attributeValue, reader.getElementText());
                                     } else {
-                                        throw new ConfigException("configuration not valid\nconfiguration tried to override non-existing property " + attributeValue);
+                                        throw new ConfigException("configuration not valid\n"
+                                                + "configuration tried to override non-existing property "
+                                                + attributeValue);
                                     }
                                 }
                             }
@@ -258,6 +268,7 @@ public final class MathMLCanonicalizer {
      * @param out canonical output stream of input
      * @throws JDOMException problem with DOM
      * @throws IOException problem with streams
+     * @throws ModuleException some module cannot canonicalize the input 
      */
     public void canonicalize(InputStream in, OutputStream out)
             throws JDOMException, IOException, ModuleException {
