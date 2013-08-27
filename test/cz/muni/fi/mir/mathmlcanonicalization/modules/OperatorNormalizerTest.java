@@ -40,4 +40,9 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     public void testMultiplicationBlank() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-blank");
     }
+    
+    @Test
+    public void testUnification() {
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/operator-unification");
+    }
 }

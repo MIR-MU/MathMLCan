@@ -1,11 +1,15 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.filter.ElementFilter;
 
 /**
  * Normalize the way to express an function applied to arguments in MathML.
@@ -34,6 +38,8 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
     private static final String REMOVE_EMPTY_OPERATORS = "removeempty";
     private static final String OPERATORS_TO_REMOVE = "removeoperators";
+    private static final String OPERATOR_REPLACEMENTS = "replaceoperators";
+    private static final String COLON_REPLACEMENT = "colonreplacement";
     
     public OperatorNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -48,12 +54,19 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         if (isEnabled(REMOVE_EMPTY_OPERATORS) || !getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
             removeSpareOperators(root, getPropertyCollection(OPERATORS_TO_REMOVE));
         }
+        final Map<String, String> replaceMap = getPropertyMap(OPERATOR_REPLACEMENTS);
+        if (!getProperty(COLON_REPLACEMENT).isEmpty()) {
+            replaceMap.put(":", getProperty(COLON_REPLACEMENT));
+        }
+        if (!replaceMap.isEmpty()) {
+            replaceOperators(root, replaceMap);
+        }
         if (isEnabled(NORMALIZE_FUNCTIONS)) {
             normalizeFunctionApplication(root, getPropertyCollection(APPLY_FUNCTION_OPERATORS));
         }
     }
     
-    private void removeSpareOperators(final Element element, Collection<String> spareOperators) {
+    private void removeSpareOperators(final Element element, final Collection<String> spareOperators) {
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
@@ -68,9 +81,9 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
     }
     
-    private boolean isSpareOperator(final Element operator, final Collection<String> spareOperetors) {
+    private boolean isSpareOperator(final Element operator, final Collection<String> spareOperators) {
         return (isEnabled(REMOVE_EMPTY_OPERATORS) && operator.getText().isEmpty())
-                || (spareOperetors.contains(operator.getText()));
+                || (spareOperators.contains(operator.getTextTrim()));
     }
     
     private void normalizeFunctionApplication(final Element element,
@@ -121,12 +134,12 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
     }
     
-    private boolean isFunction(int i, final List<Element> children,
+    private boolean isFunction(final int i, final List<Element> children,
             final Collection<String> functionOperators) {
         return ((i < children.size() - 2)
                 && children.get(i).getName().equals(IDENTIFIER)
                 && isOperator(children.get(i+1))
-                && functionOperators.contains(children.get(i+1).getText()));
+                && functionOperators.contains(children.get(i+1).getTextTrim()));
     }
     
     private boolean hasInsideBrackets(final Element mrow) {
@@ -154,8 +167,20 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         return false;
     }
     
+    private void replaceOperators(final Element element, final Map<String,String> replacements) {
+        List<Element> operatorsToReplace = new ArrayList<Element>();
+        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR))) {
+            if (replacements.containsKey(operator.getTextTrim())) {
+                operatorsToReplace.add(operator);
+            }
+        }
+        for (Element operator : operatorsToReplace) {
+            operator.setText(replacements.get(operator.getTextTrim()));
+        }
+    }
+    
     private boolean isOperator(final Element element, final String operator) {
-        return isOperator(element) && element.getText().equals(operator);
+        return isOperator(element) && element.getTextTrim().equals(operator);
     }
     
     private boolean isOperator(final Element element) {
@@ -164,5 +189,18 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     
     private Collection<String> getPropertyCollection(final String property) {
         return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
+    }
+    
+    private Map<String,String> getPropertyMap(final String property) {
+        final Map<String,String> propertyMap = new HashMap<String,String>();
+        final String[] mappings = getProperty(property).split(" ");
+        for (int i = 0; i < mappings.length; i++) {
+            final String[] mapping = mappings[i].split(":",2);
+            if (mapping.length != 2) {
+                throw new IllegalArgumentException("property has wrong format");
+            }
+            propertyMap.put(mapping[0], mapping[1]);
+        }
+        return propertyMap;
     }
 }
