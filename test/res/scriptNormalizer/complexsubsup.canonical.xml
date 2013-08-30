@@ -22,7 +22,13 @@
   <msup>
     <msub>
       <mi>b</mi>
-      <mn>1</mn>
+      <msup>
+        <msub>
+          <mi>a</mi>
+          <mn>1</mn>
+        </msub>
+        <mn>2</mn>
+      </msup>
     </msub>
     <mn>3</mn>
   </msup>

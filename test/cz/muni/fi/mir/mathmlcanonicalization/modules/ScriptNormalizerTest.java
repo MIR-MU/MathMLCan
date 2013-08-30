@@ -1,6 +1,5 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -12,19 +11,19 @@ public class ScriptNormalizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new ScriptNormalizer();
     
-    @Ignore @Test
-    public void testEmptyScript() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/empty-script");
-    }
-    
-    @Ignore @Test
-    public void testOneItemScript() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/oneitem-script");
+    @Test
+    public void testInvalidScript() {
+        testXML(DEFAULT_INSTANCE, "scriptNormalizer/invalid-scripts");
     }
     
     @Test
     public void testNestedSuperscript() {
         testXML(DEFAULT_INSTANCE, "scriptNormalizer/sub-sup");
+    }
+    
+    @Test
+    public void testComplexNestedSuperscript() {
+        testXML(DEFAULT_INSTANCE, "scriptNormalizer/nested-sub-sup");
     }
 
     @Test
