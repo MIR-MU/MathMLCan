@@ -1,10 +1,8 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.jdom2.Document;
@@ -52,7 +50,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
         final Element root = doc.getRootElement();
         if (isEnabled(REMOVE_EMPTY_OPERATORS) || !getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
-            removeSpareOperators(root, getPropertyCollection(OPERATORS_TO_REMOVE));
+            removeSpareOperators(root, getPropertySet(OPERATORS_TO_REMOVE));
         }
         final Map<String, String> replaceMap = getPropertyMap(OPERATOR_REPLACEMENTS);
         if (!getProperty(COLON_REPLACEMENT).isEmpty()) {
@@ -62,7 +60,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             replaceOperators(root, replaceMap);
         }
         if (isEnabled(NORMALIZE_FUNCTIONS)) {
-            normalizeFunctionApplication(root, getPropertyCollection(APPLY_FUNCTION_OPERATORS));
+            normalizeFunctionApplication(root, getPropertySet(APPLY_FUNCTION_OPERATORS));
         }
     }
     
@@ -185,10 +183,6 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     
     private boolean isOperator(final Element element) {
         return element.getName().equals(OPERATOR);
-    }
-    
-    private Collection<String> getPropertyCollection(final String property) {
-        return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
     }
     
     private Map<String,String> getPropertyMap(final String property) {

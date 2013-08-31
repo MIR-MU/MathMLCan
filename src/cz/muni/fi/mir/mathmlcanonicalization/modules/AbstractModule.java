@@ -3,6 +3,8 @@ package cz.muni.fi.mir.mathmlcanonicalization.modules;
 import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -50,5 +52,9 @@ abstract class AbstractModule implements Module {
             Logger.getLogger(Settings.class.getName()).log(
                     Level.SEVERE, "cannot load " + propertiesFilename, ex);
         }
+    }
+    
+     protected Set<String> getPropertySet(final String property) {
+        return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
     }
 }

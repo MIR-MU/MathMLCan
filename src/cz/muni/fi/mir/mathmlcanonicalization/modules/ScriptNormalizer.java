@@ -1,5 +1,6 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 import org.jdom2.Document;
@@ -40,7 +41,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private static final String SUBSUP = "msubsup";
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
-    private static final String SPLIT_SCRIPTS = "splitscripts";
+    private static final String SPLIT_SCRIPTS_ELEMENTS = "splitscriptselements";
 
     public ScriptNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -55,8 +56,9 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         if (isEnabled(SWAP_SCRIPTS)) {
             normalizeSupInSub(root);
         }
-        if (isEnabled(SPLIT_SCRIPTS)) {
-            normalizeMsubsup(root);
+        Collection<String> chosenElements = getPropertySet(SPLIT_SCRIPTS_ELEMENTS);
+        if (!chosenElements.isEmpty()) {
+            normalizeMsubsup(root, chosenElements);
         }
     }
 
@@ -91,7 +93,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         }
     }
 
-    private void normalizeMsubsup(final Element element) {
+    private void normalizeMsubsup(final Element element, Collection<String> firstChildren) {
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i);
@@ -101,16 +103,19 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                     LOGGER.warning("invalid msubsup");
                     continue;
                 }
-                Element newMsub = new Element(SUBSCRIPT);
+                if (!firstChildren.contains(actualChildren.get(0).getName())) {
+                    continue;
+                }
+                final Element newMsub = new Element(SUBSCRIPT);
                 newMsub.addContent(actualChildren.get(0).detach());
                 newMsub.addContent(actualChildren.get(0).detach());
-                Element newMsup = new Element(SUPERSCRIPT);
+                final Element newMsup = new Element(SUPERSCRIPT);
                 newMsup.addContent(newMsub);
                 newMsup.addContent(actualChildren.get(0).detach());
                 children.set(i, newMsup);
                 i--; // move back to check the children of the new transformation
             } else {
-                normalizeMsubsup(actual);
+                normalizeMsubsup(actual, firstChildren);
             }
         }
     }
