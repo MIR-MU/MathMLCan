@@ -1,8 +1,9 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Parent;
@@ -43,11 +44,10 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
-
+    private static final Logger LOGGER = Logger.getLogger(MrowNormalizer.class.getName());
     // MathML elements
     private static final String ROW = "mrow";
     private static final String OPERATOR = "mo";
-
     // properties
     private static final String CHILD_COUNT_PREFIX = "childCount.";
     private static final String OPENING = "open";
@@ -61,20 +61,22 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
     @Override
     public void execute(final Document doc) {
+        if (doc == null) {
+            throw new IllegalArgumentException("document is null");
+        }
         traverseChildrenElements(doc.getRootElement());
     }
 
     /**
      * Recursively searches element content to possibly remove or add mrow where needed.
+     * 
      * @param element element to start at
      */
     private void traverseChildrenElements(final Element element) {
         final List<Element> children = new ArrayList<Element>(element.getChildren());
-
         for (Element child : children) {
             traverseChildrenElements(child);
         }
-
         if (element.getName().equals(ROW)) {
             checkRemoval(element);
         } else {
@@ -85,42 +87,41 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     /**
      * Removes a mrow element if possible.
      * 
-     * @param element the mrow element
+     * @param mrowElement the mrow element
      */
-    private void checkRemoval(final Element element) {
-        final Parent parent = element.getParent();
+    private void checkRemoval(final Element mrowElement) {
+        final Parent parent = mrowElement.getParent();
         final Element parentElement;
 
-        // no parent element
         if (!(parent instanceof Element)) {
-            return;
+            return; // no parent element
         }
-
         parentElement = (Element) parent;
-
-        List<Element> children = element.getChildren();
-        List<Element> siblings = parentElement.getChildren();
+        final List<Element> children = mrowElement.getChildren();
 
         if (children.size() <= 1) {
-            removeElement(element, parentElement);
+            removeElement(mrowElement, parentElement);
+            LOGGER.log(Level.FINE, "Element {0} removed", mrowElement);
             return;
         }
-
-        // unknown parent element
-        if (getProperty(CHILD_COUNT_PREFIX + parentElement.getName()) == null) {
-            return;
+        
+        final String childCountProperty = getProperty(
+                CHILD_COUNT_PREFIX + parentElement.getName());
+        if (childCountProperty == null) {
+            return; // unknown parent element
         }
-
         final int childCount;
         try {
-            childCount = Integer.parseInt(getProperty(CHILD_COUNT_PREFIX + parentElement.getName()));
+            childCount = Integer.parseInt(childCountProperty);
         } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING,
+                    "{0} must be an integer, property ignored", childCountProperty);
             return;
         }
 
         if (childCount == 1 || // parent can accept any number of elements so we can remove mrow
                 children.size() + parentElement.getChildren().size() - 1 == childCount) {
-            removeElement(element, parentElement);
+            removeElement(mrowElement, parentElement);
         }
     }
 
@@ -130,24 +131,28 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     }
 
     /**
-     * Test if element is an operator representing an opening or closing parenthesis according to properties
+     * Test if element is an operator representing an opening or closing
+     * parenthesis according to properties
+     * 
      * @param element element to test
      * @param propertyName name of property specifiyng opening or closing parentheses
      * @return true if element is a parentheses according to propertyName
      */
     private Boolean isParenthesis(final Element element, String propertyName) {
-
-        if (!element.getName().equals(OPERATOR))
+        if (!element.getName().equals(OPERATOR)) {
             return false;
-
-        String property = getProperty(propertyName);
-        if (property == null)
+        }
+        if (getProperty(propertyName) == null) {
+            LOGGER.log(Level.WARNING, "Property {0} not defined", propertyName);
             return false;
-        return Arrays.asList(property.split(" ")).contains(element.getTextNormalize());
+        }
+        return getPropertySet(propertyName).contains(element.getTextNormalize());
     }
 
     /**
-     * Wrap previously detected fenced expressions in mrow to be same as output of MfencedReplacer
+     * Wrap previously detected fenced expressions in mrow to be same as output
+     * of MfencedReplacer
+     * 
      * @param parent parent element
      * @param siblings children of parent element
      * @param fenced list of elements inside parentheses, children of parent element
@@ -156,71 +161,64 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void wrapFenced(final Element parent, final List<Element> siblings,
             final List<Element> fenced, final Element opening, final Element closing) {
-
         for (Element e : fenced) {
             e.detach();
         }
-
         final int openingIndex = parent.indexOf(opening);
 
-        // Element to be placed inside parentheses..
+        // Element to be placed inside parentheses.
         // If null, the original 'fenced' list will be used.
         final Element innerElement;
         if (fenced.isEmpty() || !isEnabled(WRAP_ISIDE)) {
-            // will not wrap inside in mrow
-            innerElement = null;
+            innerElement = null; // will not wrap inside in mrow
         } else if (fenced.size() == 1) {
-            // no need to wrap just one element
-            innerElement = fenced.get(0);
+            innerElement = fenced.get(0); // no need to wrap, just one element
         } else {
             innerElement = new Element(ROW);
             innerElement.addContent(fenced);
+            LOGGER.fine("Inner mrow added");
         }
 
-        if ((parent.getName().equals(ROW)
+        if (((parent.getName().equals(ROW)
                 && siblings.get(0) == opening
-                && siblings.get(siblings.size() - 1) == closing) || !isEnabled(WRAP_OUTSIDE)) {
+                && siblings.get(siblings.size() - 1) == closing))
+                || !isEnabled(WRAP_OUTSIDE)) {
             // will not wrap outside in mrow
             if (innerElement == null) {
                 parent.addContent(openingIndex + 1, fenced);
             } else {
                 parent.addContent(openingIndex + 1, innerElement);
             }
+            return;
+        } 
+        // wrap outside in mrow
+        opening.detach();
+        closing.detach();
+        final Element outerMrowElement = new Element(ROW);
+        outerMrowElement.addContent(opening);
+        if (innerElement != null) {
+            outerMrowElement.addContent(innerElement);
         } else {
-            // wrap outside in mrow
-            opening.detach();
-            closing.detach();
-
-            final Element outerMrowElement = new Element(ROW);
-
-            outerMrowElement.addContent(opening);
-            if (innerElement != null) {
-                outerMrowElement.addContent(innerElement);
-            } else {
-                outerMrowElement.addContent(fenced);
-            }
-            outerMrowElement.addContent(closing);
-            parent.addContent(openingIndex, outerMrowElement);
+            outerMrowElement.addContent(fenced);
         }
+        outerMrowElement.addContent(closing);
+        parent.addContent(openingIndex, outerMrowElement);
+        LOGGER.fine("Outer mrow added");
     }
 
     /**
      * Add mrow if necessary
      */
     private void checkAddition(final Element element) {
-
-        final Parent parent = element.getParent();
-        
+        final Parent parent = element.getParent(); 
         if (!(parent instanceof Element)) {
             return;
         }
         final Element parentElement = (Element) parent;
-
         final List<Element> siblings = parentElement.getChildren();
 
         if (isParenthesis(element, OPENING)) {
-            // Element is an opening parenthesis.
-            // Need to find matching closing parenthesis and register the elements between them.
+            // Need to find matching closing par and register the elements between
             int nesting = 0;
 
             // list of elements inside parentheses
@@ -230,10 +228,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                 Element current = siblings.get(i);
 
                 if (isParenthesis(current, OPENING)) {
-                    // opening parenthase reached
-                    nesting++;
-                } else if (isParenthesis(current, CLOSING)) {
-                    // closing parenthase reached
+                    nesting++; // opening parenthase reached
+                } else if (isParenthesis(current, CLOSING)) { // closing parenthase reached
                     if (nesting == 0) {
                         // matching closing parenthase
                         wrapFenced(parentElement, siblings, fenced, element, current);
