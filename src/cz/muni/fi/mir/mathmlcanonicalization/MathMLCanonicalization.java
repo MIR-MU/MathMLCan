@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +46,7 @@ import org.jdom2.JDOMException;
 public final class MathMLCanonicalization { 
     private static final String EXECUTABLE = "mathmlcan";
     
+    // TODO: refactoring
     /**
      * @param args the command line arguments
      */
@@ -79,7 +81,7 @@ public final class MathMLCanonicalization {
                 System.exit(1);
             }
             
-            List<String> arguments = line.getArgList();
+            List<String> arguments = Arrays.asList(line.getArgs());
             if (arguments.size() > 0) {
                 for (String arg : arguments) {
                     try {

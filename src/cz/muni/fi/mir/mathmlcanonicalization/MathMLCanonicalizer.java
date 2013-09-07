@@ -17,8 +17,8 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,8 +38,6 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.xml.sax.SAXException;
 
-
-
 /**
  * An input class for MathML canonicalization.
  *
@@ -47,10 +45,11 @@ import org.xml.sax.SAXException;
  */
 public final class MathMLCanonicalizer {
 
-    private List<StreamModule> streamModules = new ArrayList<StreamModule>();
-    private List<DOMModule> domModules = new ArrayList<DOMModule>();
+    private List<StreamModule> streamModules = new LinkedList<StreamModule>();
+    private List<DOMModule> domModules = new LinkedList<DOMModule>();
     private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizer.class.getName());
 
+    // TODO: refactoring
     /**
      * Initializes canonicalizer with default settings
      *

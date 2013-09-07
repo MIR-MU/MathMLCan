@@ -2,6 +2,7 @@ package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -43,11 +44,8 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
+    private static final Logger LOGGER = Logger.getLogger(MfencedReplacer.class.getName());
     
-    // MathML elements
-    private static final String ROW = "mrow";
-    private static final String OPERATOR = "mo";
-    private static final String FENCED = "mfenced";
     // MathML attributes
     private static final String OPEN_FENCE = "open";
     private static final String CLOSE_FENCE = "close";
@@ -74,6 +72,10 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         final List<Element> toReplace = new ArrayList<Element>();
         for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED))) {
             toReplace.add(mfenced);
+        }
+        if (toReplace.isEmpty()) {
+            LOGGER.fine("No mfenced elements found");
+            return;
         }
         for (Element mfenced : toReplace) {
             replaceMfenced(mfenced);
@@ -112,6 +114,9 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         Element replacement = new Element(ROW, ns);
         String openStr = getProperty(DEFAULT_OPEN);
         String closeStr = getProperty(DEFAULT_CLOSE);
+        if (openStr.isEmpty() || closeStr.isEmpty()) {
+            LOGGER.warning("Default open or close fence not set");
+        }
         
         if (!isEnabled(FORCE_DEFAULT_OPEN)) {
             openStr = mfencedElement.getAttributeValue(OPEN_FENCE, openStr);
@@ -138,6 +143,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         } else {
             parent.addContent(index, replacement.removeContent());
         }
+        LOGGER.fine("Mfenced element converted");
     }
     
     private char[] getSeparators(final Element element) {

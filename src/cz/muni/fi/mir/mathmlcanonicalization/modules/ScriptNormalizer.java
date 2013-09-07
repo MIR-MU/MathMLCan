@@ -22,6 +22,7 @@ import org.jdom2.Element;
  * <li>&lt;msub&gt; inside &lt;msup&gt; in nested formulae</li>
  * <li>nested &lt;msub&gt; and &lt;msup&gt; instead of &lt;msubsup&gt; in
  * identifiers (not for sums, integrals, etc.)</li>
+ * <li>Unicode scripts converted to MathML scripts</li>
  * <li>(sub/super)scripts instead of &lt;mmultiscript&gt; where possible</li>
  * <li>maybe conversion all (under/over)scripts to (sub/super) scripts?</li>
  * </ul>
@@ -35,10 +36,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/script-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
-    // MathML elements
-    private static final String SUBSCRIPT = "msub";
-    private static final String SUPERSCRIPT = "msup";
-    private static final String SUBSUP = "msubsup";
+    
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
     private static final String SPLIT_SCRIPTS_ELEMENTS = "splitscriptselements";
@@ -52,14 +50,21 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
+        // TODO: convert Unicode superscripts (supX entities) to msup
+        // TODO: convert munder/mover/munderover to scripts
+        // TODO: normalize unconverted munder/mover/munderover
+        // TODO: convert multiscript where possible
         final Element root = doc.getRootElement();
         if (isEnabled(SWAP_SCRIPTS)) {
             normalizeSupInSub(root);
         }
         Collection<String> chosenElements = getPropertySet(SPLIT_SCRIPTS_ELEMENTS);
-        if (!chosenElements.isEmpty()) {
+        if (chosenElements.isEmpty()) {
+            LOGGER.fine("Msubsup conversion is switched off");
+        } else {
             normalizeMsubsup(root, chosenElements);
         }
+        // TODO: convert sub/sup combination with not chosen elements to subsup
     }
 
     private void normalizeSupInSub(final Element element) {
@@ -72,7 +77,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
             List<Element> subscriptChildren = actual.getChildren();
             if (subscriptChildren.size() != 2) {
-                LOGGER.warning("invalid msub");
+                LOGGER.info("Invalid msub, skipped");
                 continue;
             }
             if (!subscriptChildren.get(0).getName().equals(SUPERSCRIPT)) {
@@ -80,7 +85,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
             final List<Element> superscriptChildren = subscriptChildren.get(0).getChildren();
             if (superscriptChildren.size() != 2) {
-                LOGGER.warning("invalid msup");
+                LOGGER.info("Invalid msup, skipped");
                 continue;
             }
             final Element newMsub = new Element(SUBSCRIPT);
@@ -90,6 +95,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             newMsup.addContent(newMsub);
             newMsup.addContent(superscriptChildren.get(0).detach());
             children.set(i, newMsup);
+            LOGGER.fine("Sub/sup scripts swapped");
         }
     }
 
@@ -100,7 +106,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             if (actual.getName().equals(SUBSUP)) {
                 final List<Element> actualChildren = actual.getChildren();
                 if (actualChildren.size() != 3) {
-                    LOGGER.warning("invalid msubsup");
+                    LOGGER.info("Invalid msubsup, skipped");
                     continue;
                 }
                 if (!firstChildren.contains(actualChildren.get(0).getName())) {
@@ -114,6 +120,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 newMsup.addContent(actualChildren.get(0).detach());
                 children.set(i, newMsup);
                 i--; // move back to check the children of the new transformation
+                LOGGER.fine("Msubsup converted to nested msub and msup");
             } else {
                 normalizeMsubsup(actual, firstChildren);
             }

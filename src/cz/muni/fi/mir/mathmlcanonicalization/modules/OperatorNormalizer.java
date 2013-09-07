@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
@@ -26,11 +28,8 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/operator-normalizer.properties";
+    private static final Logger LOGGER = Logger.getLogger(OperatorNormalizer.class.getName());
     
-    // MathML elements
-    private static final String IDENTIFIER = "mi";
-    private static final String OPERATOR = "mo";
-    private static final String ROW = "mrow";
     // properties key names
     private static final String NORMALIZE_FUNCTIONS = "normalizefunctions";
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
@@ -49,14 +48,18 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             throw new IllegalArgumentException("document is null");
         }
         final Element root = doc.getRootElement();
-        if (isEnabled(REMOVE_EMPTY_OPERATORS) || !getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
+        if (!isEnabled(REMOVE_EMPTY_OPERATORS) && getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
+            LOGGER.fine("No operators set for removal");
+        } else {
             removeSpareOperators(root, getPropertySet(OPERATORS_TO_REMOVE));
         }
         final Map<String, String> replaceMap = getPropertyMap(OPERATOR_REPLACEMENTS);
         if (!getProperty(COLON_REPLACEMENT).isEmpty()) {
             replaceMap.put(":", getProperty(COLON_REPLACEMENT));
         }
-        if (!replaceMap.isEmpty()) {
+        if (replaceMap.isEmpty()) {
+            LOGGER.fine("No operators set to replace");
+        } else {
             replaceOperators(root, replaceMap);
         }
         if (isEnabled(NORMALIZE_FUNCTIONS)) {
@@ -72,6 +75,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                 if (isSpareOperator(actual, spareOperators)){
                     actual.detach();
                     i--; // move iterator back after detaching so it points to next element
+                    LOGGER.log(Level.FINE, "Operator {0} removed", actual);
                 }
             } else {
                 removeSpareOperators(actual, spareOperators);
@@ -100,8 +104,10 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                     } else { // add parentheses
                         parameter.addContent(1, new Element(OPERATOR).setText("("));
                         parameter.addContent(new Element(OPERATOR).setText(")"));
+                        LOGGER.fine("Parentheses around function argument added");
                         children.get(i + 1).detach(); // detach funct app operator
                     }
+                    LOGGER.fine("Function application operator removed");
                     continue; // no need to set newParameter
                 } else if (isOperator(parameter, "(")) {
                     int bracketsDepth = 1;
@@ -119,13 +125,16 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                     }
                     for (; bracketsDepth > 0; bracketsDepth--) { // add missing right brackets
                         newParameter.addContent(new Element(OPERATOR).setText(")"));
+                        LOGGER.fine("Added missing )");
                     }
                 } else { // if the paramether is neither mrow or (
                     newParameter.addContent(new Element(OPERATOR).setText("(")); // add left bracket
                     newParameter.addContent(children.get(parameterPosition).detach());
                     newParameter.addContent(new Element(OPERATOR).setText(")")); // add right bracket
+                    LOGGER.fine("Function argument wrapped with parentheses and mrow");
                 }
                 children.set(i + 1, newParameter); // replace function app operator with newParameter
+                LOGGER.fine("Function application operator removed");
             } else { // if there isnt start of function application apply normalization on children
                 normalizeFunctionApplication(children.get(i), functionOperators);
             }
@@ -173,7 +182,11 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             }
         }
         for (Element operator : operatorsToReplace) {
-            operator.setText(replacements.get(operator.getTextTrim()));
+            final String oldOperator = operator.getTextTrim();
+            final String newOperator = replacements.get(oldOperator);
+            operator.setText(newOperator);
+            LOGGER.log(Level.FINE, "Operator ''{0}'' was replaced by ''{1}''",
+                    new Object[]{oldOperator, newOperator});
         }
     }
     

@@ -1,7 +1,6 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import cz.muni.fi.mir.mathmlcanonicalization.Settings;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +39,8 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
     private List<String> removeWithChildren;
     private List<String> removeKeepChildren;
 
+    // TODO: refactoring
+    // TODO: add logging
     public ElementMinimizer() {
         loadProperties(PROPERTIES_FILENAME);
     }
@@ -109,7 +110,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                     // write this element
                     // omit if it should be skipped
                     String name = reader.getLocalName();
-                    if (name.equals("math")) {
+                    if (name.equals(MATH)) {
                         mathElement = true;
                     }
                     if (mathElement) {
@@ -149,7 +150,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                 case XMLStreamConstants.END_ELEMENT: {
                     if (mathElement) {
                         String name = reader.getLocalName();
-                        if (name.equals("math")) {
+                        if (name.equals(MATH)) {
                             mathElement = false;
                         }
                         if (removeKeepChildren.contains(name)) {

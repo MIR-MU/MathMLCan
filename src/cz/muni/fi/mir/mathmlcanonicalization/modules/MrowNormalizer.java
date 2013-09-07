@@ -45,9 +45,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(MrowNormalizer.class.getName());
-    // MathML elements
-    private static final String ROW = "mrow";
-    private static final String OPERATOR = "mo";
+    
     // properties
     private static final String CHILD_COUNT_PREFIX = "childCount.";
     private static final String OPENING = "open";

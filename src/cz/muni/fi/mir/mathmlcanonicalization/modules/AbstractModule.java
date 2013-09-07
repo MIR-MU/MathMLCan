@@ -1,6 +1,5 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -18,6 +17,16 @@ import java.util.logging.Logger;
 abstract class AbstractModule implements Module {
 
     protected final Properties properties = new Properties();
+    private static final Logger LOGGER = Logger.getLogger(AbstractModule.class.getName());
+    // MathML elements
+    protected static final String FENCED = "mfenced";
+    protected static final String IDENTIFIER = "mi";
+    protected static final String MATH = "math";
+    protected static final String OPERATOR = "mo";
+    protected static final String ROW = "mrow";
+    protected static final String SUBSCRIPT = "msub";
+    protected static final String SUPERSCRIPT = "msup";
+    protected static final String SUBSUP = "msubsup";
 
     @Override
     public String getProperty(String key) {
@@ -46,11 +55,10 @@ abstract class AbstractModule implements Module {
                 throw new IOException("cannot find the property file");
             }
             properties.load(resourceAsStream);
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.FINER, "module properties loaded succesfully");
+            LOGGER.log(Level.FINE,"Module properties loaded succesfully from {0}",
+                    propertiesFilename);
         } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.SEVERE, "cannot load " + propertiesFilename, ex);
+            LOGGER.log(Level.SEVERE, "Cannot load " + propertiesFilename, ex);
         }
     }
     
