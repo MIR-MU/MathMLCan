@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.stream.*;
@@ -50,13 +51,12 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
      */
     private boolean keepAttribute(final String name, final String attributeName, final String attributeValue) {
         String property = getProperty("keepAttributes");
-        String elementSpecific = getProperty("keepAttributes." + name);
-        if (elementSpecific != null) {
-            property += " " + elementSpecific;
+        final String elementPropertyName = "keepAttributes." + name;
+        if (isProperty(elementPropertyName)) {
+            property += " " + getProperty(elementPropertyName);
         }
 
         List<String> whitelist = Arrays.asList(property.split(" "));
-
         for (String attribute : whitelist) {
             if (attributeName.equals(attribute)
                     || attribute.contains("=")
@@ -65,7 +65,6 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                 return true;
             }
         }
-
         return false;
     }
 

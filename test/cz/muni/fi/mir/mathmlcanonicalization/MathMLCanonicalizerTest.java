@@ -41,6 +41,6 @@ public class MathMLCanonicalizerTest {
         }
         assertNotNull(e);
         assertEquals(Settings.getProperty("existing"), "value");
-        assertNull(Settings.getProperty("nonExisting"));
+        assertFalse(Settings.isProperty("nonExisting"));
     }
 }

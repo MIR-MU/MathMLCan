@@ -223,7 +223,7 @@ public final class MathMLCanonicalizer {
 
                             if (attributeName.equals("name") && attributeValue != null) {
                                 if (module == null) {
-                                    if (Settings.getProperty(attributeValue) != null) {
+                                    if (Settings.isProperty(attributeValue)) {
                                         Settings.setProperty(attributeValue, reader.getElementText());
                                     } else {
                                         throw new ConfigException("configuration not valid\n"
@@ -231,7 +231,7 @@ public final class MathMLCanonicalizer {
                                                 + attributeValue);
                                     }
                                 } else {
-                                    if (module.getProperty(attributeValue) != null) {
+                                    if (module.isProperty(attributeValue)) {
                                         module.setProperty(attributeValue, reader.getElementText());
                                     } else {
                                         throw new ConfigException("configuration not valid\n"

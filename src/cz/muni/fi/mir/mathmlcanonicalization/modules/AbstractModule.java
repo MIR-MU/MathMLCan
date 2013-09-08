@@ -30,7 +30,16 @@ abstract class AbstractModule implements Module {
 
     @Override
     public String getProperty(String key) {
-        return properties.getProperty(key);
+        final String property = properties.getProperty(key);
+        if (property == null) {
+            throw new IllegalArgumentException("Property '" + key + "' not set");
+        }
+        return property;
+    }
+    
+    @Override
+    public boolean isProperty(String key) {
+        return properties.getProperty(key) != null;
     }
     
     @Override
@@ -44,8 +53,16 @@ abstract class AbstractModule implements Module {
     }
     
     protected boolean isEnabled(String key) {
-        return properties.getProperty(key).equals("1")
-                || properties.getProperty(key).equals("true");
+        if (properties.getProperty(key).equals("1")
+                || properties.getProperty(key).equals("true")) {
+            return true;
+        }
+        if (properties.getProperty(key).equals("0")
+                || properties.getProperty(key).equals("false")) {
+            return false;
+        }
+        throw new IllegalArgumentException("'" + properties.getProperty(key)
+                + "' is not a valid boolean value of " + key);
     }
     
     protected void loadProperties(String propertiesFilename) {

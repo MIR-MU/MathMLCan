@@ -29,7 +29,7 @@ public class Settings {
      */
     private static final String MATHMLDTD = "mathmldtd";
     
-    private static Properties properties = new Properties();
+    private static final Properties PROPERTIES = new Properties();
 
     // load default properties from the file specified by PROPERTIES_FILENAME
     static {
@@ -38,7 +38,7 @@ public class Settings {
             if (resourceAsStream == null) {
                 throw new IOException("cannot find the property file");
             }
-            properties.load(resourceAsStream);
+            PROPERTIES.load(resourceAsStream);
             Logger.getLogger(Settings.class.getName()).log(
                     Level.FINER, "canonicalizer properties loaded succesfully");
         } catch (IOException ex) {
@@ -52,12 +52,27 @@ public class Settings {
      * cz.muni.fi.mir.mathmlcanonicalization.Settings#PROPERTIES_FILENAME}
      * 
      * @param key property name
-     * @return property value
+     * @return property value (never null)
+     * @throws IllegalArgumentException when property not set
      */
     public static String getProperty(String key) {
-        return properties.getProperty(key);
+        final String property = PROPERTIES.getProperty(key);
+        if (property == null) {
+            throw new IllegalArgumentException("Property '" + key + "' not set");
+        }
+        return property;
     }
 
+    /**
+     * Finds out if the global property is set
+     * 
+     * @param key property name
+     * @return true if property is set, false otherwise
+     */
+    public static boolean isProperty(String key) {
+        return PROPERTIES.getProperty(key) != null;
+    }
+    
     /**
      * Sets given global property
      * 
@@ -65,7 +80,7 @@ public class Settings {
      * @param value property value
      */
     public static void setProperty(String key, String value) {
-        properties.put(key, value);
+        PROPERTIES.put(key, value);
     }
 
     /**
@@ -102,6 +117,7 @@ public class Settings {
         SAXBuilder builder = new SAXBuilder();
         builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
         builder.setFeature("http://xml.org/sax/features/validation", false);
+        //builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
         builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", true);
         builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
         builder.setEntityResolver(new EntityResolver() {

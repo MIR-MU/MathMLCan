@@ -103,11 +103,11 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             return;
         }
         
-        final String childCountProperty = getProperty(
-                CHILD_COUNT_PREFIX + parentElement.getName());
-        if (childCountProperty == null) {
+        final String childCountPropertyName = CHILD_COUNT_PREFIX + parentElement.getName();
+        if (!isProperty(childCountPropertyName)) {
             return; // unknown parent element
         }
+        final String childCountProperty = getProperty(childCountPropertyName);
         final int childCount;
         try {
             childCount = Integer.parseInt(childCountProperty);
