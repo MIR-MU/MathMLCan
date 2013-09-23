@@ -1,5 +1,6 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Text;
+import org.jdom2.filter.ContentFilter;
 import org.jdom2.filter.ElementFilter;
 
 /**
@@ -21,6 +25,7 @@ import org.jdom2.filter.ElementFilter;
  * adding for the MrowNormalizer module?)</li></ul>
  *
  * @author Jaroslav Dufek
+ * @author David Formanek
  */
 public class OperatorNormalizer extends AbstractModule implements DOMModule {
     
@@ -37,6 +42,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String OPERATORS_TO_REMOVE = "removeoperators";
     private static final String OPERATOR_REPLACEMENTS = "replaceoperators";
     private static final String COLON_REPLACEMENT = "colonreplacement";
+    private static final String NORMALIZATION_FORM = "normalizationform";
     
     public OperatorNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -48,11 +54,28 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             throw new IllegalArgumentException("document is null");
         }
         final Element root = doc.getRootElement();
-        if (!isEnabled(REMOVE_EMPTY_OPERATORS) && getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
-            LOGGER.fine("No operators set for removal");
+        
+        // TODO: convert Unicode superscripts (supX entities) to msup etc.
+        
+        final String normalizerFormStr = getProperty(NORMALIZATION_FORM);
+        if (normalizerFormStr.isEmpty()) {
+            LOGGER.fine("Unicode text normalization is switched off");
         } else {
-            removeSpareOperators(root, getPropertySet(OPERATORS_TO_REMOVE));
+            try {
+                Normalizer.Form normalizerForm = Normalizer.Form.valueOf(normalizerFormStr);
+                normalizeUnicode(root, normalizerForm);
+            } catch(IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Invalid configuration value: "
+                        + NORMALIZATION_FORM, ex);
+            }
         }
+        
+        if (isEnabled(REMOVE_EMPTY_OPERATORS) || !getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
+            removeSpareOperators(root, getPropertySet(OPERATORS_TO_REMOVE));
+        } else {
+            LOGGER.fine("No operators set for removal");
+        }
+        
         final Map<String, String> replaceMap = getPropertyMap(OPERATOR_REPLACEMENTS);
         if (!getProperty(COLON_REPLACEMENT).isEmpty()) {
             replaceMap.put(":", getProperty(COLON_REPLACEMENT));
@@ -62,8 +85,33 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         } else {
             replaceOperators(root, replaceMap);
         }
+        
         if (isEnabled(NORMALIZE_FUNCTIONS)) {
             normalizeFunctionApplication(root, getPropertySet(APPLY_FUNCTION_OPERATORS));
+        }
+    }
+    
+    private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
+        final List<Text> texts = new ArrayList<Text>();
+        final ContentFilter textFilter = new ContentFilter(ContentFilter.TEXT);
+        for (Content text : ancestor.getContent(textFilter)) {
+            texts.add((Text) text);
+        }
+        for (Element element : ancestor.getDescendants(new ElementFilter())) {
+            for (Content text : element.getContent(textFilter)) {
+                texts.add((Text) text);
+            }
+        }
+        
+        for (Text text : texts) {
+            if (Normalizer.isNormalized(text.getText(), form)) {
+                continue;
+            }
+            final String normalizedString = Normalizer.normalize(text.getText(), form);
+            LOGGER.log(Level.FINE, "Text ''{0}'' normalized to ''{1}''",
+                    new Object[]{text.getText(), normalizedString});
+            text.setText(normalizedString);
+            assert Normalizer.isNormalized(text.getText(), form);
         }
     }
     
@@ -202,7 +250,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         final Map<String,String> propertyMap = new HashMap<String,String>();
         final String[] mappings = getProperty(property).split(" ");
         for (int i = 0; i < mappings.length; i++) {
-            final String[] mapping = mappings[i].split(":",2);
+            final String[] mapping = mappings[i].split(":", 2);
             if (mapping.length != 2) {
                 throw new IllegalArgumentException("property has wrong format");
             }

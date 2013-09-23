@@ -50,7 +50,6 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
-        // TODO: convert Unicode superscripts (supX entities) to msup
         // TODO: convert munder/mover/munderover to scripts
         // TODO: normalize unconverted munder/mover/munderover
         // TODO: convert multiscript where possible

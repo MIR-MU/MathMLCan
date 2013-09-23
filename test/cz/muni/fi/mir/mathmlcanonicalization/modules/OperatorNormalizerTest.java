@@ -45,4 +45,10 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     public void testUnification() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/operator-unification");
     }
+    
+    @Test
+    public void testUnicode() {
+        // not working for normalized multibyte symbols
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/unicode");
+    }
 }
