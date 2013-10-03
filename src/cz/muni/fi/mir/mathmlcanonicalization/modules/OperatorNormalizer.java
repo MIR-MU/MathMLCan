@@ -51,7 +51,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
-            throw new IllegalArgumentException("document is null");
+            throw new NullPointerException("doc");
         }
         final Element root = doc.getRootElement();
         
@@ -92,6 +92,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
+        assert ancestor != null && form != null;
         final List<Text> texts = new ArrayList<Text>();
         final ContentFilter textFilter = new ContentFilter(ContentFilter.TEXT);
         for (Content text : ancestor.getContent(textFilter)) {
@@ -102,7 +103,6 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                 texts.add((Text) text);
             }
         }
-        
         for (Text text : texts) {
             if (Normalizer.isNormalized(text.getText(), form)) {
                 continue;
@@ -116,6 +116,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private void removeSpareOperators(final Element element, final Collection<String> spareOperators) {
+        assert element != null && spareOperators != null;
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
@@ -132,12 +133,14 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private boolean isSpareOperator(final Element operator, final Collection<String> spareOperators) {
+        assert operator != null && spareOperators != null;
         return (isEnabled(REMOVE_EMPTY_OPERATORS) && operator.getText().isEmpty())
                 || (spareOperators.contains(operator.getTextTrim()));
     }
     
     private void normalizeFunctionApplication(final Element element,
             final Collection<String> functionOperators) {
+        assert element != null && functionOperators != null;
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             if (isFunction(i, children, functionOperators)) {
@@ -191,14 +194,16 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     
     private boolean isFunction(final int i, final List<Element> children,
             final Collection<String> functionOperators) {
+        assert i >= 0 && children != null && i < children.size() && functionOperators != null;
         return ((i < children.size() - 2)
                 && children.get(i).getName().equals(IDENTIFIER)
                 && isOperator(children.get(i+1))
                 && functionOperators.contains(children.get(i+1).getTextTrim()));
     }
     
-    private boolean hasInsideBrackets(final Element mrow) {
-        final List<Element> children = mrow.getChildren();
+    private boolean hasInsideBrackets(final Element element) {
+        assert element != null;
+        final List<Element> children = element.getChildren();
         if ((children.size() > 1) && isOperator(children.get(0), "(")) {
             int bracketsDepth = 1;
             Element child;
@@ -223,6 +228,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private void replaceOperators(final Element element, final Map<String,String> replacements) {
+        assert element != null && replacements != null;
         List<Element> operatorsToReplace = new ArrayList<Element>();
         for (Element operator : element.getDescendants(new ElementFilter(OPERATOR))) {
             if (replacements.containsKey(operator.getTextTrim())) {
@@ -243,10 +249,12 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private boolean isOperator(final Element element) {
+        assert element != null;
         return element.getName().equals(OPERATOR);
     }
     
     private Map<String,String> getPropertyMap(final String property) {
+        assert property != null && isProperty(property);
         final Map<String,String> propertyMap = new HashMap<String,String>();
         final String[] mappings = getProperty(property).split(" ");
         for (int i = 0; i < mappings.length; i++) {

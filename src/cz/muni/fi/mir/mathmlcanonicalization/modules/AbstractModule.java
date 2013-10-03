@@ -33,6 +33,9 @@ abstract class AbstractModule implements Module {
 
     @Override
     public String getProperty(String key) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
         final String property = properties.getProperty(key);
         if (property == null) {
             throw new IllegalArgumentException("Property '" + key + "' not set");
@@ -42,11 +45,20 @@ abstract class AbstractModule implements Module {
     
     @Override
     public boolean isProperty(String key) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
         return properties.getProperty(key) != null;
     }
     
     @Override
     public void setProperty(String key, String value) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
+        if (value == null) {
+            throw new NullPointerException("value");
+        }
         properties.setProperty(key, value);
     }
     
@@ -56,6 +68,7 @@ abstract class AbstractModule implements Module {
     }
     
     protected boolean isEnabled(String key) {
+        assert key != null;
         if (properties.getProperty(key).equals("1")
                 || properties.getProperty(key).equals("true")) {
             return true;
@@ -69,6 +82,7 @@ abstract class AbstractModule implements Module {
     }
     
     protected void loadProperties(String propertiesFilename) {
+        assert propertiesFilename != null && !propertiesFilename.isEmpty();
         try {
             InputStream resourceAsStream = this.getClass().getResourceAsStream(propertiesFilename);
             if (resourceAsStream == null) {
@@ -83,6 +97,7 @@ abstract class AbstractModule implements Module {
     }
     
      protected Set<String> getPropertySet(final String property) {
+        assert property != null && !property.isEmpty();
         return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
     }
 }

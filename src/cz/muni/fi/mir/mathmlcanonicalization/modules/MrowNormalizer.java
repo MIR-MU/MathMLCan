@@ -60,7 +60,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
-            throw new IllegalArgumentException("document is null");
+            throw new NullPointerException("doc");
         }
         traverseChildrenElements(doc.getRootElement());
     }
@@ -71,6 +71,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * @param element element to start at
      */
     private void traverseChildrenElements(final Element element) {
+        assert element != null;
         final List<Element> children = new ArrayList<Element>(element.getChildren());
         for (Element child : children) {
             traverseChildrenElements(child);
@@ -88,13 +89,12 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * @param mrowElement the mrow element
      */
     private void checkRemoval(final Element mrowElement) {
+        assert mrowElement != null && mrowElement.getName().equals(ROW);
         final Parent parent = mrowElement.getParent();
-        final Element parentElement;
-
         if (!(parent instanceof Element)) {
             return; // no parent element
         }
-        parentElement = (Element) parent;
+        final Element parentElement = (Element) parent;
         final List<Element> children = mrowElement.getChildren();
 
         if (children.size() <= 1) {
@@ -124,6 +124,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     }
 
     private static void removeElement(final Element element, final Element parent) {
+        assert element != null && parent != null;
         parent.addContent(parent.indexOf(element), element.cloneContent());
         element.detach();
     }
@@ -136,12 +137,9 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * @param propertyName name of property specifiyng opening or closing parentheses
      * @return true if element is a parentheses according to propertyName
      */
-    private Boolean isParenthesis(final Element element, String propertyName) {
+    private Boolean isParenthesis(final Element element, final String propertyName) {
+        assert element != null && propertyName != null && isProperty(propertyName);
         if (!element.getName().equals(OPERATOR)) {
-            return false;
-        }
-        if (getProperty(propertyName) == null) {
-            LOGGER.log(Level.WARNING, "Property {0} not defined", propertyName);
             return false;
         }
         return getPropertySet(propertyName).contains(element.getTextNormalize());
@@ -151,14 +149,16 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Wrap previously detected fenced expressions in mrow to be same as output
      * of MfencedReplacer
      * 
-     * @param parent parent element
      * @param siblings children of parent element
      * @param fenced list of elements inside parentheses, children of parent element
      * @param opening opening parenthesis, child of parent element
      * @param closing closing parenthesis, child of parent element
      */
-    private void wrapFenced(final Element parent, final List<Element> siblings,
-            final List<Element> fenced, final Element opening, final Element closing) {
+    private void wrapFenced(final List<Element> siblings, final List<Element> fenced,
+            final Element opening, final Element closing) {
+        assert siblings != null && fenced != null && opening != null;
+        final Element parent = opening.getParentElement();
+        assert closing != null && closing.getParentElement().equals(parent);
         for (Element e : fenced) {
             e.detach();
         }
@@ -208,6 +208,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * Add mrow if necessary
      */
     private void checkAddition(final Element element) {
+        assert element != null;
         final Parent parent = element.getParent(); 
         if (!(parent instanceof Element)) {
             return;
@@ -223,14 +224,14 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             final List<Element> fenced = new ArrayList<Element>();
 
             for (int i = siblings.indexOf(element) + 1; i < siblings.size(); i++) {
-                Element current = siblings.get(i);
+                final Element current = siblings.get(i);
 
                 if (isParenthesis(current, OPENING)) {
                     nesting++; // opening parenthase reached
                 } else if (isParenthesis(current, CLOSING)) { // closing parenthase reached
                     if (nesting == 0) {
                         // matching closing parenthase
-                        wrapFenced(parentElement, siblings, fenced, element, current);
+                        wrapFenced(siblings, fenced, element, current);
                         break;
                     } else {
                         nesting--;

@@ -51,12 +51,12 @@ public final class MathMLCanonicalization {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Options options = new Options();
+        final Options options = new Options();
         options.addOption("c", true, "load configuration file");
         options.addOption("w", false, "overwrite files");
         options.addOption("h", false, "this text");
         
-        CommandLineParser parser = new PosixParser();
+        final CommandLineParser parser = new PosixParser();
         CommandLine line = null;
         try {
             line = parser.parse(options, args);
@@ -81,7 +81,7 @@ public final class MathMLCanonicalization {
                 System.exit(1);
             }
             
-            List<String> arguments = Arrays.asList(line.getArgs());
+            final List<String> arguments = Arrays.asList(line.getArgs());
             if (arguments.size() > 0) {
                 for (String arg : arguments) {
                     try {
@@ -101,7 +101,7 @@ public final class MathMLCanonicalization {
                 }
             } else {
                 try {
-                    GraphicalUserInterface GUI = new GraphicalUserInterface();
+                    final GraphicalUserInterface GUI = new GraphicalUserInterface();
                 } catch (Exception ex) {
                     Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
@@ -109,10 +109,11 @@ public final class MathMLCanonicalization {
         }
     }
     
-    private static void canonicalize(File f, File config, boolean overwrite) throws ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException {
+    private static void canonicalize(File file, File config, boolean overwrite) throws
+            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException {
+        assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
-
-        FileInputStream configInputStream = null;
+        FileInputStream configInputStream;
         if (config != null) {
             configInputStream = new FileInputStream(config);
             mlcan = new MathMLCanonicalizer(configInputStream);
@@ -121,16 +122,17 @@ public final class MathMLCanonicalization {
         }
 
         if (overwrite) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.INFO, "overwriting the file {0}", f.getAbsolutePath());
-            ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(f));
+            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
+            ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
             
-            mlcan.canonicalize(source, new FileOutputStream(f));
+            mlcan.canonicalize(source, new FileOutputStream(file));
         } else {
-            mlcan.canonicalize(new FileInputStream(f), System.out);
+            mlcan.canonicalize(new FileInputStream(file), System.out);
         }
     }
     
     private static List<File> getFiles(File file) throws IOException {
+        assert file != null;
         List<File> result = new ArrayList<File>();
         if (file.isDirectory()) {
             File[] files = file.listFiles();

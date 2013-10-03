@@ -37,25 +37,44 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/element-minimizer.properties";
-    private List<String> removeWithChildren;
-    private List<String> removeKeepChildren;
+    private Set<String> removeWithChildren;
+    private Set<String> removeKeepChildren;
 
-    // TODO: refactoring
-    // TODO: add logging
     public ElementMinimizer() {
         loadProperties(PROPERTIES_FILENAME);
+    }
+
+    @Override
+    public ByteArrayOutputStream execute(final InputStream input) throws ModuleException {
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+        removeWithChildren = getPropertySet("remove_all");
+        removeKeepChildren = getPropertySet("remove");
+
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            minimizeElements(input, output);
+        } catch (XMLStreamException ex) {
+            Logger.getLogger(this.getClass().getName()).log(
+                    Level.SEVERE, "error while parsing the input file. ", ex);
+            throw new ModuleException("Error while parsing the input file", ex);
+        }
+        return output;
     }
 
     /**
      * Decides which attributes to keep based on keepAttributes properties.
      */
-    private boolean keepAttribute(final String name, final String attributeName, final String attributeValue) {
+    private boolean keepAttribute(final String name, final String attributeName,
+            final String attributeValue) {
+        assert name != null && attributeName != null && attributeValue != null;
+        assert !name.isEmpty() && !attributeName.isEmpty();
         String property = getProperty("keepAttributes");
         final String elementPropertyName = "keepAttributes." + name;
         if (isProperty(elementPropertyName)) {
             property += " " + getProperty(elementPropertyName);
         }
-
         List<String> whitelist = Arrays.asList(property.split(" "));
         for (String attribute : whitelist) {
             if (attributeName.equals(attribute)
@@ -67,28 +86,12 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         }
         return false;
     }
-
-    @Override
-    public ByteArrayOutputStream execute(final InputStream input) throws ModuleException {
-        String property = getProperty("remove_all");
-        removeWithChildren = Arrays.asList(property.split(" "));
-
-        property = getProperty("remove");
-        removeKeepChildren = Arrays.asList(property.split(" "));
-
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try {
-            minimizeElements(input, output);
-        } catch (XMLStreamException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "error while parsing the input file. ", ex);
-            throw new ModuleException("Error while parsing the input file", ex);
-        }
-
-        return output;
-    }
-
-    private void minimizeElements(final InputStream input, OutputStream outputStream) throws XMLStreamException {
+    
+    private void minimizeElements(final InputStream input, final OutputStream outputStream)
+            throws XMLStreamException {
+        assert input != null && outputStream != null;
+        // TODO: refactoring
+        // TODO: add logging
         final XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
         final XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
         // stream for reading event from input stream

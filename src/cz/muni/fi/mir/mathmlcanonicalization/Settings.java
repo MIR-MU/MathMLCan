@@ -34,7 +34,7 @@ public class Settings {
     // load default properties from the file specified by PROPERTIES_FILENAME
     static {
         try {
-            InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
+            final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
             if (resourceAsStream == null) {
                 throw new IOException("cannot find the property file");
             }
@@ -56,6 +56,9 @@ public class Settings {
      * @throws IllegalArgumentException when property not set
      */
     public static String getProperty(String key) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
         final String property = PROPERTIES.getProperty(key);
         if (property == null) {
             throw new IllegalArgumentException("Property '" + key + "' not set");
@@ -70,6 +73,9 @@ public class Settings {
      * @return true if property is set, false otherwise
      */
     public static boolean isProperty(String key) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
         return PROPERTIES.getProperty(key) != null;
     }
     
@@ -80,6 +86,12 @@ public class Settings {
      * @param value property value
      */
     public static void setProperty(String key, String value) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
+        if (value == null) {
+            throw new NullPointerException("value");
+        }
         PROPERTIES.put(key, value);
     }
 
@@ -89,7 +101,7 @@ public class Settings {
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
         inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
         inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
@@ -114,7 +126,7 @@ public class Settings {
      * @return initialized SAXBuilder instance
      */
     public static SAXBuilder setupSAXBuilder() {
-        SAXBuilder builder = new SAXBuilder();
+        final SAXBuilder builder = new SAXBuilder();
         builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
         builder.setFeature("http://xml.org/sax/features/validation", false);
         //builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
@@ -133,5 +145,9 @@ public class Settings {
         });
         
         return builder;
+    }
+
+    private Settings() {
+        assert false;
     }
 }

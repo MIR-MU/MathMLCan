@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -55,7 +56,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
-            throw new IllegalArgumentException("document is null");
+            throw new NullPointerException("doc");
         }
         final Element root = doc.getRootElement();
         if (isEnabled(UNIFY_SCRIPTS)) {
@@ -169,5 +170,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         final int parentIndex = parent.indexOf(toReplace);
         parent.removeContent(parentIndex);
         parent.addContent(parentIndex, replacement);
+        LOGGER.log(Level.FINE, "{0} replaced with {1}",
+                new Object[]{toReplace, replacementName});
     }
 }

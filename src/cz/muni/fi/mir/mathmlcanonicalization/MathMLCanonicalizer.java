@@ -83,12 +83,11 @@ public final class MathMLCanonicalizer {
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {
         if (xmlConfigurationStream == null) {
-            throw new IllegalArgumentException("xmlConfigurationStream is null");
+            throw new NullPointerException("xmlConfigurationStream is null");
         }
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(xmlConfigurationStream, baos);
-            
             validateXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
             loadXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
         } catch (XMLStreamException ex) {
@@ -110,6 +109,9 @@ public final class MathMLCanonicalizer {
      * @return the canonizer object to allow adding more modules at once
      */
     public MathMLCanonicalizer addModule(Module module) {
+        if (module == null) {
+            throw new NullPointerException("module");
+        }
         if (module instanceof StreamModule) {
             if (module instanceof DOMModule) {
                 LOGGER.log(Level.INFO, "Module is stream and DOM module at the"
@@ -134,6 +136,12 @@ public final class MathMLCanonicalizer {
      * @return the canonizer object to allow adding more modules at once
      */
     public MathMLCanonicalizer addModule(String moduleName) {
+        if (moduleName == null) {
+            throw new NullPointerException("moduleName");
+        }
+        if (moduleName.isEmpty()) {
+            throw new IllegalArgumentException("empty moduleName");
+        }
         try {
             String fullyQualified = this.getClass().getPackage().getName()
                     + ".modules." + moduleName;
@@ -156,12 +164,13 @@ public final class MathMLCanonicalizer {
      */
     private void validateXMLConfiguration(InputStream xmlConfigurationStream)
             throws IOException, ConfigException {
-        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        assert xmlConfigurationStream != null;
+        final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
-            Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
+            final Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
                     Settings.getProperty("configSchema")));
 
-            Validator validator = schema.newValidator();
+            final Validator validator = schema.newValidator();
             validator.validate(new StreamSource(xmlConfigurationStream));
         } catch (SAXException ex) {
             throw new ConfigException("configuration not valid\n" + ex.getMessage(), ex);
@@ -173,6 +182,7 @@ public final class MathMLCanonicalizer {
      */
     private void loadXMLConfiguration(InputStream xmlConfigurationStream)
             throws ConfigException, XMLStreamException {
+        assert xmlConfigurationStream != null;
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
 
@@ -269,18 +279,24 @@ public final class MathMLCanonicalizer {
      * @throws IOException problem with streams
      * @throws ModuleException some module cannot canonicalize the input 
      */
-    public void canonicalize(InputStream in, OutputStream out)
+    public void canonicalize(final InputStream in, final OutputStream out)
             throws JDOMException, IOException, ModuleException {
-
+        if (in == null) {
+            throw new NullPointerException("in");
+        }
+        if (out == null) {
+            throw new NullPointerException("out");
+        }
+        InputStream inputStream = in;
         ByteArrayOutputStream outputStream = null;
 
         // calling stream modules
         for (StreamModule module : streamModules) {
-            outputStream = module.execute(in);
+            outputStream = module.execute(inputStream);
             if (outputStream == null) {
-                throw new IOException("Module " + module.toString() + "returned null.");
+                throw new IOException("Module " + module + "returned null.");
             }
-            in = new ByteArrayInputStream(outputStream.toByteArray());
+            inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         }
 
         // do not create the JDOM representation if there are no modules
@@ -288,13 +304,14 @@ public final class MathMLCanonicalizer {
             if (streamModules.isEmpty()) {
                 throw new IOException("There are no modules added.");
             }
+            assert outputStream != null; // nonempty streamModules + nothing thrown in for
             outputStream.writeTo(out);
             return;
         }
 
         // creating the JDOM representation from the stream
-        SAXBuilder builder = Settings.setupSAXBuilder();
-        Document document = builder.build(in);
+        final SAXBuilder builder = Settings.setupSAXBuilder();
+        final Document document = builder.build(inputStream);
 
         // calling JDOM modules
         for (DOMModule module : domModules) {
@@ -302,7 +319,7 @@ public final class MathMLCanonicalizer {
         }
 
         // convertong the JDOM representation back to stream
-        XMLOutputter serializer = new XMLOutputter();
+        final XMLOutputter serializer = new XMLOutputter();
         serializer.output(document, out);
     }
 }

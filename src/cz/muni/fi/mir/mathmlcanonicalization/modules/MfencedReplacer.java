@@ -67,7 +67,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
-            throw new IllegalArgumentException("document is null");
+            throw new NullPointerException("doc");
         }
         final List<Element> toReplace = new ArrayList<Element>();
         for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED))) {
@@ -83,6 +83,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     }
 
     private void replaceMfenced(final Element mfencedElement) {
+        assert mfencedElement != null;
         final char[] separators = getSeparators(mfencedElement);
         final Namespace ns = mfencedElement.getNamespace();
         final List<Element> children = mfencedElement.getChildren();
@@ -110,6 +111,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     }
     
     private void replaceMfenced(final Element mfencedElement, final Element insideContent) {
+        assert mfencedElement != null; // but insideContent can be null
         final Namespace ns = mfencedElement.getNamespace();
         Element replacement = new Element(ROW, ns);
         String openStr = getProperty(DEFAULT_OPEN);
@@ -147,6 +149,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     }
     
     private char[] getSeparators(final Element element) {
+        assert element != null;
         if (isEnabled(FORCE_DEFAULT_SEPARATORS)) {
             return getProperty(DEFAULT_SEPARATORS).toCharArray();
         }
