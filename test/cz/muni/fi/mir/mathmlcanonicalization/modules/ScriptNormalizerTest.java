@@ -35,4 +35,9 @@ public class ScriptNormalizerTest extends AbstractModuleTest {
     public void testComplexSubsup() {
         testXML(DEFAULT_INSTANCE, "scriptNormalizer/complexsubsup");
     }
+    
+    @Test
+    public void testUnderOver() {
+        testXML(DEFAULT_INSTANCE, "scriptNormalizer/underover");
+    }
 }

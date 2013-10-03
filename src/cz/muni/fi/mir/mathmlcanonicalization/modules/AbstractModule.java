@@ -23,10 +23,13 @@ abstract class AbstractModule implements Module {
     protected static final String IDENTIFIER = "mi";
     protected static final String MATH = "math";
     protected static final String OPERATOR = "mo";
+    protected static final String OVERSCRIPT = "mover";
     protected static final String ROW = "mrow";
     protected static final String SUBSCRIPT = "msub";
     protected static final String SUPERSCRIPT = "msup";
     protected static final String SUBSUP = "msubsup";
+    protected static final String UNDEROVER = "munderover";
+    protected static final String UNDERSCRIPT = "munder";
 
     @Override
     public String getProperty(String key) {

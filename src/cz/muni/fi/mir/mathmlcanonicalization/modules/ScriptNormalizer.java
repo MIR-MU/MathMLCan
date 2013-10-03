@@ -1,10 +1,15 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.filter.ElementFilter;
 
 /**
  * Handle sub/super/under/over/multi script elements in MathML.
@@ -28,6 +33,7 @@ import org.jdom2.Element;
  * </ul>
  *
  * @author Jaroslav Dufek
+ * @author David Formanek
  */
 public class ScriptNormalizer extends AbstractModule implements DOMModule {
 
@@ -40,6 +46,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
     private static final String SPLIT_SCRIPTS_ELEMENTS = "splitscriptselements";
+    private static final String UNIFY_SCRIPTS = "unifyscripts";
 
     public ScriptNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -50,10 +57,17 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new IllegalArgumentException("document is null");
         }
-        // TODO: convert munder/mover/munderover to scripts
-        // TODO: normalize unconverted munder/mover/munderover
-        // TODO: convert multiscript where possible
         final Element root = doc.getRootElement();
+        if (isEnabled(UNIFY_SCRIPTS)) {
+            final Map<String, String> replaceMap = new HashMap<String, String>();
+            replaceMap.put(UNDERSCRIPT, SUBSCRIPT);
+            replaceMap.put(OVERSCRIPT, SUPERSCRIPT);
+            replaceMap.put(UNDEROVER, SUBSUP);
+            replaceDescendants(root, replaceMap);
+        } else {
+            // TODO: normalize unconverted munder/mover/munderover
+        }
+        // TODO: convert multiscript where possible
         if (isEnabled(SWAP_SCRIPTS)) {
             normalizeSupInSub(root);
         }
@@ -67,6 +81,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     }
 
     private void normalizeSupInSub(final Element element) {
+        assert element != null;
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i);
@@ -99,6 +114,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     }
 
     private void normalizeMsubsup(final Element element, Collection<String> firstChildren) {
+        assert element != null && firstChildren != null;
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i);
@@ -125,37 +141,33 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
         }
     }
-    // TODO: move to mrowNormalizer with other elements removing too
-    /*
-     private void removeEmptyScripts(final Element element) {
-     final List<Element> children = element.getChildren();
-     for (int i = 0; i < children.size(); i++) {
-     final Element actual = children.get(i); // actual element
-     removeEmptyScripts(actual);
-     if (scripts.contains(actual.getName())) {
-     final List<Element> actualList = actual.getChildren();
-
-     if (actualList.size() < 1) { // no entry at all
-     actual.detach();
-     i--; // move iterator back because element was removed and next is on his place now
-     }
-     }
-     }
-     }
-
-     private void normalizeOneItemScripts(final Element element) {
-     final List<Element> children = element.getChildren();
-     for (int i = 0; i < children.size(); i++) {
-     final Element actual = children.get(i); // actual element
-     normalizeOneItemScripts(actual);
-     if (scripts.contains(actual.getName())) {
-     final List<Element> actualList = actual.getChildren();
-
-     if (actualList.size() == 1) {
-     children.set(i, actualList.get(0).detach());
-     }
-     }
-     }
-     }
-     */
+    
+    private void replaceDescendants(final Element ancestor, final Map<String, String> map) {
+        assert ancestor != null && map != null;
+        final List<Element> elements = new ArrayList<Element>();
+        for (Element element : ancestor.getDescendants(new ElementFilter())) {
+            if (map.containsKey(element.getName())) {
+                elements.add(element);
+            }
+        }
+        for (Element element : elements) {
+            replaceElement(element, map.get(element.getName()));
+        }
+    }
+    
+    private void replaceElement(final Element toReplace, final String replacementName) {
+        assert toReplace != null && replacementName != null;
+        assert !replacementName.isEmpty();
+        final Element parent = toReplace.getParentElement();
+        assert parent != null;
+        final Element replacement = new Element(replacementName);
+        replacement.addContent(toReplace.removeContent());
+        final List<Attribute> attributes = toReplace.getAttributes();
+        for (Attribute attribute : attributes) {
+            replacement.setAttribute(attribute.detach());
+        }
+        final int parentIndex = parent.indexOf(toReplace);
+        parent.removeContent(parentIndex);
+        parent.addContent(parentIndex, replacement);
+    }
 }
