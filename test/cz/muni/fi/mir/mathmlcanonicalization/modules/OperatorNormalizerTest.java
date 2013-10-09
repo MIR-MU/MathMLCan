@@ -12,26 +12,6 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
     private static final Module DEFAULT_INSTANCE = new OperatorNormalizer();
     
     @Test
-    public void testFunction() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function");
-    }
-    
-    @Test
-    public void testFunction2() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function2");
-    }
-    
-    @Test
-    public void testFunction3() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/function3");
-    }
-    
-    @Test
-    public void testSine() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/sin");
-    }
-    
-    @Test
     public void testMultiplicationCdot() {
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-cdot");
     }

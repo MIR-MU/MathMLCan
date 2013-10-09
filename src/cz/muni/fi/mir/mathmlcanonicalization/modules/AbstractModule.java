@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jdom2.Element;
 
 /**
  * Module implementation with property loading
@@ -99,5 +100,14 @@ abstract class AbstractModule implements Module {
      protected Set<String> getPropertySet(final String property) {
         assert property != null && !property.isEmpty();
         return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
+    }
+     
+    protected boolean isOperator(final Element element, final String operator) {
+        return isOperator(element) && element.getTextTrim().equals(operator);
+    }
+    
+    protected boolean isOperator(final Element element) {
+        assert element != null;
+        return element.getName().equals(OPERATOR);
     }
 }
