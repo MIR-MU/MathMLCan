@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jdom2.Attribute;
 import org.jdom2.Element;
 
 /**
@@ -84,8 +86,9 @@ abstract class AbstractModule implements Module {
     
     protected void loadProperties(String propertiesFilename) {
         assert propertiesFilename != null && !propertiesFilename.isEmpty();
+        InputStream resourceAsStream = null;
         try {
-            InputStream resourceAsStream = this.getClass().getResourceAsStream(propertiesFilename);
+            resourceAsStream = this.getClass().getResourceAsStream(propertiesFilename);
             if (resourceAsStream == null) {
                 throw new IOException("cannot find the property file");
             }
@@ -94,6 +97,14 @@ abstract class AbstractModule implements Module {
                     propertiesFilename);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Cannot load " + propertiesFilename, ex);
+        } finally {
+            try {
+                if (resourceAsStream != null) {
+                    resourceAsStream.close();
+                }
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "Cannot close property file stream", ex);
+            }
         }
     }
     
@@ -109,5 +120,23 @@ abstract class AbstractModule implements Module {
     protected boolean isOperator(final Element element) {
         assert element != null;
         return element.getName().equals(OPERATOR);
+    }
+    
+    protected void replaceElement(final Element toReplace, final String replacementName) {
+        assert toReplace != null && replacementName != null;
+        assert !replacementName.isEmpty();
+        final Element parent = toReplace.getParentElement();
+        assert parent != null;
+        final Element replacement = new Element(replacementName);
+        replacement.addContent(toReplace.removeContent());
+        final List<Attribute> attributes = toReplace.getAttributes();
+        for (Attribute attribute : attributes) {
+            replacement.setAttribute(attribute.detach());
+        }
+        final int parentIndex = parent.indexOf(toReplace);
+        parent.removeContent(parentIndex);
+        parent.addContent(parentIndex, replacement);
+        LOGGER.log(Level.FINE, "{0} replaced with {1}",
+                new Object[]{toReplace, replacementName});
     }
 }

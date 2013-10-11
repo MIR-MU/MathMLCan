@@ -31,4 +31,9 @@ public class OperatorNormalizerTest extends AbstractModuleTest{
         // not working for normalized multibyte symbols
         testXML(DEFAULT_INSTANCE, "operatorNormalizer/unicode");
     }
+    
+    @Test
+    public void testIdentifierReplacing() {
+        testXML(DEFAULT_INSTANCE, "operatorNormalizer/identifier-replacement");
+    }
 }

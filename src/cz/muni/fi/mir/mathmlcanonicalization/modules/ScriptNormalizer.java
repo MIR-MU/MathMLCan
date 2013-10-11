@@ -145,32 +145,14 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     
     private void replaceDescendants(final Element ancestor, final Map<String, String> map) {
         assert ancestor != null && map != null;
-        final List<Element> elements = new ArrayList<Element>();
+        final List<Element> toReplace = new ArrayList<Element>();
         for (Element element : ancestor.getDescendants(new ElementFilter())) {
             if (map.containsKey(element.getName())) {
-                elements.add(element);
+                toReplace.add(element);
             }
         }
-        for (Element element : elements) {
+        for (Element element : toReplace) {
             replaceElement(element, map.get(element.getName()));
         }
-    }
-    
-    private void replaceElement(final Element toReplace, final String replacementName) {
-        assert toReplace != null && replacementName != null;
-        assert !replacementName.isEmpty();
-        final Element parent = toReplace.getParentElement();
-        assert parent != null;
-        final Element replacement = new Element(replacementName);
-        replacement.addContent(toReplace.removeContent());
-        final List<Attribute> attributes = toReplace.getAttributes();
-        for (Attribute attribute : attributes) {
-            replacement.setAttribute(attribute.detach());
-        }
-        final int parentIndex = parent.indexOf(toReplace);
-        parent.removeContent(parentIndex);
-        parent.addContent(parentIndex, replacement);
-        LOGGER.log(Level.FINE, "{0} replaced with {1}",
-                new Object[]{toReplace, replacementName});
     }
 }

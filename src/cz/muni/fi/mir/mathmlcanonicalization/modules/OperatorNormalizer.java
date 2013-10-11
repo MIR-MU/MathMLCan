@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jdom2.Content;
@@ -37,6 +38,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String OPERATOR_REPLACEMENTS = "replaceoperators";
     private static final String COLON_REPLACEMENT = "colonreplacement";
     private static final String NORMALIZATION_FORM = "normalizationform";
+    private static final String OPERATORS = "operators";
     
     public OperatorNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
@@ -63,21 +65,36 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                         + NORMALIZATION_FORM, ex);
             }
         }
-        
-        if (isEnabled(REMOVE_EMPTY_OPERATORS) || !getProperty(OPERATORS_TO_REMOVE).isEmpty()) {
-            removeSpareOperators(root, getPropertySet(OPERATORS_TO_REMOVE));
-        } else {
-            LOGGER.fine("No operators set for removal");
-        }
-        
+        unifyOperators(root);
+    }
+    
+    /**
+     * Converts bad identifiers to operators, removes redundant and replaces
+     */
+    private void unifyOperators(final Element ancestor) {
+        assert ancestor != null;
+        final Set<String> toRemove = getPropertySet(OPERATORS_TO_REMOVE);
         final Map<String, String> replaceMap = getPropertyMap(OPERATOR_REPLACEMENTS);
         if (!getProperty(COLON_REPLACEMENT).isEmpty()) {
             replaceMap.put(":", getProperty(COLON_REPLACEMENT));
         }
+        final Set<String> operators = getPropertySet(OPERATORS);
+        operators.addAll(toRemove);
+        operators.addAll(replaceMap.keySet());
+        operators.addAll(replaceMap.values());
+
+        replaceIdentifiers(ancestor, operators);
+        
+        if (isEnabled(REMOVE_EMPTY_OPERATORS) || !toRemove.isEmpty()) {
+            removeSpareOperators(ancestor, toRemove);
+        } else {
+            LOGGER.fine("No operators set for removal");
+        }
+        
         if (replaceMap.isEmpty()) {
             LOGGER.fine("No operators set to replace");
         } else {
-            replaceOperators(root, replaceMap);
+            replaceOperators(ancestor, replaceMap);
         }
     }
     
@@ -106,7 +123,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     }
     
     private void removeSpareOperators(final Element element, final Collection<String> spareOperators) {
-        assert element != null && spareOperators != null;
+        assert element != null && spareOperators != null && !spareOperators.isEmpty();
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
@@ -142,6 +159,21 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             operator.setText(newOperator);
             LOGGER.log(Level.FINE, "Operator ''{0}'' was replaced by ''{1}''",
                     new Object[]{oldOperator, newOperator});
+        }
+    }
+    
+    private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
+        assert ancestor != null && operators != null;
+        final List<Element> toReplace = new ArrayList<Element>();
+        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER))) {
+            // TODO: control whole ranges of symbols rather than listed ones
+            if (operators.contains(element.getTextTrim())) {
+                toReplace.add(element);
+            }
+        }
+        for (Element element : toReplace) {
+            LOGGER.log(Level.FINE, "Creating an operator from {0}", element.getText());
+            replaceElement(element, OPERATOR);
         }
     }
     
