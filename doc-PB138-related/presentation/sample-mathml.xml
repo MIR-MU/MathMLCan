@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+  <mfrac linethickness="1">
+    <!-- numerator -->
+    <mrow>
+      <mi> x </mi>
+      <mo> + </mo>
+      <mi mathcolor="red"> y </mi>
+      <mo> + </mo>
+      <mi> z </mi>
+    </mrow>
+    <!-- denominator -->
+    <mrow>
+      <mi> x </mi>
+      <mphantom>
+        <mo> + </mo>
+        <mi> y </mi>
+      </mphantom>
+      <mo> + </mo>
+      <mi> z </mi>
+    </mrow>
+  </mfrac>
+  <mfenced open=":" close="?">
+  </mfenced>
+</math>

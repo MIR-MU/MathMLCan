@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<article>
+    <articleinfo>
+        <title>Závěrečná zpráva - Robert Šiška</title>
+    </articleinfo>
+        <para>Při dělení úkolů pro projekt <emphasis>MathMLCan: Kanonizace MathML</emphasis> na mě připadlo načítání konfigurace, práce na jednom z modulů - konkrétně `ElementMinimzer`, interface pro příkazovou řádku a grafické uživatelské prostředí.
+        </para>
+
+    <section>
+        <title>Načítání konfigurace</title>
+
+        <para>Konfigurace využívá dva mechanismy. Nejdříve je načten properties soubor, který obsahuje
+        seznam modulů a další globální parametry jako cesty k DTD a Schema souborům.
+        Ze seznamu modulů v property <emphasis>modules</emphasis> jsou moduly v daném pořadí načítány, každý modul si
+        při inicializaci nahraje svůj vlastní properties soubor.
+        </para>
+
+        <para>Třída MathMLCanonicalizer může být vytvořena s argumentem typu InputStream, která obsahuje XML konfiguraci.
+        V tomto případě je nejdřív tato konfigurace validována proti XML Schema definici pomocí validátoru z balíku
+        <emphasis>javax.xml.validation</emphasis> a poté jsou z ní pomocí <emphasis>javax.xml.stream</emphasis> API načítány globální properties a konfigurace modulů.
+        </para>
+
+        <para>Stejně jako v prvním případě, parametry jsou nejdříve načteny z properties souboru. XML konfigurace
+        umožňuje properties pouze přepisovat, nikoliv vytvářet nové. Krom elementu <emphasis>property</emphasis> může obsahovat
+        kořenový element <emphasis>config</emphasis> také element <emphasis>module</emphasis>, který dále může obsahovat <emphasis>property</emphasis> elementy.
+        Pořadí <emphasis>module</emphasis> elementů rozhoduje o pořadí aplikace modulů na vstupní proud s MathML kódem.
+        </para>
+    </section>
+
+    <section>
+        <title>Práce na modulu ElementMinimizer</title>
+
+        <para>ElementMinimizer je modul používající <emphasis>javax.xml.stream</emphasis> API. Jeho účel je odstranění elementů a atributů,
+        které jsou nepodstatné pro význam matematického výrazu. Jsou to hlavně elementy z Presentation layer
+        MathML specifikace popisující převážně vzhled výrazu. Tento modul také odstraňuje XML komentáře.
+        </para>
+
+        <para>Na vstupním proudu modulu je očekáván MathML kód, který je čten od kořene do hloubky a každý element je odstraněn
+        včetně jeho potomků, pokud je uveden v property <emphasis>remove_all</emphasis>, nebo je odstraněn pouze element samotný jeho děti jsou
+        posunuty na jeho místo, pokud je uveden v property <emphasis>remove</emphasis>.
+        </para>
+
+        <para>Protože jen malá část atributů v MathML má vliv na sémantiku výrazu, byl na atributy použit opačný postup.
+        V konfiguraci modulu specifikujeme, které atributy mají být ponechány, a všechny ostatní jsou smazány.
+        Property <emphasis>keepAttributes</emphasis> obsahuje atributy oddělené mezerou, které mají být ponechány ve všech elementech.
+        Dále je možné vytvořit whitelist pro kterýkoliv konkrétní element pomocí property <emphasis>keepAttributes.jmenoElementu</emphasis>.
+        </para>
+
+        <para>Atributy je možno uvést dvěma způsoby. Buď pouze jménem atributu, nebo výrazem <emphasis>jmenoAtributu=hodnota</emphasis>,
+        který má za následek neodstranění atributu pouze za splnění podmínky.
+        </para>
+
+        <para>Při sestavování výchozí konfigurace modulu jsem vycházel z doporučení W3C MathML Version 2.0 (Druhá edice)
+        kapitoly 3 - Presentation markup and kapitoly 4.3 - Content Element Attributes.
+        </para>
+    </section>
+
+    <section>
+        <title>GUI a CLI</title>
+
+        <para>Pro definici grafického uživatelského rozhraní jsem se rozhodl použít definici layoutu pomocí XML deskriptoru.
+        Tuto metodu umožňuje hned několik projektů od malých nadstaveb <emphasis>Swing</emphasis> knihovny až po velmi rozsáhlé projekty jako je <emphasis>XUL</emphasis>.
+        Protože GUI slouží v našem projektu jen pro jednoduchou demonstraci, rozhodl jsem se použít jednoduchou knihovnu
+        <emphasis>SwiXml</emphasis>, která generuje Swing objekty z XML souboru.
+        </para>
+
+        <para>Pro implementaci interface z příkazové řádky jsem použil POSIX-like parser z knihovny Apache Commons CLI.
+        Všechny soubory dané jako parametry jsou přečteny a kanonizovány. Lze specifikovat XML konfiguraci pomocí parametru `-c`.
+        Pokud není specifikován žádný soubor, je spuštěno GUI.
+        </para>
+    </section>
+</article>
