@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+    <msqrt>
+        <mfrac>
+            <mi>a</mi>
+            <mrow>
+                <mi>b</mi>
+                <mo>+</mo>
+                <mi>c</mi>
+            </mrow>
+        </mfrac>
+    </msqrt>
+</math>
