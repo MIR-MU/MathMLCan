@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
@@ -5,9 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
@@ -43,7 +56,6 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/script-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
-    
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
     private static final String SPLIT_SCRIPTS_ELEMENTS = "splitscriptselements";
@@ -142,7 +154,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
         }
     }
-    
+
     private void replaceDescendants(final Element ancestor, final Map<String, String> map) {
         assert ancestor != null && map != null;
         final List<Element> toReplace = new ArrayList<Element>();

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <msqrt>
-    <mrow>
-      <mo> - </mo>
-      <mn> 1 </mn>
-    </mrow>
-  </msqrt>
+    <msqrt>
+        <mrow>
+            <mo> - </mo>
+            <mn> 1 </mn>
+        </mrow>
+    </msqrt>
 </math>

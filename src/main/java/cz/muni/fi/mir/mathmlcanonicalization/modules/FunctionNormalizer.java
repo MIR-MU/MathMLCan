@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.Collection;
@@ -23,14 +38,13 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/function-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(FunctionNormalizer.class.getName());
-    
     // properties key names
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
 
     public FunctionNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
     }
-    
+
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
@@ -38,7 +52,7 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
         }
         normalizeFunctionApplication(doc.getRootElement(), getPropertySet(APPLY_FUNCTION_OPERATORS));
     }
-    
+
     // TODO: refactoring
     private void normalizeFunctionApplication(final Element element,
             final Collection<String> functionOperators) {
@@ -50,9 +64,9 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
                 Element parameter = children.get(parameterPosition);
                 // mrow in which the parameter will be stored
                 final Element newParameter = new Element(ROW);
-                
+
                 if (parameter.getName().equals(ROW)) {
-                    if(hasInsideBrackets(parameter)) {
+                    if (hasInsideBrackets(parameter)) {
                         children.get(i + 1).detach(); // just detach operator
                     } else { // add parentheses
                         parameter.addContent(1, new Element(OPERATOR).setText("("));
@@ -65,13 +79,12 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
                 } else if (isOperator(parameter, "(")) {
                     int bracketsDepth = 1;
                     newParameter.addContent(parameter.detach());
-                    
+
                     while ((parameterPosition < children.size()) && (bracketsDepth > 0)) {
                         parameter = children.get(parameterPosition);
                         if (isOperator(parameter, "(")) {
                             bracketsDepth++;
-                        }
-                        else if (isOperator(parameter, ")")) {
+                        } else if (isOperator(parameter, ")")) {
                             bracketsDepth--;
                         }
                         newParameter.addContent(parameter.detach());
@@ -93,16 +106,16 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
             }
         }
     }
-    
+
     private boolean isFunction(final int i, final List<Element> children,
             final Collection<String> functionOperators) {
         assert i >= 0 && children != null && i < children.size() && functionOperators != null;
         return ((i < children.size() - 2)
                 && children.get(i).getName().equals(IDENTIFIER)
-                && isOperator(children.get(i+1))
-                && functionOperators.contains(children.get(i+1).getTextTrim()));
+                && isOperator(children.get(i + 1))
+                && functionOperators.contains(children.get(i + 1).getTextTrim()));
     }
-    
+
     private boolean hasInsideBrackets(final Element element) {
         assert element != null;
         final List<Element> children = element.getChildren();

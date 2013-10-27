@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.io.IOException;
@@ -14,7 +29,7 @@ import org.jdom2.Element;
 
 /**
  * Module implementation with property loading
- * 
+ *
  * @author David Formanek
  */
 abstract class AbstractModule implements Module {
@@ -45,7 +60,7 @@ abstract class AbstractModule implements Module {
         }
         return property;
     }
-    
+
     @Override
     public boolean isProperty(String key) {
         if (key == null) {
@@ -53,7 +68,7 @@ abstract class AbstractModule implements Module {
         }
         return properties.getProperty(key) != null;
     }
-    
+
     @Override
     public void setProperty(String key, String value) {
         if (key == null) {
@@ -64,12 +79,12 @@ abstract class AbstractModule implements Module {
         }
         properties.setProperty(key, value);
     }
-    
+
     @Override
     public Set<String> getPropertyNames() {
         return properties.stringPropertyNames();
     }
-    
+
     protected boolean isEnabled(String key) {
         assert key != null;
         if (properties.getProperty(key).equals("1")
@@ -83,7 +98,7 @@ abstract class AbstractModule implements Module {
         throw new IllegalArgumentException("'" + properties.getProperty(key)
                 + "' is not a valid boolean value of " + key);
     }
-    
+
     protected void loadProperties(String propertiesFilename) {
         assert propertiesFilename != null && !propertiesFilename.isEmpty();
         InputStream resourceAsStream = null;
@@ -93,7 +108,7 @@ abstract class AbstractModule implements Module {
                 throw new IOException("cannot find the property file");
             }
             properties.load(resourceAsStream);
-            LOGGER.log(Level.FINE,"Module properties loaded succesfully from {0}",
+            LOGGER.log(Level.FINE, "Module properties loaded succesfully from {0}",
                     propertiesFilename);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Cannot load " + propertiesFilename, ex);
@@ -107,21 +122,21 @@ abstract class AbstractModule implements Module {
             }
         }
     }
-    
-     protected Set<String> getPropertySet(final String property) {
+
+    protected Set<String> getPropertySet(final String property) {
         assert property != null && !property.isEmpty();
         return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
     }
-     
+
     protected boolean isOperator(final Element element, final String operator) {
         return isOperator(element) && element.getTextTrim().equals(operator);
     }
-    
+
     protected boolean isOperator(final Element element) {
         assert element != null;
         return element.getName().equals(OPERATOR);
     }
-    
+
     protected void replaceElement(final Element toReplace, final String replacementName) {
         assert toReplace != null && replacementName != null;
         assert !replacementName.isEmpty();

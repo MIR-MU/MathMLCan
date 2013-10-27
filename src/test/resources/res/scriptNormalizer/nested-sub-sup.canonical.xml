@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <msup>
+    <msup>
+        <msub>
+            <mi>x</mi>
+            <mn>1</mn>
+        </msub>
+        <mrow>
+            <msup>
+                <msub>
+                    <mi>y</mi>
+                    <mn>2</mn>
+                </msub>
+                <mn>3</mn>
+            </msup>
+        </mrow>
+    </msup>
     <msub>
-      <mi>x</mi>
-      <mn>1</mn>
+        <msub>
+            <mi>x</mi>
+            <mn>3</mn>
+        </msub>
+        <mn>0</mn>
     </msub>
     <mrow>
-      <msup>
-        <msub>
-          <mi>y</mi>
-          <mn>2</mn>
-        </msub>
-        <mn>3</mn>
-      </msup>
+        <msup>
+            <msub>
+                <mi>z</mi>
+                <mi>x</mi>
+            </msub>
+            <mn>4</mn>
+        </msup>
     </mrow>
-  </msup>
-  <msub>
-    <msub>
-      <mi>x</mi>
-      <mn>3</mn>
-    </msub>
-    <mn>0</mn>
-  </msub>
-  <mrow>
-    <msup>
-      <msub>
-        <mi>z</mi>
-        <mi>x</mi>
-      </msub>
-      <mn>4</mn>
-    </msup>
-  </mrow>
 </math>

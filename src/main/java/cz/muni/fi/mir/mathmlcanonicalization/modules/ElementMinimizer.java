@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import cz.muni.fi.mir.mathmlcanonicalization.Settings;
@@ -13,21 +28,21 @@ import javax.xml.stream.*;
 
 /**
  * Remove useless elements and attributes from MathML.
- * 
+ *
  * <h4>Input:</h4><ul>
  * <li>Well-formed MathML, first module</li>
  * <li>Property file(s) with names of elements and attributes for removal or
  * preservation</li>
  * <h4>Output:</h4>
  * The original code with:<ul>
- * <li>removed elements insignificant for the formula searching and indexing 
+ * <li>removed elements insignificant for the formula searching and indexing
  * purpose (e.q. spacing and appearance altering tags) including the content
  * between open and close tag or preserving it (depending on the tag)</li>
  * <li>removed useless attributes but preserved those that are used in other
  * modules, e.q. separator attribute in mfenced element</li>
  * <li>removed attributes with default values?</li>
  * <li>removed redundant spaces?</li></ul>
- * 
+ *
  * @author Maros Kucbel
  * @date 2012-10-08T21:34:49+0200
  */
@@ -86,7 +101,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         }
         return false;
     }
-    
+
     private void minimizeElements(final InputStream input, final OutputStream outputStream)
             throws XMLStreamException {
         assert input != null && outputStream != null;

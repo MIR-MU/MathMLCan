@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <mrow>
-    <mi>a</mi>
-    <mo>-</mo>
     <mrow>
-      <mo>(</mo>
-      <mrow>
-        <mi>b</mi>
-        <mo>+</mo>
+        <mi>a</mi>
+        <mo>-</mo>
         <mrow>
-          <mo>(</mo>
-          <mrow>
-            <mi>c</mi>
-            <mo>+</mo>
-            <mi>d</mi>
-          </mrow>
-          <mo>)</mo>
+            <mo>(</mo>
+            <mrow>
+                <mi>b</mi>
+                <mo>+</mo>
+                <mrow>
+                    <mo>(</mo>
+                    <mrow>
+                        <mi>c</mi>
+                        <mo>+</mo>
+                        <mi>d</mi>
+                    </mrow>
+                    <mo>)</mo>
+                </mrow>
+            </mrow>
+            <mo>)</mo>
         </mrow>
-      </mrow>
-      <mo>)</mo>
     </mrow>
-  </mrow>
 </math>

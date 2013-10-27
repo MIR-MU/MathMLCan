@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
@@ -18,8 +33,8 @@ import org.jdom2.filter.ElementFilter;
  * The original code containing no &lt;mfenced&gt; elements, originally fenced
  * formulae are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
  * (from &lt;mfenced&gt; attributes) in &lt;mo&gt; elements, inner content is
- * placed into another &lt;mrow&gt; element. Module can be configured not to
- * add mrow outside and inside or your own fixed or default parentheses and
+ * placed into another &lt;mrow&gt; element. Module can be configured not to add
+ * mrow outside and inside or your own fixed or default parentheses and
  * separators for fenced expressions can be specified.
  * <h4>Example</h4>
  * <pre> &lt;mfenced open="["&gt;
@@ -45,7 +60,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/mfenced-replacer.properties";
     private static final Logger LOGGER = Logger.getLogger(MfencedReplacer.class.getName());
-    
     // MathML attributes
     private static final String OPEN_FENCE = "open";
     private static final String CLOSE_FENCE = "close";
@@ -109,7 +123,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         }
         replaceMfenced(mfencedElement, insideFence);
     }
-    
+
     private void replaceMfenced(final Element mfencedElement, final Element insideContent) {
         assert mfencedElement != null; // but insideContent can be null
         final Namespace ns = mfencedElement.getNamespace();
@@ -119,14 +133,14 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         if (openStr.isEmpty() || closeStr.isEmpty()) {
             LOGGER.warning("Default open or close fence not set");
         }
-        
+
         if (!isEnabled(FORCE_DEFAULT_OPEN)) {
             openStr = mfencedElement.getAttributeValue(OPEN_FENCE, openStr);
         }
         if (!isEnabled(FORCE_DEFAULT_CLOSE)) {
             closeStr = mfencedElement.getAttributeValue(CLOSE_FENCE, closeStr);
         }
-        
+
         replacement.addContent(new Element(OPERATOR, ns).setText(openStr));
         if (insideContent != null) {
             if (isEnabled(ADD_INNER_ROW)) {
@@ -147,7 +161,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         }
         LOGGER.fine("Mfenced element converted");
     }
-    
+
     private char[] getSeparators(final Element element) {
         assert element != null;
         if (isEnabled(FORCE_DEFAULT_SEPARATORS)) {

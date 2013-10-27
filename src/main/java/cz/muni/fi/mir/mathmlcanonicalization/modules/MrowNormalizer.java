@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.ArrayList;
@@ -10,16 +25,16 @@ import org.jdom2.Parent;
 
 /**
  * Normalize the number of mrow elements in MathML.
- * 
+ *
  * <h4>Input</h4>
- * Well-formed MathML, already processed by other modules 
- * (especially ElementMinimizer, MfencedReplacer and FunctionNormalizer)
+ * Well-formed MathML, already processed by other modules (especially
+ * ElementMinimizer, MfencedReplacer and FunctionNormalizer)
  * <h4>Output</h4>
  * The original code with changes in mrow elements:<ul>
- * <li>added mrow elements to places, where detected fenced formulae 
- * (and not already encapsulated in mrow)</li>
- * <li>removed redundant mrow elements in unneeded grouping - e.q. parents 
- * requiring only one child element accept any number of elements so the mrow 
+ * <li>added mrow elements to places, where detected fenced formulae (and not
+ * already encapsulated in mrow)</li>
+ * <li>removed redundant mrow elements in unneeded grouping - e.q. parents
+ * requiring only one child element accept any number of elements so the mrow
  * tag is not needed (see example) or grouping with only presentation purpose
  * </li></ul>
  * <h4>Example</h4><pre>
@@ -28,14 +43,13 @@ import org.jdom2.Parent;
  *         &lt;mo&gt;-&lt;/mo&gt;
  *         &lt;mn&gt;1&lt;/mn&gt;
  *     &lt;/mrow&gt;
- * &lt;/msqrt&gt;</pre>
- * is transformed to<pre>
+ * &lt;/msqrt&gt;</pre> is transformed to<pre>
  * &lt;msqrt&gt;
  *     &lt;mo&gt;-&lt;/mo&gt;
  *     &lt;mn&gt;1&lt;/mn&gt;
  * &lt;/msqrt&gt;
  * </pre>
- * 
+ *
  * @author Jakub Adler
  */
 public class MrowNormalizer extends AbstractModule implements DOMModule {
@@ -45,7 +59,6 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(MrowNormalizer.class.getName());
-    
     // properties
     private static final String CHILD_COUNT_PREFIX = "childCount.";
     private static final String OPENING = "open";
@@ -66,8 +79,9 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     }
 
     /**
-     * Recursively searches element content to possibly remove or add mrow where needed.
-     * 
+     * Recursively searches element content to possibly remove or add mrow where
+     * needed.
+     *
      * @param element element to start at
      */
     private void traverseChildrenElements(final Element element) {
@@ -85,7 +99,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
     /**
      * Removes a mrow element if possible.
-     * 
+     *
      * @param mrowElement the mrow element
      */
     private void checkRemoval(final Element mrowElement) {
@@ -102,7 +116,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             LOGGER.log(Level.FINE, "Element {0} removed", mrowElement);
             return;
         }
-        
+
         final String childCountPropertyName = CHILD_COUNT_PREFIX + parentElement.getName();
         if (!isProperty(childCountPropertyName)) {
             return; // unknown parent element
@@ -132,9 +146,10 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     /**
      * Test if element is an operator representing an opening or closing
      * parenthesis according to properties
-     * 
+     *
      * @param element element to test
-     * @param propertyName name of property specifiyng opening or closing parentheses
+     * @param propertyName name of property specifiyng opening or closing
+     * parentheses
      * @return true if element is a parentheses according to propertyName
      */
     private Boolean isParenthesis(final Element element, final String propertyName) {
@@ -148,9 +163,10 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     /**
      * Wrap previously detected fenced expressions in mrow to be same as output
      * of MfencedReplacer
-     * 
+     *
      * @param siblings children of parent element
-     * @param fenced list of elements inside parentheses, children of parent element
+     * @param fenced list of elements inside parentheses, children of parent
+     * element
      * @param opening opening parenthesis, child of parent element
      * @param closing closing parenthesis, child of parent element
      */
@@ -188,7 +204,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
                 parent.addContent(openingIndex + 1, innerElement);
             }
             return;
-        } 
+        }
         // wrap outside in mrow
         opening.detach();
         closing.detach();
@@ -209,7 +225,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void checkAddition(final Element element) {
         assert element != null;
-        final Parent parent = element.getParent(); 
+        final Parent parent = element.getParent();
         if (!(parent instanceof Element)) {
             return;
         }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.text.Normalizer;
@@ -25,13 +40,12 @@ import org.jdom2.filter.ElementFilter;
  * @author David Formanek
  */
 public class OperatorNormalizer extends AbstractModule implements DOMModule {
-    
+
     /**
      * Path to the property file with module settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/operator-normalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(OperatorNormalizer.class.getName());
-    
     // properties key names
     private static final String REMOVE_EMPTY_OPERATORS = "removeempty";
     private static final String OPERATORS_TO_REMOVE = "removeoperators";
@@ -39,20 +53,20 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String COLON_REPLACEMENT = "colonreplacement";
     private static final String NORMALIZATION_FORM = "normalizationform";
     private static final String OPERATORS = "operators";
-    
+
     public OperatorNormalizer() {
         loadProperties(PROPERTIES_FILENAME);
     }
-    
+
     @Override
     public void execute(final Document doc) {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
         final Element root = doc.getRootElement();
-        
+
         // TODO: convert Unicode superscripts (supX entities) to msup etc.
-        
+
         final String normalizerFormStr = getProperty(NORMALIZATION_FORM);
         if (normalizerFormStr.isEmpty()) {
             LOGGER.fine("Unicode text normalization is switched off");
@@ -60,14 +74,14 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             try {
                 Normalizer.Form normalizerForm = Normalizer.Form.valueOf(normalizerFormStr);
                 normalizeUnicode(root, normalizerForm);
-            } catch(IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Invalid configuration value: "
                         + NORMALIZATION_FORM, ex);
             }
         }
         unifyOperators(root);
     }
-    
+
     /**
      * Converts bad identifiers to operators, removes redundant and replaces
      */
@@ -84,20 +98,20 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         operators.addAll(replaceMap.values());
 
         replaceIdentifiers(ancestor, operators);
-        
+
         if (isEnabled(REMOVE_EMPTY_OPERATORS) || !toRemove.isEmpty()) {
             removeSpareOperators(ancestor, toRemove);
         } else {
             LOGGER.fine("No operators set for removal");
         }
-        
+
         if (replaceMap.isEmpty()) {
             LOGGER.fine("No operators set to replace");
         } else {
             replaceOperators(ancestor, replaceMap);
         }
     }
-    
+
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
         assert ancestor != null && form != null;
         final List<Text> texts = new ArrayList<Text>();
@@ -121,14 +135,14 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             assert Normalizer.isNormalized(text.getText(), form);
         }
     }
-    
+
     private void removeSpareOperators(final Element element, final Collection<String> spareOperators) {
         assert element != null && spareOperators != null && !spareOperators.isEmpty();
         final List<Element> children = element.getChildren();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
             if (isOperator(actual)) {
-                if (isSpareOperator(actual, spareOperators)){
+                if (isSpareOperator(actual, spareOperators)) {
                     actual.detach();
                     i--; // move iterator back after detaching so it points to next element
                     LOGGER.log(Level.FINE, "Operator {0} removed", actual);
@@ -138,14 +152,14 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             }
         }
     }
-    
+
     private boolean isSpareOperator(final Element operator, final Collection<String> spareOperators) {
         assert operator != null && spareOperators != null && isOperator(operator);
         return (isEnabled(REMOVE_EMPTY_OPERATORS) && operator.getText().isEmpty())
                 || (spareOperators.contains(operator.getTextTrim()));
     }
-    
-    private void replaceOperators(final Element element, final Map<String,String> replacements) {
+
+    private void replaceOperators(final Element element, final Map<String, String> replacements) {
         assert element != null && replacements != null;
         List<Element> operatorsToReplace = new ArrayList<Element>();
         for (Element operator : element.getDescendants(new ElementFilter(OPERATOR))) {
@@ -161,7 +175,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
                     new Object[]{oldOperator, newOperator});
         }
     }
-    
+
     private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
         assert ancestor != null && operators != null;
         final List<Element> toReplace = new ArrayList<Element>();
@@ -176,10 +190,10 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             replaceElement(element, OPERATOR);
         }
     }
-    
-    private Map<String,String> getPropertyMap(final String property) {
+
+    private Map<String, String> getPropertyMap(final String property) {
         assert property != null && isProperty(property);
-        final Map<String,String> propertyMap = new HashMap<String,String>();
+        final Map<String, String> propertyMap = new HashMap<String, String>();
         final String[] mappings = getProperty(property).split(" ");
         for (int i = 0; i < mappings.length; i++) {
             final String[] mapping = mappings[i].split(":", 2);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 MIRMU Project
+ * Copyright 2013 MIR@MU Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -78,8 +78,8 @@ public final class MathMLCanonicalizer {
      * Initializes canonicalizer using configuration file
      *
      * @param xmlConfigurationStream XML configuration constrained by XML Schema
-     *                               in res/configuration.xsd file
-     * @throws ConfigException when configuration cannot be loaded 
+     * in res/configuration.xsd file
+     * @throws ConfigException when configuration cannot be loaded
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {
         if (xmlConfigurationStream == null) {
@@ -128,10 +128,10 @@ public final class MathMLCanonicalizer {
 
     /**
      * Adds the module by its class name.
-     * 
+     *
      * Useful for setting modules from config files. When the module can't be
      * found or instantiated the module is skipped and the warning is produced.
-     * 
+     *
      * @param moduleName the name of the module class
      * @return the canonizer object to allow adding more modules at once
      */
@@ -160,6 +160,7 @@ public final class MathMLCanonicalizer {
 
     /**
      * Validate the configuration against XML Schema.
+     *
      * @throws ConfigException if not valid
      */
     private void validateXMLConfiguration(InputStream xmlConfigurationStream)
@@ -176,7 +177,7 @@ public final class MathMLCanonicalizer {
             throw new ConfigException("configuration not valid\n" + ex.getMessage(), ex);
         }
     }
-    
+
     /**
      * Loads configuration from XML file, overriding the properties.
      */
@@ -205,7 +206,7 @@ public final class MathMLCanonicalizer {
 
                             if (attributeName.equals("name") && attributeValue != null) {
                                 String fullyQualified = Settings.class.getPackage().getName()
-                                        +".modules." + attributeValue;
+                                        + ".modules." + attributeValue;
                                 try {
                                     Class<?> moduleClass = Class.forName(fullyQualified);
                                     module = (Module) moduleClass.newInstance();
@@ -277,7 +278,7 @@ public final class MathMLCanonicalizer {
      * @param out canonical output stream of input
      * @throws JDOMException problem with DOM
      * @throws IOException problem with streams
-     * @throws ModuleException some module cannot canonicalize the input 
+     * @throws ModuleException some module cannot canonicalize the input
      */
     public void canonicalize(final InputStream in, final OutputStream out)
             throws JDOMException, IOException, ModuleException {

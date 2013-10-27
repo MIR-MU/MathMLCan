@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 MIR@MU Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
 import java.io.IOException;
@@ -14,7 +29,7 @@ import org.xml.sax.InputSource;
 
 /**
  * Global settings shared among all instances.
- * 
+ *
  * @author mato
  */
 public class Settings {
@@ -23,12 +38,10 @@ public class Settings {
      * Path to the property file with canonicalizer settings.
      */
     private static final String PROPERTIES_FILENAME = "/res/settings.properties";
-    
     /**
      * Name of the property containing path to the MathML DTD
      */
     private static final String MATHMLDTD = "mathmldtd";
-    
     private static final Properties PROPERTIES = new Properties();
 
     // load default properties from the file specified by PROPERTIES_FILENAME
@@ -50,7 +63,7 @@ public class Settings {
     /**
      * Gets given global property from {@link
      * cz.muni.fi.mir.mathmlcanonicalization.Settings#PROPERTIES_FILENAME}
-     * 
+     *
      * @param key property name
      * @return property value (never null)
      * @throws IllegalArgumentException when property not set
@@ -68,7 +81,7 @@ public class Settings {
 
     /**
      * Finds out if the global property is set
-     * 
+     *
      * @param key property name
      * @return true if property is set, false otherwise
      */
@@ -78,10 +91,10 @@ public class Settings {
         }
         return PROPERTIES.getProperty(key) != null;
     }
-    
+
     /**
      * Sets given global property
-     * 
+     *
      * @param key property name
      * @param value property value
      */
@@ -97,7 +110,7 @@ public class Settings {
 
     /**
      * Sets properties desired for MathML normalization purpose
-     * 
+     *
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
@@ -122,7 +135,7 @@ public class Settings {
 
     /**
      * Sets properties desired for MathML normalization purpose
-     * 
+     *
      * @return initialized SAXBuilder instance
      */
     public static SAXBuilder setupSAXBuilder() {
@@ -143,7 +156,7 @@ public class Settings {
                 return null;
             }
         });
-        
+
         return builder;
     }
 

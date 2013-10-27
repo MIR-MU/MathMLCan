@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <msubsup>
-    <mi>x</mi>
-    <mn>1</mn>
-    <mn>2</mn>
-  </msubsup>
-  <msubsup>
-    <mo>+</mo>
-    <mn>1</mn>
-    <mn>2</mn>
-  </msubsup>
+    <msubsup>
+        <mi>x</mi>
+        <mn>1</mn>
+        <mn>2</mn>
+    </msubsup>
+    <msubsup>
+        <mo>+</mo>
+        <mn>1</mn>
+        <mn>2</mn>
+    </msubsup>
 </math>

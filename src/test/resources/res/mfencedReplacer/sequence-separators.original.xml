@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <mrow>  
-  <mfenced close="]" separators=";:.."> 
-    <mi>x</mi>
-    <mi>y</mi>
-    <mn>1</mn> 
-  </mfenced>
-  <mo>+</mo>
-  <mi>z</mi>
-  </mrow>
+    <mrow>  
+        <mfenced close="]" separators=";:.."> 
+            <mi>x</mi>
+            <mi>y</mi>
+            <mn>1</mn> 
+        </mfenced>
+        <mo>+</mo>
+        <mi>z</mi>
+    </mrow>
 </math>

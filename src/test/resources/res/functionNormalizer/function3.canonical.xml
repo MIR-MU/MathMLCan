@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math>
-  <mi>f</mi>
-  <mrow>
-    <mo>(</mo>
-    <mi>a</mi>
+    <mi>f</mi>
+    <mrow>
+        <mo>(</mo>
+        <mi>a</mi>
+        <mo>+</mo>
+        <mi>b</mi>
+        <mo>)</mo>
+    </mrow>
     <mo>+</mo>
-    <mi>b</mi>
-    <mo>)</mo>
-  </mrow>
-  <mo>+</mo>
-  <mi>c</mi>
+    <mi>c</mi>
 </math>
