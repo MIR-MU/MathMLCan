@@ -44,7 +44,7 @@ import org.jdom2.JDOMException;
  */
 public final class MathMLCanonicalization {
 
-    private static final String EXECUTABLE = "mathmlcan";
+    private static final String JARFILE = "mathml-canonicalizer.jar";
 
     // TODO: refactoring
     /**
@@ -53,8 +53,8 @@ public final class MathMLCanonicalization {
     public static void main(String[] args) {
         final Options options = new Options();
         options.addOption("c", true, "load configuration file");
-        options.addOption("w", false, "overwrite files");
-        options.addOption("h", false, "this text");
+        options.addOption("w", false, "overwrite input files by canonical outputs");
+        options.addOption("h", false, "print help");
 
         final CommandLineParser parser = new PosixParser();
         CommandLine line = null;
@@ -149,13 +149,10 @@ public final class MathMLCanonicalization {
      *
      */
     private static void printHelp(Options options) {
-        System.err.println("Usage: " + EXECUTABLE
-                + " [-c /path/to/config.xml] [-w] [/path/to/input.xhtml | /path/to/directory]...");
-
-        System.err.println("Convert MathML to canonical form.");
-        System.err.println("If no arguments are specified, the GUI will start.");
-        System.err.println();
-
+        System.err.println("Usage: java -jar " + JARFILE
+                + " [-c /path/to/config.xml] [-w]"
+                + " [/path/to/input.xhtml | /path/to/directory]...");
+        System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
         formatter.printOptions(new PrintWriter(System.err, true), 80, options, 8, 8);
     }
