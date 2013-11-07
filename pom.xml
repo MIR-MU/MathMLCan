@@ -162,6 +162,11 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>gnu-regexp</groupId>
+            <artifactId>gnu-regexp</artifactId>
+            <version>1.1.4</version>
+        </dependency>
         <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>junit</groupId>
