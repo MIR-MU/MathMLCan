@@ -10,9 +10,9 @@
     
     <name>MathMLCanonicalizer</name>
     <url>https://mir.fi.muni.cz/</url>
-    <description>
-        MathMLCanonicalizer is able to canonicalize MathML input. Modular architecture
-        allows to set up canonicalization features according to users needs.
+    <description>MathMLCanonicalizer is able to canonicalize MathML input.
+Modular architecture allows to set up canonicalization features
+according to users needs.
     </description>
     
     <licenses>
@@ -103,7 +103,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>cz.muni.fi.mir.mathmlcanonicalization.MathMLCanonicalization</mainClass>
+                            <mainClass>cz.muni.fi.mir.mathmlcanonicalization.MathMLCanonicalizerCommandLineTool</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

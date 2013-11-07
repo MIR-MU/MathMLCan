@@ -42,7 +42,7 @@ import org.jdom2.JDOMException;
  *
  * @author David Formanek
  */
-public final class MathMLCanonicalization {
+public final class MathMLCanonicalizerCommandLineTool {
 
     private static final String JARFILE = "mathml-canonicalizer.jar";
 
@@ -90,13 +90,13 @@ public final class MathMLCanonicalization {
                             canonicalize(file, config, overwrite);
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } catch (ConfigException ex) {
-                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } catch (JDOMException ex) {
-                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     } catch (ModuleException ex) {
-                        Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 }
             } else {
@@ -119,7 +119,7 @@ public final class MathMLCanonicalization {
         }
 
         if (overwrite) {
-            Logger.getLogger(MathMLCanonicalization.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
+            Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
             ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
 
             mlcan.canonicalize(source, new FileOutputStream(file));
