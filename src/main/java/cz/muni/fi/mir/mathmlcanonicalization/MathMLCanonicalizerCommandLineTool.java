@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -50,7 +51,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
         final Options options = new Options();
         options.addOption("c", true, "load configuration file");
         options.addOption("w", false, "overwrite input files by canonical outputs");
@@ -107,7 +108,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     }
 
     private static void canonicalize(File file, File config, boolean overwrite) throws
-            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException {
+            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException, XMLStreamException {
         assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
         FileInputStream configInputStream;

@@ -26,10 +26,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.XMLConstants;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -284,7 +288,7 @@ public final class MathMLCanonicalizer {
      * @throws ModuleException some module cannot canonicalize the input
      */
     public void canonicalize(final InputStream in, final OutputStream out)
-            throws JDOMException, IOException, ModuleException {
+            throws JDOMException, IOException, ModuleException, XMLStreamException {
         if (in == null) {
             throw new NullPointerException("in");
         }
@@ -299,16 +303,12 @@ public final class MathMLCanonicalizer {
                     new RE("(<\\?xml.*\\?>)"),
                     "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
         } catch (REException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.WARNING, 
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.WARNING,
                     "DOCTYPE injection failed", ex);
             inputStream = in;
         }
-        ByteArrayOutputStream outputStream = null;
 
-//        StringWriter writer = new StringWriter();
-//        IOUtils.copy(inputStream, writer);
-//        String theString = writer.toString();
-//        System.out.println(theString);
+        ByteArrayOutputStream outputStream = null;
 
         // calling stream modules
         for (StreamModule module : streamModules) {
@@ -318,6 +318,22 @@ public final class MathMLCanonicalizer {
             }
             inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         }
+
+
+        XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(inputStream);
+        ByteArrayOutputStream noDtdOutputStream = new ByteArrayOutputStream();
+        XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(noDtdOutputStream);
+
+        while (reader.hasNext()) {
+            XMLEvent event = (XMLEvent) reader.next();
+
+            if (event.getEventType() != event.DTD) {
+                writer.add(event);
+            }
+        }
+        writer.flush();
+
+        inputStream = new ByteArrayInputStream(noDtdOutputStream.toByteArray());
 
         // do not create the JDOM representation if there are no modules
         if (domModules.isEmpty()) {
