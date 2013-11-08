@@ -15,10 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import gnu.regexp.RE;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
-import gnu.regexp.REException;
-import gnu.regexp.REFilterInputStream;
 import java.io.*;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -284,24 +281,15 @@ public final class MathMLCanonicalizer {
      * @throws ModuleException some module cannot canonicalize the input
      */
     public void canonicalize(final InputStream in, final OutputStream out)
-            throws JDOMException, IOException, ModuleException, REException {
+            throws JDOMException, IOException, ModuleException {
         if (in == null) {
             throw new NullPointerException("in");
         }
         if (out == null) {
             throw new NullPointerException("out");
         }
-
-        InputStream inputStream = new REFilterInputStream(
-                new REFilterInputStream(in, new RE("<!DOCTYPE [^>]+>\n?"), ""),
-                new RE("(<\\?xml.*\\?>)"),
-                "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
+        InputStream inputStream = in;
         ByteArrayOutputStream outputStream = null;
-
-//        StringWriter writer = new StringWriter();
-//        IOUtils.copy(inputStream, writer);
-//        String theString = writer.toString();
-//        System.out.println(theString);
 
         // calling stream modules
         for (StreamModule module : streamModules) {
