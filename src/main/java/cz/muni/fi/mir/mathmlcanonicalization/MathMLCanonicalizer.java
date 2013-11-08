@@ -284,7 +284,7 @@ public final class MathMLCanonicalizer {
      * @throws ModuleException some module cannot canonicalize the input
      */
     public void canonicalize(final InputStream in, final OutputStream out)
-            throws JDOMException, IOException, ModuleException {
+            throws JDOMException, IOException, ModuleException, REException {
         if (in == null) {
             throw new NullPointerException("in");
         }
@@ -292,17 +292,10 @@ public final class MathMLCanonicalizer {
             throw new NullPointerException("out");
         }
 
-        InputStream inputStream;
-        try {
-            inputStream = new REFilterInputStream(
-                    new REFilterInputStream(in, new RE("<!DOCTYPE [^>]+>\n?"), ""),
-                    new RE("(<\\?xml.*\\?>)"),
-                    "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
-        } catch (REException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.WARNING, 
-                    "DOCTYPE injection failed", ex);
-            inputStream = in;
-        }
+        InputStream inputStream = new REFilterInputStream(
+                new REFilterInputStream(in, new RE("<!DOCTYPE [^>]+>\n?"), ""),
+                new RE("(<\\?xml.*\\?>)"),
+                "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
         ByteArrayOutputStream outputStream = null;
 
 //        StringWriter writer = new StringWriter();
