@@ -37,6 +37,15 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class DTDManipulator {
 
+    /**
+     * Inject into a XML document XHTML + MathML 1.1 DTD reference 
+     * (<code>&lt;!DOCTYPE math SYSTEM "xhtml-math11.dtd"&gt;</code>).
+     * Named MathML entities (<code>&amp;alpha;</code> ...) can be used in such 
+     * a XML document.
+     *
+     * @param in XML document as InputStream
+     * @return the XML document with injected XHTML + MathML 1.1 DTD reference
+     */
     public static InputStream injectXHTMLPlusMathMLDTD(InputStream in) {
 
         try {
@@ -55,6 +64,12 @@ public class DTDManipulator {
 
     }
 
+    /**
+     * Remove any DTD reference from a XML document.
+     *
+     * @param in XML document as InputStream
+     * @return the XML document without DTD reference
+     */
     public static InputStream removeDTD(InputStream in) throws XMLStreamException {
 
         XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(in);
