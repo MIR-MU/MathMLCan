@@ -25,34 +25,35 @@ import org.junit.Test;
 public class ScriptNormalizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new ScriptNormalizer();
+    private static final String RESOURCE_SUBDIR = ScriptNormalizerTest.class.getSimpleName() + "/";
 
     @Test
     public void testInvalidScript() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/invalid-scripts");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "invalid-scripts");
     }
 
     @Test
     public void testNestedSuperscript() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/sub-sup");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "sub-sup");
     }
 
     @Test
     public void testComplexNestedSuperscript() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/nested-sub-sup");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "nested-sub-sup");
     }
 
     @Test
     public void testSubsup() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/subsup");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "subsup");
     }
 
     @Test
     public void testComplexSubsup() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/complexsubsup");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "complexsubsup");
     }
 
     @Test
     public void testUnderOver() {
-        testXML(DEFAULT_INSTANCE, "scriptNormalizer/underover");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "underover");
     }
 }

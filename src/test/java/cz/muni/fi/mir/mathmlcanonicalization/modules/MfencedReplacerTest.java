@@ -26,6 +26,7 @@ public class MfencedReplacerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new MfencedReplacer();
     private static final Module CONFIGURED_INSTANCE = new MfencedReplacer();
+    private static final String RESOURCE_SUBDIR = MfencedReplacerTest.class.getSimpleName() + "/";
 
     public MfencedReplacerTest() {
         setPrintProcessed(false);
@@ -40,31 +41,31 @@ public class MfencedReplacerTest extends AbstractModuleTest {
 
     @Test
     public void testSimpleInterval() {
-        testXML(DEFAULT_INSTANCE, "mfencedReplacer/interval");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "interval");
     }
 
     @Test
     public void testMoreSeparators() {
-        testXML(DEFAULT_INSTANCE, "mfencedReplacer/sequence-separators");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "sequence-separators");
     }
 
     @Test
     public void testBlankSeparators() {
-        testXML(DEFAULT_INSTANCE, "mfencedReplacer/blank-separators");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "blank-separators");
     }
 
     @Test
     public void testNoChildren() {
-        testXML(DEFAULT_INSTANCE, "mfencedReplacer/no-children");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "no-children");
     }
 
     @Test
     public void testNestedMfenced() {
-        testXML(DEFAULT_INSTANCE, "mfencedReplacer/nested");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "nested");
     }
 
     @Test
     public void testConfigured() {
-        testXML(CONFIGURED_INSTANCE, "mfencedReplacer/interval-configured");
+        testXML(CONFIGURED_INSTANCE, RESOURCE_SUBDIR + "interval-configured");
     }
 }

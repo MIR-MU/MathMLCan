@@ -25,24 +25,25 @@ import org.junit.Test;
 public class ElementMinimizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new ElementMinimizer();
+    private static final String RESOURCE_SUBDIR = ElementMinimizerTest.class.getSimpleName() + "/";
 
     @Test
     public void testPhantom() {
-        testXML(DEFAULT_INSTANCE, "elementMinimizer/mphantom");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "mphantom");
     }
 
     @Test
     public void testFraction() {
-        testXML(DEFAULT_INSTANCE, "elementMinimizer/mfrac");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "mfrac");
     }
 
     @Test
     public void testComments() {
-        testXML(DEFAULT_INSTANCE, "elementMinimizer/comments");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "comments");
     }
 
     @Test
     public void testAttributes() {
-        testXML(DEFAULT_INSTANCE, "elementMinimizer/attributes");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "attributes");
     }
 }
