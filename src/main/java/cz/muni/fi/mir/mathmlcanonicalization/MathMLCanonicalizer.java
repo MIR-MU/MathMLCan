@@ -15,11 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import gnu.regexp.RE;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
 import cz.muni.fi.mir.mathmlcanonicalization.utils.DTDManipulator;
-import gnu.regexp.REException;
-import gnu.regexp.REFilterInputStream;
 import java.io.*;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,14 +24,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.XMLConstants;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
