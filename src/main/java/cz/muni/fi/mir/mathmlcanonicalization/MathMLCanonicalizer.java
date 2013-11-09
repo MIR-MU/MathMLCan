@@ -17,6 +17,7 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 
 import gnu.regexp.RE;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
+import cz.muni.fi.mir.mathmlcanonicalization.utils.DTDManipulator;
 import gnu.regexp.REException;
 import gnu.regexp.REFilterInputStream;
 import java.io.*;
@@ -296,18 +297,7 @@ public final class MathMLCanonicalizer {
             throw new NullPointerException("out");
         }
 
-        InputStream inputStream;
-        try {
-            inputStream = new REFilterInputStream(
-                    new REFilterInputStream(in, new RE("<!DOCTYPE [^>]+>\n?"), ""),
-                    new RE("(<\\?xml.*\\?>)"),
-                    "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
-        } catch (REException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.WARNING,
-                    "DOCTYPE injection failed", ex);
-            inputStream = in;
-        }
-
+        InputStream inputStream = DTDManipulator.injectXHTMLPlusMathMLDTD(in);
         ByteArrayOutputStream outputStream = null;
 
         // calling stream modules
@@ -319,21 +309,7 @@ public final class MathMLCanonicalizer {
             inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         }
 
-
-        XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(inputStream);
-        ByteArrayOutputStream noDtdOutputStream = new ByteArrayOutputStream();
-        XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(noDtdOutputStream);
-
-        while (reader.hasNext()) {
-            XMLEvent event = (XMLEvent) reader.next();
-
-            if (event.getEventType() != event.DTD) {
-                writer.add(event);
-            }
-        }
-        writer.flush();
-
-        inputStream = new ByteArrayInputStream(noDtdOutputStream.toByteArray());
+        inputStream = DTDManipulator.removeDTD(inputStream);
 
         // do not create the JDOM representation if there are no modules
         if (domModules.isEmpty()) {
