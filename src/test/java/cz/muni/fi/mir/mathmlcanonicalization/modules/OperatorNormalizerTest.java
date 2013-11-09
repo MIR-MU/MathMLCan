@@ -25,30 +25,31 @@ import org.junit.Test;
 public class OperatorNormalizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new OperatorNormalizer();
+    private static final String RESOURCE_SUBDIR = OperatorNormalizerTest.class.getSimpleName() + "/";
 
     @Test
     public void testMultiplicationCdot() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-cdot");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "multiplication-cdot");
     }
 
     @Test
     public void testMultiplicationBlank() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/multiplication-blank");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "multiplication-blank");
     }
 
     @Test
     public void testUnification() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/operator-unification");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "operator-unification");
     }
 
     @Test
     public void testUnicode() {
         // not working for normalized multibyte symbols
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/unicode");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "unicode");
     }
 
     @Test
     public void testIdentifierReplacing() {
-        testXML(DEFAULT_INSTANCE, "operatorNormalizer/identifier-replacement");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "identifier-replacement");
     }
 }

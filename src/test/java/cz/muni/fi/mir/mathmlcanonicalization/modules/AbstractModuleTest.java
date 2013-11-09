@@ -41,7 +41,6 @@ import org.xml.sax.SAXException;
 @Ignore // no tests
 abstract class AbstractModuleTest {
 
-    private static final String PATH_TO_TESTFILES = "/res/";
     private static final Logger LOGGER = Logger.getLogger(
             AbstractModuleTest.class.getName());
     private boolean shouldPrintProcessed = true;
@@ -86,8 +85,7 @@ abstract class AbstractModuleTest {
     }
 
     private InputStream getProcessed(Module instance, String testFile, boolean shouldPrint) {
-        InputStream resourceStream = this.getClass().getResourceAsStream(
-                PATH_TO_TESTFILES + testFile + ".original.xml");
+        InputStream resourceStream = this.getClass().getResourceAsStream(testFile + ".original.xml");
         return getProcessed(instance, resourceStream, shouldPrint);
     }
 
@@ -148,8 +146,7 @@ abstract class AbstractModuleTest {
     }
 
     private InputStream getCanonical(String testFile) {
-        return this.getClass().getResourceAsStream(
-                PATH_TO_TESTFILES + testFile + ".canonical.xml");
+        return this.getClass().getResourceAsStream(testFile + ".canonical.xml");
     }
 
     private InputStreamReader getReader(InputStream inputStream) {

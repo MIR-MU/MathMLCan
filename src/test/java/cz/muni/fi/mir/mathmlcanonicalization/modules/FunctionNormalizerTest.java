@@ -25,24 +25,25 @@ import org.junit.Test;
 public class FunctionNormalizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new FunctionNormalizer();
+    private static final String RESOURCE_SUBDIR = FunctionNormalizerTest.class.getSimpleName() + "/";
 
     @Test
     public void testFunction() {
-        testXML(DEFAULT_INSTANCE, "functionNormalizer/function");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "function");
     }
 
     @Test
     public void testFunction2() {
-        testXML(DEFAULT_INSTANCE, "functionNormalizer/function2");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "function2");
     }
 
     @Test
     public void testFunction3() {
-        testXML(DEFAULT_INSTANCE, "functionNormalizer/function3");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "function3");
     }
 
     @Test
     public void testSine() {
-        testXML(DEFAULT_INSTANCE, "functionNormalizer/sin");
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "sin");
     }
 }

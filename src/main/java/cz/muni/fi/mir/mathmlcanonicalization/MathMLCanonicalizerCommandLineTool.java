@@ -74,7 +74,7 @@ public final class MathMLCanonicalizerCommandLineTool {
             if (line.hasOption('c')) {
                 config = new File(args[1]);
             }
-            
+
             if (line.hasOption("dtd")) {
                 dtdInjectionMode = true;
             }
