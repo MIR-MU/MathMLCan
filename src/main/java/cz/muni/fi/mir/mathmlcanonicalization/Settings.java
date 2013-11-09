@@ -37,7 +37,7 @@ public class Settings {
     /**
      * Path to the property file with canonicalizer settings.
      */
-    private static final String PROPERTIES_FILENAME = "/res/settings.properties";
+    private static final String PROPERTIES_FILENAME = "settings.properties";
     /**
      * Name of the property containing path to the MathML DTD
      */

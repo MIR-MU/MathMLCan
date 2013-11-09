@@ -80,7 +80,7 @@ public final class MathMLCanonicalizer {
      * Initializes canonicalizer using configuration file
      *
      * @param xmlConfigurationStream XML configuration constrained by XML Schema
-     * in res/configuration.xsd file
+     * in cz.muni.fi.mir.mathmlcanonicalization.configuration.xsd resource file
      * @throws ConfigException when configuration cannot be loaded
      */
     public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {

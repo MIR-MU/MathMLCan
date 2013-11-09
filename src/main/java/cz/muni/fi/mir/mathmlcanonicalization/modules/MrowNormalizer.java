@@ -57,7 +57,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "/res/mrow-normalizer.properties";
+    private static final String PROPERTIES_FILENAME = "MrowNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(MrowNormalizer.class.getName());
     // properties
     private static final String CHILD_COUNT_PREFIX = "childCount.";

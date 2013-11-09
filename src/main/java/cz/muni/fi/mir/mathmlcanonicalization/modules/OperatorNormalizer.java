@@ -44,7 +44,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "/res/operator-normalizer.properties";
+    private static final String PROPERTIES_FILENAME = "OperatorNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(OperatorNormalizer.class.getName());
     // properties key names
     private static final String REMOVE_EMPTY_OPERATORS = "removeempty";
