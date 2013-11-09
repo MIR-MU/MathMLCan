@@ -49,6 +49,7 @@ public final class MathMLCanonicalizer {
     private List<StreamModule> streamModules = new LinkedList<StreamModule>();
     private List<DOMModule> domModules = new LinkedList<DOMModule>();
     private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizer.class.getName());
+    private boolean enforcingXHTMLPlusMathMLDTD = false;
 
     // TODO: refactoring
     /**
@@ -290,7 +291,10 @@ public final class MathMLCanonicalizer {
             throw new NullPointerException("out");
         }
 
-        InputStream inputStream = DTDManipulator.injectXHTMLPlusMathMLDTD(in);
+        InputStream inputStream = in;
+        if (enforcingXHTMLPlusMathMLDTD) {
+            inputStream = DTDManipulator.injectXHTMLPlusMathMLDTD(in);
+        }
         ByteArrayOutputStream outputStream = null;
 
         // calling stream modules
@@ -302,7 +306,9 @@ public final class MathMLCanonicalizer {
             inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         }
 
-        inputStream = DTDManipulator.removeDTD(inputStream);
+        if (enforcingXHTMLPlusMathMLDTD) {
+            inputStream = DTDManipulator.removeDTD(inputStream);
+        }
 
         // do not create the JDOM representation if there are no modules
         if (domModules.isEmpty()) {
@@ -327,4 +333,29 @@ public final class MathMLCanonicalizer {
         final XMLOutputter serializer = new XMLOutputter();
         serializer.output(document, out);
     }
+
+    /**
+     * Test whether this instance of <code>MathMLCanonicalizer</code> is 
+     * injecting XHTML + MathML 1.1 DTD reference into any input document.
+     * 
+     * @return XHTML + MathML 1.1 DTD reference enforcement setting
+     */
+    public boolean isEnforcingXHTMLPlusMathMLDTD() {
+
+        return enforcingXHTMLPlusMathMLDTD;
+
+    }
+   
+    /**
+     * Enable/disable force injecting of XHTML + MathML 1.1 DTD reference into
+     * any input document.
+     *
+     * @param mode XHTML + MathML 1.1 DTD enforcement mode
+     */
+    public void setEnforcingXHTMLPlusMathMLDTD(boolean mode) {
+
+        enforcingXHTMLPlusMathMLDTD = mode;
+
+    }
+    
 }
