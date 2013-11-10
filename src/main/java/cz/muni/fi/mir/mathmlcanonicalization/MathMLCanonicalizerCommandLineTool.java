@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -50,9 +51,10 @@ public final class MathMLCanonicalizerCommandLineTool {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
         final Options options = new Options();
         options.addOption("c", true, "load configuration file");
+        options.addOption("dtd", false, "enforce injection of XHTML + MathML 1.1 DTD reference into input documents");
         options.addOption("w", false, "overwrite input files by canonical outputs");
         options.addOption("h", false, "print help");
 
@@ -67,9 +69,14 @@ public final class MathMLCanonicalizerCommandLineTool {
 
         File config = null;
         boolean overwrite = false;
+        boolean dtdInjectionMode = false;
         if (line != null) {
             if (line.hasOption('c')) {
                 config = new File(args[1]);
+            }
+
+            if (line.hasOption("dtd")) {
+                dtdInjectionMode = true;
             }
 
             if (line.hasOption('w')) {
@@ -87,7 +94,7 @@ public final class MathMLCanonicalizerCommandLineTool {
                     try {
                         List<File> files = getFiles(new File(arg));
                         for (File file : files) {
-                            canonicalize(file, config, overwrite);
+                            canonicalize(file, config, dtdInjectionMode, overwrite);
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -106,8 +113,8 @@ public final class MathMLCanonicalizerCommandLineTool {
         }
     }
 
-    private static void canonicalize(File file, File config, boolean overwrite) throws
-            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException {
+    private static void canonicalize(File file, File config, boolean dtdInjectionMode, boolean overwrite) throws
+            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException, XMLStreamException {
         assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
         FileInputStream configInputStream;
@@ -117,6 +124,7 @@ public final class MathMLCanonicalizerCommandLineTool {
         } else {
             mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
         }
+        mlcan.setEnforcingXHTMLPlusMathMLDTD(dtdInjectionMode);
 
         if (overwrite) {
             Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
@@ -150,7 +158,7 @@ public final class MathMLCanonicalizerCommandLineTool {
      */
     private static void printHelp(Options options) {
         System.err.println("Usage: java -jar " + JARFILE
-                + " [-c /path/to/config.xml] [-w]"
+                + " [-c /path/to/config.xml] [-w] [-dtd]"
                 + " [/path/to/input.xhtml | /path/to/directory]...");
         System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
