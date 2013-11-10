@@ -15,20 +15,16 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.utils;
 
-import gnu.regexp.RE;
-import gnu.regexp.REException;
-import gnu.regexp.REFilterInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import org.custommonkey.xmlunit.DoctypeInputStream;
 
 /**
  * Utilities for manipulating DTD in XML documents.
@@ -48,19 +44,7 @@ public class DTDManipulator {
      */
     public static InputStream injectXHTMLPlusMathMLDTD(InputStream in) {
 
-        try {
-            in = new REFilterInputStream(
-                    // Remove any existing DTD
-                    new REFilterInputStream(in, new RE("<!DOCTYPE [^>]+>\n?"), ""),
-                    // Add XHTML + MathML 1.1 DTD after XML prolog
-                    new RE("(<\\?xml.*\\?>)"),
-                    "$1\n<!DOCTYPE math SYSTEM \"xhtml-math11.dtd\">");
-        } catch (REException ex) {
-            Logger.getLogger(DTDManipulator.class.getName()).log(Level.WARNING,
-                    "DOCTYPE injection failed", ex);
-        }
-
-        return in;
+        return new DoctypeInputStream(in, "UTF-8", "math", "xhtml-math11.dtd");
 
     }
 
@@ -74,7 +58,7 @@ public class DTDManipulator {
 
         XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(in);
         ByteArrayOutputStream noDtdOutputStream = new ByteArrayOutputStream();
-        XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(noDtdOutputStream);
+        XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(noDtdOutputStream, "UTF-8");
 
         while (reader.hasNext()) {
             XMLEvent event = (XMLEvent) reader.next();
