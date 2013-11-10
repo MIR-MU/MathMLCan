@@ -44,7 +44,6 @@ import javax.xml.stream.*;
  * <li>removed redundant spaces?</li></ul>
  *
  * @author Maros Kucbel
- * @date 2012-10-08T21:34:49+0200
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
 
