@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE math SYSTEM "xhtml-math11.dtd" [
+<!NOTATION uri PUBLIC "-//W3C//NOTATION XHTML Datatype: URI//EN" >
+<!NOTATION pixels PUBLIC "-//W3C//NOTATION XHTML Datatype: Pixels//EN" >
+<!NOTATION cdata PUBLIC "-//W3C//NOTATION XML 1.0: CDATA//EN" >
+<!NOTATION languageCode PUBLIC "-//W3C//NOTATION XHTML Datatype: LanguageCode//EN" >
+<!NOTATION xhtml PUBLIC "-//W3C//NOTATION AFDR ARCBASE XHTML 1.1//EN" >
+<!NOTATION character PUBLIC "-//W3C//NOTATION XHTML Datatype: Character//EN" >
+<!NOTATION contentTypes PUBLIC "-//W3C//NOTATION XHTML Datatype: ContentTypes//EN" >
+<!NOTATION uris PUBLIC "-//W3C//NOTATION XHTML Datatype: URIs//EN" >
+<!NOTATION number PUBLIC "-//W3C//NOTATION XHTML Datatype: Number//EN" >
+<!NOTATION datetime PUBLIC "-//W3C//NOTATION XHTML Datatype: Datetime//EN" >
+<!NOTATION length PUBLIC "-//W3C//NOTATION XHTML Datatype: Length//EN" >
+<!NOTATION charset PUBLIC "-//W3C//NOTATION XHTML Datatype: Charset//EN" >
+<!NOTATION text PUBLIC "-//W3C//NOTATION XHTML Datatype: Text//EN" >
+<!NOTATION script PUBLIC "-//W3C//NOTATION XHTML Datatype: Script//EN" >
+<!NOTATION charsets PUBLIC "-//W3C//NOTATION XHTML Datatype: Charsets//EN" >
+<!NOTATION contentType PUBLIC "-//W3C//NOTATION XHTML Datatype: ContentType//EN" >
+<!NOTATION multiLength PUBLIC "-//W3C//NOTATION XHTML Datatype: MultiLength//EN" >
+<!NOTATION linkTypes PUBLIC "-//W3C//NOTATION XHTML Datatype: LinkTypes//EN" >
+<!NOTATION mediaDesc PUBLIC "-//W3C//NOTATION XHTML Datatype: MediaDesc//EN" >
+<!NOTATION w3c-xml PUBLIC "ISO 8879//NOTATION Extensible Markup Language (XML) 1.0//EN" >
+]>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="scroll">
+    <mi mathvariant="italic">p</mi>
+    <mo xmlns="" mathvariant="normal">=</mo>
+    <mo xmlns="" mathvariant="normal">(</mo>
+    <mi mathvariant="italic">A</mi>
+    <mo mathvariant="normal">,</mo>
+    <mi mathvariant="normal"> </mi>
+    <mi mathvariant="italic">α</mi>
+    <mo xmlns="" mathvariant="normal">)</mo>
+</math>
