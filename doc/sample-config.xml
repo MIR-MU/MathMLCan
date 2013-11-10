@@ -8,6 +8,6 @@
     <module name="MrowNormalizer" />
     <!--    <module name="MfencedReplacer" />-->
     <module name="OperatorNormalizer">
-        <property name="remove_empty">true</property>
+        <property name="removeempty">true</property>
     </module>
 </config>
