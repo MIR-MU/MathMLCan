@@ -53,10 +53,10 @@ public final class MathMLCanonicalizerCommandLineTool {
      */
     public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
         final Options options = new Options();
-        options.addOption("c", true, "load configuration file");
-        options.addOption("dtd", false, "enforce injection of XHTML + MathML 1.1 DTD reference into input documents");
-        options.addOption("w", false, "overwrite input files by canonical outputs");
-        options.addOption("h", false, "print help");
+        options.addOption("c", "config-file", true, "load configuration file");
+        options.addOption("d", "inject-xhtml-mathml-dtd", false, "enforce injection of XHTML + MathML 1.1 DTD reference into input documents");
+        options.addOption("w", "overwrite-inputs", false, "overwrite input files by canonical outputs");
+        options.addOption("h", "help", false, "print help");
 
         final CommandLineParser parser = new PosixParser();
         CommandLine line = null;
@@ -72,10 +72,10 @@ public final class MathMLCanonicalizerCommandLineTool {
         boolean dtdInjectionMode = false;
         if (line != null) {
             if (line.hasOption('c')) {
-                config = new File(args[1]);
+                config = new File(line.getOptionValue('c'));
             }
 
-            if (line.hasOption("dtd")) {
+            if (line.hasOption('d')) {
                 dtdInjectionMode = true;
             }
 
