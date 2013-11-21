@@ -293,7 +293,7 @@ public final class MathMLCanonicalizer {
 
         InputStream inputStream = in;
         if (enforcingXHTMLPlusMathMLDTD) {
-            inputStream = DTDManipulator.injectXHTMLPlusMathMLDTD(in);
+            inputStream = DTDManipulator.injectXHTML11PlusMathML20PlusSVG11DTD(in);
         }
         ByteArrayOutputStream outputStream = null;
 
@@ -335,27 +335,28 @@ public final class MathMLCanonicalizer {
     }
 
     /**
-     * Test whether this instance of <code>MathMLCanonicalizer</code> is 
-     * injecting XHTML + MathML 1.1 DTD reference into any input document.
-     * 
-     * @return XHTML + MathML 1.1 DTD reference enforcement setting
+     * Test whether this instance of
+     * <code>MathMLCanonicalizer</code> is injecting XHTML 1.1 plus MathML 2.0
+     * plus SVG 1.1 DTD reference into any input document.
+     *
+     * @return XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference enforcement
+     * setting
      */
     public boolean isEnforcingXHTMLPlusMathMLDTD() {
 
         return enforcingXHTMLPlusMathMLDTD;
 
     }
-   
+
     /**
-     * Enable/disable force injecting of XHTML + MathML 1.1 DTD reference into
-     * any input document.
+     * Enable/disable force injecting of XHTML 1.1 plus MathML 2.0 plus SVG 1.1
+     * DTD reference into any input document.
      *
-     * @param mode XHTML + MathML 1.1 DTD enforcement mode
+     * @param mode XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD enforcement mode
      */
     public void setEnforcingXHTMLPlusMathMLDTD(boolean mode) {
 
         enforcingXHTMLPlusMathMLDTD = mode;
 
     }
-    
 }

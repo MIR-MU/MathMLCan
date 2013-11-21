@@ -54,7 +54,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
         final Options options = new Options();
         options.addOption("c", "config-file", true, "load configuration file");
-        options.addOption("d", "inject-xhtml-mathml-dtd", false, "enforce injection of XHTML + MathML 1.1 DTD reference into input documents");
+        options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");
         options.addOption("w", "overwrite-inputs", false, "overwrite input files by canonical outputs");
         options.addOption("h", "help", false, "print help");
 

@@ -34,17 +34,49 @@ import org.custommonkey.xmlunit.DoctypeInputStream;
 public class DTDManipulator {
 
     /**
-     * Inject into a XML document XHTML + MathML 1.1 DTD reference 
-     * (<code>&lt;!DOCTYPE math SYSTEM "xhtml-math11.dtd"&gt;</code>).
-     * Named MathML entities (<code>&amp;alpha;</code> ...) can be used in such 
-     * a XML document.
+     * Inject into a XML document XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD
+     * reference 
+     * (<code>&lt;!DOCTYPE math SYSTEM "xhtml-math11-f.dtd"&gt;</code>). Named
+     * MathML entities 
+     * (<code>&amp;alpha;</code> ...) can be used in such a XML document.
      *
      * @param in XML document as InputStream
-     * @return the XML document with injected XHTML + MathML 1.1 DTD reference
+     * @return the XML document with injected XHTML 1.1 plus MathML 2.0 plus SVG
+     * 1.1 DTD reference
      */
-    public static InputStream injectXHTMLPlusMathMLDTD(InputStream in) {
+    public static InputStream injectXHTML11PlusMathML20PlusSVG11DTD(InputStream in) {
 
-        return new DoctypeInputStream(in, "UTF-8", "math", "xhtml-math11.dtd");
+        return new DoctypeInputStream(in, "UTF-8", "math", "xhtml-math11-f.dtd");
+
+    }
+
+    /**
+     * Inject into a XML document MathML 2.0 DTD reference (
+     * <code>&lt;!DOCTYPE math SYSTEM "mathml2.dtd"&gt;</code>). Named MathML
+     * entities (
+     * <code>&amp;alpha;</code> ...) can be used in such a XML document.
+     *
+     * @param in XML document as InputStream
+     * @return the XML document with injected MathML 2.0 DTD reference
+     */
+    public static InputStream injectMathML20DTD(InputStream in) {
+
+        return new DoctypeInputStream(in, "UTF-8", "math", "mathml2.dtd");
+
+    }
+
+    /**
+     * Inject into a XML document MathML 3.0 DTD reference (
+     * <code>&lt;!DOCTYPE math SYSTEM "mathml3.dtd"&gt;</code>). Named MathML
+     * entities (<code>&amp;alpha;</code> ...) can be used in such a XML 
+     * document.
+     *
+     * @param in XML document as InputStream
+     * @return the XML document with injected MathML 3.0 DTD reference
+     */
+    public static InputStream injectMathML30DTD(InputStream in) {
+
+        return new DoctypeInputStream(in, "UTF-8", "math", "mathml3.dtd");
 
     }
 
