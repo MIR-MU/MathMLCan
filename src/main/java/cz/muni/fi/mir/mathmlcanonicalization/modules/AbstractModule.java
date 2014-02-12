@@ -79,6 +79,10 @@ abstract class AbstractModule implements Module {
         }
         properties.setProperty(key, value);
     }
+    
+    public void declareProperty(String key) {
+        properties.setProperty(key, "");
+    }
 
     @Override
     public Set<String> getPropertyNames() {
@@ -97,30 +101,6 @@ abstract class AbstractModule implements Module {
         }
         throw new IllegalArgumentException("'" + properties.getProperty(key)
                 + "' is not a valid boolean value of " + key);
-    }
-
-    protected void loadProperties(String propertiesFilename) {
-        assert propertiesFilename != null && !propertiesFilename.isEmpty();
-        InputStream resourceAsStream = null;
-        try {
-            resourceAsStream = this.getClass().getResourceAsStream(propertiesFilename);
-            if (resourceAsStream == null) {
-                throw new IOException("cannot find the property file");
-            }
-            properties.load(resourceAsStream);
-            LOGGER.log(Level.FINE, "Module properties loaded succesfully from {0}",
-                    propertiesFilename);
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Cannot load " + propertiesFilename, ex);
-        } finally {
-            try {
-                if (resourceAsStream != null) {
-                    resourceAsStream.close();
-                }
-            } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "Cannot close property file stream", ex);
-            }
-        }
     }
 
     protected Set<String> getPropertySet(final String property) {

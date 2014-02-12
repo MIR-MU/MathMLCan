@@ -50,12 +50,12 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "ElementMinimizer.properties";
     private Set<String> removeWithChildren;
     private Set<String> removeKeepChildren;
 
     public ElementMinimizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty("remove_all");
+        declareProperty("remove");
     }
 
     @Override

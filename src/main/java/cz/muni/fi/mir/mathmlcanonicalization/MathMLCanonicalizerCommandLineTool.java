@@ -52,6 +52,7 @@ public final class MathMLCanonicalizerCommandLineTool {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         final Options options = new Options();
         options.addOption("c", "config-file", true, "load configuration file");
         options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");
@@ -158,7 +159,7 @@ public final class MathMLCanonicalizerCommandLineTool {
      */
     private static void printHelp(Options options) {
         System.err.println("Usage: java -jar " + JARFILE
-                + " [-c /path/to/config.xml] [-w] [-dtd]"
+                + " -c /path/to/config.xml [-w] [-dtd]"
                 + " [/path/to/input.xhtml | /path/to/directory]...");
         System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();

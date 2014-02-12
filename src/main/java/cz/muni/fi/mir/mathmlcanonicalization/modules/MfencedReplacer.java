@@ -58,7 +58,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "MfencedReplacer.properties";
     private static final Logger LOGGER = Logger.getLogger(MfencedReplacer.class.getName());
     // MathML attributes
     private static final String OPEN_FENCE = "open";
@@ -75,7 +74,6 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private static final String ADD_INNER_ROW = "innermrow";
 
     public MfencedReplacer() {
-        loadProperties(PROPERTIES_FILENAME);
     }
 
     @Override

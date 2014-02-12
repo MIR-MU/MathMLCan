@@ -54,7 +54,6 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "ScriptNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
@@ -62,7 +61,6 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private static final String UNIFY_SCRIPTS = "unifyscripts";
 
     public ScriptNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
     }
 
     @Override

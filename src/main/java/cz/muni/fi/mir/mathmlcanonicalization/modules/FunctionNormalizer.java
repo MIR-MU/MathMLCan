@@ -36,13 +36,11 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
     /**
      * Path to the property file with module settings.
      */
-    private static final String PROPERTIES_FILENAME = "FunctionNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(FunctionNormalizer.class.getName());
     // properties key names
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
 
     public FunctionNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
     }
 
     @Override
