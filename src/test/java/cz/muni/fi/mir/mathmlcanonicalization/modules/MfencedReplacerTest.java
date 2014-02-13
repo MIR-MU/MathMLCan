@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -36,7 +37,20 @@ public class MfencedReplacerTest extends AbstractModuleTest {
         CONFIGURED_INSTANCE.setProperty("forceopen", "1");
         CONFIGURED_INSTANCE.setProperty("forceclose", "1");
         CONFIGURED_INSTANCE.setProperty("forceseparators", "1");
+        CONFIGURED_INSTANCE.setProperty("innermrow", "1");
         CONFIGURED_INSTANCE.setProperty("outermrow", "0");
+    }
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        DEFAULT_INSTANCE.setProperty("outermrow", "1");
+        DEFAULT_INSTANCE.setProperty("innermrow", "1");
+        DEFAULT_INSTANCE.setProperty("open", "(");
+        DEFAULT_INSTANCE.setProperty("close", ")");
+        DEFAULT_INSTANCE.setProperty("separators", ",");
+        DEFAULT_INSTANCE.setProperty("forceopen", "0");
+        DEFAULT_INSTANCE.setProperty("forceclose", "0");
+        DEFAULT_INSTANCE.setProperty("forceseparators", "0");
     }
 
     @Test

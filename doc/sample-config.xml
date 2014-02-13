@@ -10,7 +10,7 @@
         
         <!-- keep attributes that bear semantics -->
         <property name="keepAttributes">mathvariant encoding</property>
-        <property name="keepAttributes.mfrac">linethickness=0 linethickness=1</property>
+        <property name="keepAttributes.mfrac">linethickness=0</property>
         <property name="keepAttributes.cn">base type</property>
         <property name="keepAttributes.ci">type</property>
         <property name="keepAttributes.set">type=normal type=multiset</property>

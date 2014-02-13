@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -27,6 +28,11 @@ public class FunctionNormalizerTest extends AbstractModuleTest {
     private static final Module DEFAULT_INSTANCE = new FunctionNormalizer();
     private static final String RESOURCE_SUBDIR = FunctionNormalizerTest.class.getSimpleName() + "/";
 
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        DEFAULT_INSTANCE.setProperty("functionoperators", "⁡");
+    }
+    
     @Test
     public void testFunction() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "function");
