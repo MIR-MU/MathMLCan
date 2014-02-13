@@ -41,6 +41,7 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
 
     public FunctionNormalizer() {
+        declareProperty("functionoperators");
     }
 
     @Override

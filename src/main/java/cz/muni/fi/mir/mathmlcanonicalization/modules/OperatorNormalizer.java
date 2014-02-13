@@ -54,6 +54,12 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String OPERATORS = "operators";
 
     public OperatorNormalizer() {
+        declareProperty("removeempty");
+        declareProperty("removeoperators");
+        declareProperty("replaceoperators");
+        declareProperty("colonreplacement");
+        declareProperty("normalizationform");
+        declareProperty("operators");
     }
 
     @Override
