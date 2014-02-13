@@ -74,6 +74,9 @@ public final class MathMLCanonicalizerCommandLineTool {
         if (line != null) {
             if (line.hasOption('c')) {
                 config = new File(line.getOptionValue('c'));
+            } else {
+                printHelp(options);
+                System.exit(0);
             }
 
             if (line.hasOption('d')) {
@@ -160,7 +163,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     private static void printHelp(Options options) {
         System.err.println("Usage: java -jar " + JARFILE
                 + " -c /path/to/config.xml [-w] [-dtd]"
-                + " [/path/to/input.xhtml | /path/to/directory]...");
+                + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
         System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
         formatter.printOptions(new PrintWriter(System.err, true), 80, options, 8, 8);
