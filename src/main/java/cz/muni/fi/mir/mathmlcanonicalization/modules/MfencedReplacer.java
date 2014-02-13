@@ -55,9 +55,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class MfencedReplacer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
     private static final Logger LOGGER = Logger.getLogger(MfencedReplacer.class.getName());
     // MathML attributes
     private static final String OPEN_FENCE = "open";

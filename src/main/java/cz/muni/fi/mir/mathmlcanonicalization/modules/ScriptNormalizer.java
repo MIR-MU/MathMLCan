@@ -51,9 +51,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class ScriptNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";

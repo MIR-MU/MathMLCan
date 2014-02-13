@@ -33,9 +33,6 @@ import org.jdom2.Element;
  */
 public class FunctionNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
     private static final Logger LOGGER = Logger.getLogger(FunctionNormalizer.class.getName());
     // properties key names
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";

@@ -47,9 +47,6 @@ import javax.xml.stream.*;
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
     private Set<String> removeWithChildren;
     private Set<String> removeKeepChildren;
 

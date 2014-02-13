@@ -41,9 +41,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
     private static final Logger LOGGER = Logger.getLogger(OperatorNormalizer.class.getName());
     // properties key names
     private static final String REMOVE_EMPTY_OPERATORS = "removeempty";
