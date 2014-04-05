@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -87,7 +88,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
             throw new NullPointerException("doc");
         }
         final List<Element> toReplace = new ArrayList<Element>();
-        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED))) {
+        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED, MATHMLNS))) {
             toReplace.add(mfenced);
         }
         if (toReplace.isEmpty()) {

@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -113,10 +114,10 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 LOGGER.info("Invalid msup, skipped");
                 continue;
             }
-            final Element newMsub = new Element(SUBSCRIPT);
+            final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
             newMsub.addContent(superscriptChildren.get(0).detach());
             newMsub.addContent(subscriptChildren.get(1).detach());
-            final Element newMsup = new Element(SUPERSCRIPT);
+            final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
             newMsup.addContent(newMsub);
             newMsup.addContent(superscriptChildren.get(0).detach());
             children.set(i, newMsup);
@@ -138,10 +139,10 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 if (!firstChildren.contains(actualChildren.get(0).getName())) {
                     continue;
                 }
-                final Element newMsub = new Element(SUBSCRIPT);
+                final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
                 newMsub.addContent(actualChildren.get(0).detach());
                 newMsub.addContent(actualChildren.get(0).detach());
-                final Element newMsup = new Element(SUPERSCRIPT);
+                final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
                 newMsup.addContent(newMsub);
                 newMsup.addContent(actualChildren.get(0).detach());
                 children.set(i, newMsup);

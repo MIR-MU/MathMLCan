@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -203,7 +204,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         } else if (fenced.size() == 1) {
             innerElement = fenced.get(0); // no need to wrap, just one element
         } else {
-            innerElement = new Element(ROW);
+            innerElement = new Element(ROW, MATHMLNS);
             innerElement.addContent(fenced);
             LOGGER.fine("Inner mrow added");
         }
@@ -223,7 +224,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         // wrap outside in mrow
         opening.detach();
         closing.detach();
-        final Element outerMrowElement = new Element(ROW);
+        final Element outerMrowElement = new Element(ROW, MATHMLNS);
         outerMrowElement.addContent(opening);
         if (innerElement != null) {
             outerMrowElement.addContent(innerElement);

@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -163,7 +164,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private void replaceOperators(final Element element, final Map<String, String> replacements) {
         assert element != null && replacements != null;
         List<Element> operatorsToReplace = new ArrayList<Element>();
-        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR))) {
+        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
             if (replacements.containsKey(operator.getTextTrim())) {
                 operatorsToReplace.add(operator);
             }
@@ -180,7 +181,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
         assert ancestor != null && operators != null;
         final List<Element> toReplace = new ArrayList<Element>();
-        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER))) {
+        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER, MATHMLNS))) {
             // TODO: control whole ranges of symbols rather than listed ones
             if (operators.contains(element.getTextTrim())) {
                 toReplace.add(element);
