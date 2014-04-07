@@ -58,11 +58,19 @@ public final class MathMLCanonicalizer {
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
-        String property = Settings.getProperty("modules");
-        String[] modules = property.split(" ");
+        String modulesProperty = Settings.getProperty("modules");
+        String[] modules = modulesProperty.split(" ");
         List<String> listOfModules = Arrays.asList(modules);
 
-        MathMLCanonicalizer result = new MathMLCanonicalizer();
+        String defaultConfig = Settings.getProperty("defaultConfig");
+
+        MathMLCanonicalizer result;
+        try {
+            result = new MathMLCanonicalizer(MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
+        } catch (ConfigException ex) {
+            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, "Failure loading default configuration.", ex);
+            result = new MathMLCanonicalizer();
+        }
         for (String moduleName : listOfModules) {
             result.addModule(moduleName);
         }

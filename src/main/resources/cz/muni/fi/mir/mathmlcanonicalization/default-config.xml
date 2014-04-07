@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    
+    <module name="ElementMinimizer">
+        <!-- remove these elements only (keep children) -->
+        <property name="remove">mspace maligngroup malignmark mstyle mpadded menclose maction</property>
+        
+        <!-- remove these elements with their children -->
+        <property name="remove_all">mphantom merror</property>
+        
+        <!-- keep attributes that bear semantics -->
+        <property name="keepAttributes">mathvariant encoding</property>
+        <property name="keepAttributes.mfrac">linethickness=0</property>
+        <property name="keepAttributes.cn">base type</property>
+        <property name="keepAttributes.ci">type</property>
+        <property name="keepAttributes.set">type=normal type=multiset</property>
+        <property name="keepAttributes.tendsto">type=above type=below type=two-sided</property>
+        <property name="keepAttributes.interval">closure</property>
+        <property name="keepAttributes.declare">nargs occurrence</property>
+    </module>
+    
+    <module name="FunctionNormalizer">
+        <!-- function operators -->
+        <property name="functionoperators">⁡</property>
+    </module>
+    
+    <module name="MfencedReplacer">
+        <!-- add mrow element outside/inside fenced expression when set to 1 (true) -->
+        <property name="outermrow">1</property>
+        <property name="innermrow">1</property>
+
+        <!-- default values for attributes in mfenced element -->
+        <property name="open">(</property>
+        <property name="close">)</property>
+        <property name="separators">,</property>
+
+        <!-- use always default fences and separators when set to 1 (true) -->
+        <property name="forceopen">0</property>
+        <property name="forceclose">0</property>
+        <property name="forceseparators">0</property>
+    </module>
+    
+    <module name="MrowNormalizer">
+        <!-- whether to wrap fenced formulae resp. their content in mrow -->
+        <property name="wrapOutside">1</property>
+        <property name="wrapInside">1</property>
+
+        <!-- opening and closing parentheses -->
+        <property name="open">( [ {</property>
+        <property name="close">) ] }</property>
+
+        <!--
+        initialize childCount according to http://www.w3.org/TR/MathML3/chapter3.html#id.3.1.3.2
+        value 1 indicates an inferred mrow as described in the document above
+        -->
+        <property name="childCount.msqrt">1</property>
+        <property name="childCount.mfrac">2</property>
+        <property name="childCount.mroot">2</property>
+        <property name="childCount.mstyle">1</property>
+        <property name="childCount.merror">1</property>
+        <property name="childCount.mpadded">1</property>
+        <property name="childCount.mphantom">1</property>
+        <property name="childCount.mfenced">0</property>
+        <property name="childCount.menclose">1</property>
+        <property name="childCount.msub">2</property>
+        <property name="childCount.msup">2</property>
+        <property name="childCount.msubsup">3</property>
+        <property name="childCount.munder">2</property>
+        <property name="childCount.munderover">3</property>
+        <property name="childCount.mtd">1</property>
+        <property name="childCount.mscarry">1</property>
+    </module>
+
+    <module name="OperatorNormalizer">
+        <!-- remove every empty operators -->
+        <property name="removeempty">true</property>
+
+        <!--
+        operators which will be removed
+        InvisibleTimes, InvisibleComma, sdot, *, ?, ?
+        -->
+        <property name="removeoperators">⁢ ȀB ⋅ * ⁣ ⁤</property>
+
+        <!--
+        operators to replece in format "unwanted operator":"replacement"
+        +- and -+ to plusminus, hyphen to -
+        -->
+        <property name="replaceoperators">+-:± -+:± ­:-</property>
+
+        <!--
+        operator to replace ":" (cannot be set in replaceoperators due to parsing)
+        -->
+        <property name="colonreplacement">/</property>
+
+        <!--
+        normalize all text nodes to the specified Unicode normalization form (NFC, NFD, NFKC or NFKD)
+        see http://unicode.org/reports/tr15/ and http://www.unicode.org/charts/normalization/
+        leave blank to swith the Unicode normalization off
+        -->
+        <property name="normalizationform">NFKD</property>
+
+        <!--
+        all operators that should not be in mi element (but mo)
+        operators from previous properties are added automatically
+        -->
+        <property name="operators">+ - &lt; &gt; ( ) [ ] { } ^ ~ ' sin</property>
+    </module>
+
+    <module name="ScriptNormalizer">
+        <!-- changes msub scripts with msup script inside to msup with msub inside -->
+        <property name="swapscripts">true</property>
+
+        <!--
+        changes msubsup with first child in this list to msup with msub inside
+        leave blank to switch the msubsup replacing off
+        -->
+        <property name="splitscriptselements">mi</property>
+
+        <!--
+        converts munder to msub, mover to msup and munderover to msubsup
+        conversion is done before sub/sup transformations so these are transformed too
+        -->
+        <property name="unifyscripts">true</property>
+    </module>
+</config>
