@@ -62,11 +62,9 @@ public final class MathMLCanonicalizer {
         String[] modules = modulesProperty.split(" ");
         List<String> listOfModules = Arrays.asList(modules);
 
-        String defaultConfig = Settings.getProperty("defaultConfig");
-
         MathMLCanonicalizer result;
         try {
-            result = new MathMLCanonicalizer(MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
+            result = new MathMLCanonicalizer(Settings.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
         } catch (ConfigException ex) {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, "Failure loading default configuration.", ex);
             result = new MathMLCanonicalizer();

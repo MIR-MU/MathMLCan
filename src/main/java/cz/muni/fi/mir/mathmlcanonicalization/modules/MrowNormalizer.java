@@ -129,7 +129,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
         if (children.size() <= 1) {
             removeElement(mrowElement, parentElement);
-            LOGGER.log(Level.FINE, "Element {0} removed", mrowElement);
+            LOGGER.log(Level.FINE, "Element \"{0}\" removed", mrowElement);
             return;
         }
 
@@ -143,7 +143,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             childCount = Integer.parseInt(childCountProperty);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING,
-                    "{0} must be an integer for " + childCountPropertyName + ", property ignored", childCountProperty);
+                    "\"{0}\" is not an integer for \"" + childCountPropertyName + "\", property ignored", childCountProperty);
             return;
         }
 
