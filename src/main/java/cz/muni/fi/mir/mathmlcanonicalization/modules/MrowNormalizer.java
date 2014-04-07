@@ -143,7 +143,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             childCount = Integer.parseInt(childCountProperty);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING,
-                    "{0} must be an integer, property ignored", childCountProperty);
+                    "{0} must be an integer for " + childCountPropertyName + ", property ignored", childCountProperty);
             return;
         }
 
