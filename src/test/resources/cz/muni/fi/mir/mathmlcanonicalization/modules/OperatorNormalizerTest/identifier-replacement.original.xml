@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math xmlns="http://www.w3.org/1998/Math/MathML">
     <mn>1</mn>
-    <mi>+-</mi>
+    <mi mathvariant="normal" mathsize="big">+-</mi>
     <mrow>
-        <mi>(</mi>
+        <mi mathvariant="bold" mathsize="small" mathcolor="AliceBlue">(</mi>
         <mi>x</mi>
         <mi>:</mi>
         <mn>3</mn>
