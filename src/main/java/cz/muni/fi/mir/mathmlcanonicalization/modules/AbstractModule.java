@@ -125,8 +125,9 @@ abstract class AbstractModule implements Module {
         final Element replacement = new Element(replacementName, toReplace.getNamespace());
         replacement.addContent(toReplace.removeContent());
         final List<Attribute> attributes = toReplace.getAttributes();
-        for (Attribute attribute : attributes) {
-            replacement.setAttribute(attribute.detach());
+        while (attributes.size() > 0) {
+            Attribute currentAttribute = attributes.get(0);
+            replacement.setAttribute(currentAttribute.detach());
         }
         final int parentIndex = parent.indexOf(toReplace);
         parent.removeContent(parentIndex);
