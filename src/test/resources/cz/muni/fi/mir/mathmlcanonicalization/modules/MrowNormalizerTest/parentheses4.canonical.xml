@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mi>a</mi>
+    <mo>-</mo>
     <mrow>
-        <mi>a</mi>
-        <mo>-</mo>
+        <mo>(</mo>
         <mrow>
-            <mo>(</mo>
+            <mi>b</mi>
+            <mo>+</mo>
             <mrow>
-                <mi>b</mi>
-                <mo>+</mo>
+                <mo>(</mo>
                 <mrow>
-                    <mo>(</mo>
-                    <mrow>
-                        <mi>c</mi>
-                        <mo>+</mo>
-                        <mi>d</mi>
-                    </mrow>
-                    <mo>)</mo>
+                    <mi>c</mi>
+                    <mo>+</mo>
+                    <mi>d</mi>
                 </mrow>
+                <mo>)</mo>
             </mrow>
-            <mo>)</mo>
         </mrow>
+        <mo>)</mo>
     </mrow>
 </math>
