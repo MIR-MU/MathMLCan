@@ -91,25 +91,37 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        traverseChildrenElements(doc.getRootElement());
+        traverseRemoval(doc.getRootElement());
+        traverseAddition(doc.getRootElement());
     }
 
     /**
-     * Recursively searches element content to possibly remove or add mrow where
-     * needed.
+     * Recursively searches element content to possibly add mrow where needed
      *
      * @param element element to start at
      */
-    private void traverseChildrenElements(final Element element) {
+    private void traverseAddition(final Element element) {
         assert element != null;
         final List<Element> children = new ArrayList<Element>(element.getChildren());
         for (Element child : children) {
-            traverseChildrenElements(child);
+            traverseAddition(child);
+        }
+        checkAddition(element);
+    }
+
+    /**
+     * Recursively searches element content to possibly remove mrow where needed
+     *
+     * @param element element to start at
+     */
+    private void traverseRemoval(final Element element) {
+        assert element != null;
+        final List<Element> children = new ArrayList<Element>(element.getChildren());
+        for (Element child : children) {
+            traverseRemoval(child);
         }
         if (element.getName().equals(ROW)) {
             checkRemoval(element);
-        } else {
-            checkAddition(element);
         }
     }
 
