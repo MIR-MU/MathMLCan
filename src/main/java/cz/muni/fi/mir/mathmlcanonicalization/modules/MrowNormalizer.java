@@ -84,6 +84,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         declareProperty("childCount.munderover");
         declareProperty("childCount.mtd");
         declareProperty("childCount.mscarry");
+        declareProperty("childCount.math");
+        declareProperty("childCount.mrow");
     }
 
     @Override
