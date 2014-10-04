@@ -69,6 +69,8 @@
         <property name="childCount.munderover">3</property>
         <property name="childCount.mtd">1</property>
         <property name="childCount.mscarry">1</property>
+        <property name="childCount.math">1</property>
+        <property name="childCount.mrow">1</property>
     </module>
 
     <module name="OperatorNormalizer">

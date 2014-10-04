@@ -58,6 +58,8 @@ public class MrowNormalizerTest extends AbstractModuleTest {
         DEFAULT_INSTANCE.setProperty("childCount.munderover", "3");
         DEFAULT_INSTANCE.setProperty("childCount.mtd", "1");
         DEFAULT_INSTANCE.setProperty("childCount.mscarry", "1");
+        DEFAULT_INSTANCE.setProperty("childCount.math", "1");
+        DEFAULT_INSTANCE.setProperty("childCount.mrow", "1");
     }
 
     @Test
