@@ -35,7 +35,8 @@ public class OperatorNormalizerTest extends AbstractModuleTest {
         DEFAULT_INSTANCE.setProperty("replaceoperators", "+-:± -+:± ­:-");
         DEFAULT_INSTANCE.setProperty("colonreplacement", "/");
         DEFAULT_INSTANCE.setProperty("normalizationform", "NFKD");
-        DEFAULT_INSTANCE.setProperty("operators", "+ - < > ( ) [ ] { } ^ ~ ' sin");
+        DEFAULT_INSTANCE.setProperty("operators", "+ - < > ( ) [ ] { } ^ ~ '");
+        DEFAULT_INSTANCE.setProperty("identifiers", "sin cos log tan");
     }
 
     @Test
@@ -62,5 +63,10 @@ public class OperatorNormalizerTest extends AbstractModuleTest {
     @Test
     public void testIdentifierReplacing() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "identifier-replacement");
+    }
+    
+    @Test
+    public void testOperators2identifiers() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "operator2identifier");
     }
 }

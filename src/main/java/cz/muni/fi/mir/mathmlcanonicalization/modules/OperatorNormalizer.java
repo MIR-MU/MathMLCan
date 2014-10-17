@@ -50,6 +50,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String COLON_REPLACEMENT = "colonreplacement";
     private static final String NORMALIZATION_FORM = "normalizationform";
     private static final String OPERATORS = "operators";
+    private static final String IDENTIFIERS = "identifiers";
 
     public OperatorNormalizer() {
         declareProperty("removeempty");
@@ -58,6 +59,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         declareProperty("colonreplacement");
         declareProperty("normalizationform");
         declareProperty("operators");
+        declareProperty("identifiers");
     }
 
     @Override
@@ -112,6 +114,9 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         } else {
             replaceOperators(ancestor, replaceMap);
         }
+        
+        final Set<String> identifiers = getPropertySet(IDENTIFIERS);
+        operatorsToIdentifiers(ancestor, identifiers);
     }
 
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
@@ -193,6 +198,20 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
     }
 
+    private void operatorsToIdentifiers(final Element ancestor, final Set<String> identifiers) {
+        assert ancestor != null && identifiers != null;
+        final List<Element> toReplace = new ArrayList<Element>();
+        for (Element element : ancestor.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
+            if (identifiers.contains(element.getTextTrim())) {
+                toReplace.add(element);
+            }
+        }
+        for (Element element : toReplace) {
+            LOGGER.log(Level.FINE, "Creating an identifier from {0}", element.getText());
+            replaceElement(element, IDENTIFIER);
+        }
+    }
+    
     private Map<String, String> getPropertyMap(final String property) {
         assert property != null && isProperty(property);
         final Map<String, String> propertyMap = new HashMap<String, String>();

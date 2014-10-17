@@ -105,7 +105,8 @@
         all operators that should not be in mi element (but mo)
         operators from previous properties are added automatically
         -->
-        <property name="operators">+ - &lt; &gt; ( ) [ ] { } ^ ~ ' sin</property>
+        <property name="operators">+ - &lt; &gt; ( ) [ ] { } ^ ~ '</property>
+        <property name="identifiers">exp sin cos tan tg cot cotan cotg ctg ctn sec csc cosec arcsin arccos arctan arccot arcsec arccsc sinh cosh tanh coth cesh csch arcsinh arcosh artanh arcoth arsech arcsch log lg ln</property>
     </module>
 
     <module name="ScriptNormalizer">
