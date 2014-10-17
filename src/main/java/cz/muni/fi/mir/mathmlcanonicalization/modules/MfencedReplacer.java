@@ -72,14 +72,14 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private static final String ADD_INNER_ROW = "innermrow";
 
     public MfencedReplacer() {
-        declareProperty("outermrow");
-        declareProperty("innermrow");
-        declareProperty("open");
-        declareProperty("close");
-        declareProperty("separators");
-        declareProperty("forceopen");
-        declareProperty("forceclose");
-        declareProperty("forceseparators");
+        declareProperty(ADD_OUTER_ROW);
+        declareProperty(ADD_INNER_ROW);
+        declareProperty(DEFAULT_OPEN);
+        declareProperty(DEFAULT_CLOSE);
+        declareProperty(DEFAULT_SEPARATORS);
+        declareProperty(FORCE_DEFAULT_OPEN);
+        declareProperty(FORCE_DEFAULT_CLOSE);
+        declareProperty(FORCE_DEFAULT_SEPARATORS);
     }
 
     @Override

@@ -24,7 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.stream.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Remove useless elements and attributes from MathML.
@@ -32,7 +37,7 @@ import javax.xml.stream.*;
  * <h4>Input:</h4><ul>
  * <li>Well-formed MathML, first module</li>
  * <li>Property file(s) with names of elements and attributes for removal or
- * preservation</li>
+ * preservation</li></ul>
  * <h4>Output:</h4>
  * The original code with:<ul>
  * <li>removed elements insignificant for the formula searching and indexing
@@ -94,12 +99,12 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         if (isProperty(elementPropertyName)) {
             property += " " + getProperty(elementPropertyName);
         }
-        List<String> whitelist = Arrays.asList(property.split(" "));
+        final List<String> whitelist = Arrays.asList(property.split(" "));
         for (String attribute : whitelist) {
             if (attributeName.equals(attribute)
                     || attribute.contains("=")
-                    && attributeName.equals(attribute.substring(0, attribute.lastIndexOf("=")))
-                    && attributeValue.equals(attribute.substring(attribute.lastIndexOf("=") + 1))) {
+                    && attributeName.equals(attribute.substring(0, attribute.lastIndexOf('=')))
+                    && attributeValue.equals(attribute.substring(attribute.lastIndexOf('=') + 1))) {
                 return true;
             }
         }

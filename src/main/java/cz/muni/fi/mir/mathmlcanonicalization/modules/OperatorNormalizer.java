@@ -53,13 +53,13 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String IDENTIFIERS = "identifiers";
 
     public OperatorNormalizer() {
-        declareProperty("removeempty");
-        declareProperty("removeoperators");
-        declareProperty("replaceoperators");
-        declareProperty("colonreplacement");
-        declareProperty("normalizationform");
-        declareProperty("operators");
-        declareProperty("identifiers");
+        declareProperty(REMOVE_EMPTY_OPERATORS);
+        declareProperty(OPERATORS_TO_REMOVE);
+        declareProperty(OPERATOR_REPLACEMENTS);
+        declareProperty(COLON_REPLACEMENT);
+        declareProperty(NORMALIZATION_FORM);
+        declareProperty(OPERATORS);
+        declareProperty(IDENTIFIERS);
     }
 
     @Override
@@ -216,12 +216,12 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         assert property != null && isProperty(property);
         final Map<String, String> propertyMap = new HashMap<String, String>();
         final String[] mappings = getProperty(property).split(" ");
-        for (int i = 0; i < mappings.length; i++) {
-            final String[] mapping = mappings[i].split(":", 2);
-            if (mapping.length != 2) {
+        for (String mapping : mappings) {
+            final String[] mappingPair = mapping.split(":", 2);
+            if (mappingPair.length != 2) {
                 throw new IllegalArgumentException("property has wrong format");
             }
-            propertyMap.put(mapping[0], mapping[1]);
+            propertyMap.put(mappingPair[0], mappingPair[1]);
         }
         return propertyMap;
     }

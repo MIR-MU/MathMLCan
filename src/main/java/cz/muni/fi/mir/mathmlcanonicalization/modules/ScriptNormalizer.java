@@ -59,9 +59,9 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private static final String UNIFY_SCRIPTS = "unifyscripts";
 
     public ScriptNormalizer() {
-        declareProperty("swapscripts");
-        declareProperty("splitscriptselements");
-        declareProperty("unifyscripts");
+        declareProperty(SWAP_SCRIPTS);
+        declareProperty(SPLIT_SCRIPTS_ELEMENTS);
+        declareProperty(UNIFY_SCRIPTS);
     }
 
     @Override

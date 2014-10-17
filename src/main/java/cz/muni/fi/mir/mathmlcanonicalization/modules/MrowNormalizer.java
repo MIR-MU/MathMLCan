@@ -64,10 +64,10 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     private static final String WRAP_OUTSIDE = "wrapOutside";
 
     public MrowNormalizer() {
-        declareProperty("wrapOutside");
-        declareProperty("wrapInside");
-        declareProperty("open");
-        declareProperty("close");
+        declareProperty(WRAP_OUTSIDE);
+        declareProperty(WRAP_ISIDE);
+        declareProperty(OPENING);
+        declareProperty(CLOSING);
         declareProperty("childCount.msqrt");
         declareProperty("childCount.mfrac");
         declareProperty("childCount.mroot");
