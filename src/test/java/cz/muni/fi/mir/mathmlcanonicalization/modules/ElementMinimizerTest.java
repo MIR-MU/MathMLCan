@@ -32,7 +32,7 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     public static void setUpBeforeClass() {
         DEFAULT_INSTANCE.setProperty("remove", "mspace maligngroup malignmark mstyle mpadded menclose maction");
         DEFAULT_INSTANCE.setProperty("remove_all", "mphantom merror");
-        DEFAULT_INSTANCE.setProperty("keepAttributes", "mathvariant encoding");
+        DEFAULT_INSTANCE.setProperty("keepAttributes", "mathvariant=bold encoding");
         DEFAULT_INSTANCE.setProperty("keepAttributes.mfrac", "linethickness=0");
         DEFAULT_INSTANCE.setProperty("keepAttributes.cn", "base type");
         DEFAULT_INSTANCE.setProperty("keepAttributes.ci", "type");

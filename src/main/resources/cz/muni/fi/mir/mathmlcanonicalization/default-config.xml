@@ -9,7 +9,7 @@
         <property name="remove_all">mphantom merror</property>
         
         <!-- keep attributes that bear semantics -->
-        <property name="keepAttributes">mathvariant encoding</property>
+        <property name="keepAttributes">mathvariant=bold mathvariant=italic mathvariant=bold-italic mathvariant=double-struck mathvariant=bold-fraktur mathvariant=script mathvariant=bold-script mathvariant=fraktur mathvariant=sans-serif mathvariant=bold-sans-serif mathvariant=sans-serif-italic mathvariant=sans-serif-bold-italic mathvariant=monospace mathvariant=initial mathvariant=tailed mathvariant=looped mathvariant=stretched encoding</property>
         <property name="keepAttributes.mfrac">linethickness=0</property>
         <property name="keepAttributes.cn">base type</property>
         <property name="keepAttributes.ci">type</property>
