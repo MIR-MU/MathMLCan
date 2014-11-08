@@ -17,6 +17,7 @@
         <property name="keepAttributes.tendsto">type=above type=below type=two-sided</property>
         <property name="keepAttributes.interval">closure</property>
         <property name="keepAttributes.declare">nargs occurrence</property>
+        <property name="keepAttributes.mfenced">open close</property>
     </module>
     
     <module name="FunctionNormalizer">

@@ -66,6 +66,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         declareProperty("keepAttributes.tendsto");
         declareProperty("keepAttributes.interval");
         declareProperty("keepAttributes.declare");
+        declareProperty("keepAttributes.mfenced");
     }
 
     @Override

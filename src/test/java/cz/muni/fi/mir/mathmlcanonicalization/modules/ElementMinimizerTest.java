@@ -40,6 +40,7 @@ public class ElementMinimizerTest extends AbstractModuleTest {
         DEFAULT_INSTANCE.setProperty("keepAttributes.tendsto", "type=above type=below type=two-sided");
         DEFAULT_INSTANCE.setProperty("keepAttributes.interval", "closure");
         DEFAULT_INSTANCE.setProperty("keepAttributes.declare", "nargs occurrence");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.mfenced", "open close");
     }
 
     @Test
