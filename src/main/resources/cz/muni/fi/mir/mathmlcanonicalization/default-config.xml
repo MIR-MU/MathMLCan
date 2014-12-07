@@ -88,7 +88,7 @@
         operators to replece in format "unwanted operator":"replacement"
         +- and -+ to plusminus, hyphen to -
         -->
-        <property name="replaceoperators">+-:± -+:± ­:- &lt;=:≤ =&alt;:≤ ≦:≤ &agt;=:≥ =&agt;:≥ ≧:≥</property>
+        <property name="replaceoperators">+-:± -+:± ­:- &lt;=:≤ =&lt;:≤ ≦:≤ &gt;=:≥ =&gt;:≥ ≧:≥</property>
 
         <!--
         operator to replace ":" (cannot be set in replaceoperators due to parsing)
