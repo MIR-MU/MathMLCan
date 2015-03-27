@@ -149,7 +149,10 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
             if (isOperator(actual)) {
-                if (isSpareOperator(actual, spareOperators)) {
+            	//Keep special case where asterisk is by itself in a subscript
+                String parent = actual.getParentElement().getName();
+                if (isSpareOperator(actual, spareOperators) && !(parent.equals("msub"))
+                        && !(parent.equals("msubsup") && !(parent.equals("msup")))) {
                     actual.detach();
                     i--; // move iterator back after detaching so it points to next element
                     LOGGER.log(Level.FINE, "Operator {0} removed", actual);
