@@ -27,17 +27,17 @@ import org.jdom2.filter.ElementFilter;
 /**
  * Replace mfenced elements in MathML for equivalent.
  *
- * <h4>Input</h4>
+ * <div class="simpleTagLabel">Input</div>
  * Well-formed MathML, preserved non-default attributes in &lt;mfenced&gt; tags,
  * not processed by MrowMinimizer yet
- * <h4>Output</h4>
+ * <div class="simpleTagLabel">Output</div>
  * The original code containing no &lt;mfenced&gt; elements, originally fenced
  * formulae are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
  * (from &lt;mfenced&gt; attributes) in &lt;mo&gt; elements, inner content is
  * placed into another &lt;mrow&gt; element. Module can be configured not to add
  * mrow outside and inside or your own fixed or default parentheses and
  * separators for fenced expressions can be specified.
- * <h4>Example</h4>
+ * <div class="simpleTagLabel">Example</div>
  * <pre> &lt;mfenced open="["&gt;
  *     &lt;mi&gt;x&lt;mi&gt;
  *     &lt;mi&gt;y&lt;mi&gt;

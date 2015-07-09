@@ -85,6 +85,7 @@ public class DTDManipulator {
      *
      * @param in XML document as InputStream
      * @return the XML document without DTD reference
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
     public static InputStream removeDTD(InputStream in) throws XMLStreamException {
 

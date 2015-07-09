@@ -34,11 +34,11 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * Remove useless elements and attributes from MathML.
  *
- * <h4>Input:</h4><ul>
+ * <div class="simpleTagLabel">Input:</div><ul>
  * <li>Well-formed MathML, first module</li>
  * <li>Property file(s) with names of elements and attributes for removal or
  * preservation</li></ul>
- * <h4>Output:</h4>
+ * <div class="simpleTagLabel">Output:</div>
  * The original code with:<ul>
  * <li>removed elements insignificant for the formula searching and indexing
  * purpose (e.q. spacing and appearance altering tags) including the content

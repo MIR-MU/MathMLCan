@@ -27,10 +27,10 @@ import org.jdom2.Parent;
 /**
  * Normalize the number of mrow elements in MathML.
  *
- * <h4>Input</h4>
+ * <div class="simpleTagLabel">Input</div>
  * Well-formed MathML, already processed by other modules (especially
  * ElementMinimizer, MfencedReplacer and FunctionNormalizer)
- * <h4>Output</h4>
+ * <div class="simpleTagLabel">Output</div>
  * The original code with changes in mrow elements:<ul>
  * <li>added mrow elements to places, where detected fenced formulae (and not
  * already encapsulated in mrow)</li>
@@ -38,7 +38,7 @@ import org.jdom2.Parent;
  * requiring only one child element accept any number of elements so the mrow
  * tag is not needed (see example) or grouping with only presentation purpose
  * </li></ul>
- * <h4>Example</h4><pre>
+ * <div class="simpleTagLabel">Example</div><pre>
  * &lt;msqrt&gt;
  *     &lt;mrow&gt;
  *         &lt;mo&gt;-&lt;/mo&gt;

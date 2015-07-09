@@ -29,12 +29,13 @@ import org.jdom2.filter.ElementFilter;
 /**
  * Handle sub/super/under/over/multi script elements in MathML.
  *
- * <p>Normalize the occurence of &lt;msub&gt;, &lt;msup&gt;, &lt;msubsup&gt;,
+ * <p>
+ * Normalize the occurence of &lt;msub&gt;, &lt;msup&gt;, &lt;msubsup&gt;,
  * &lt;munder&gt;, &lt;mover&gt;, &lt;munderover&gt; and &lt;mmultiscripts&gt;
  * (with children &lt;mprescripts/&gt; and &lt;none/&gt;) elements in MathML.
- * </p><h4>Input</h4>
+ * </p><span class="simpleTagLabel">Input</span>
  * Well-formed MathML
- * <h4>Output</h4>
+ * <div class="simpleTagLabel">Output</div>
  * The original code with always used:<ul>
  * <li>&lt;msubsup&gt; (or &lt;msub&gt;) for sums, integrals, etc. (converted
  * from &lt;munderover&gt;, &lt;munder&gt; and &lt;msub&gt;, &lt;msup&gt;
