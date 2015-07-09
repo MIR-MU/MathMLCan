@@ -50,8 +50,9 @@ public final class MathMLCanonicalizerCommandLineTool {
     // TODO: refactoring
     /**
      * @param args the command line arguments
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
-    public static void main(String[] args) throws FileNotFoundException, XMLStreamException {
+    public static void main(String[] args) throws XMLStreamException {
         final Options options = new Options();
         options.addOption("c", "config-file", true, "load configuration file");
         options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");

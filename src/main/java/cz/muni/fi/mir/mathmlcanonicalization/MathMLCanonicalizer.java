@@ -281,6 +281,7 @@ public final class MathMLCanonicalizer {
      * @throws JDOMException problem with DOM
      * @throws IOException problem with streams
      * @throws ModuleException some module cannot canonicalize the input
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
     public void canonicalize(final InputStream in, final OutputStream out)
             throws JDOMException, IOException, ModuleException, XMLStreamException {

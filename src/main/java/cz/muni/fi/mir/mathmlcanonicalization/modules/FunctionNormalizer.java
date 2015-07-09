@@ -23,11 +23,15 @@ import org.jdom2.Element;
 
 /**
  * Normalize the way to express an function applied to arguments in MathML.
- * <h4>Input</h4> Well-formed MathML, not processed by MrowMinimizer yet
- * <h4>Output</h4> The original code with:<ul> <li>removed entities for function
- * application (and multiplying where it should not be)</li> <li>the name of
- * function placed in &lt;mi&gt; element (not &lt;mo&gt;)</li> <li>function
- * arguments placed in parentheses and &lt;mrow&gt;</li></ul>
+ * <div class="simpleTagLabel">Input</div> Well-formed MathML, not processed by
+ * MrowMinimizer yet
+ * <div class="simpleTagLabel">Output</div> The original code with:
+ * <ul>
+ * <li>removed entities for function application (and multiplying where it
+ * should not be)</li>
+ * <li>the name of function placed in &lt;mi&gt; element (not &lt;mo&gt;)</li>
+ * <li>function arguments placed in parentheses and &lt;mrow&gt;</li>
+ * </ul>
  *
  * @author Jaroslav Dufek
  */
