@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +53,7 @@ public final class MathMLCanonicalizerCommandLineTool {
      * @param args the command line arguments
      * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
-    public static void main(String[] args) throws XMLStreamException {
+    public static void main(String[] args) throws XMLStreamException, ConfigException, FileNotFoundException, JDOMException, ModuleException {
         final Options options = new Options();
         options.addOption("c", "config-file", true, "load configuration file");
         options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");
@@ -68,15 +69,19 @@ public final class MathMLCanonicalizerCommandLineTool {
             System.exit(1);
         }
 
-        File config = null;
+        InputStream config = null;
         boolean overwrite = false;
         boolean dtdInjectionMode = false;
         if (line != null) {
             if (line.hasOption('c')) {
-                config = new File(line.getOptionValue('c'));
+                try {
+                    config = new FileInputStream(line.getOptionValue('c'));
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(2);
+                }
             } else {
-                printHelp(options);
-                System.exit(0);
+                config = MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig"));
             }
 
             if (line.hasOption('d')) {
@@ -102,12 +107,6 @@ public final class MathMLCanonicalizerCommandLineTool {
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (ConfigException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (JDOMException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (ModuleException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 }
             } else {
@@ -117,14 +116,12 @@ public final class MathMLCanonicalizerCommandLineTool {
         }
     }
 
-    private static void canonicalize(File file, File config, boolean dtdInjectionMode, boolean overwrite) throws
+    private static void canonicalize(File file, InputStream config, boolean dtdInjectionMode, boolean overwrite) throws
             ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException, XMLStreamException {
         assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
-        FileInputStream configInputStream;
         if (config != null) {
-            configInputStream = new FileInputStream(config);
-            mlcan = new MathMLCanonicalizer(configInputStream);
+            mlcan = new MathMLCanonicalizer(config);
         } else {
             mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
         }
@@ -162,7 +159,7 @@ public final class MathMLCanonicalizerCommandLineTool {
      */
     private static void printHelp(Options options) {
         System.err.println("Usage: java -jar " + JARFILE
-                + " -c /path/to/config.xml [ -w ] [ -d ]"
+                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
                 + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
         System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
