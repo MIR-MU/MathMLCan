@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,10 +47,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "OperatorNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(OperatorNormalizer.class.getName());
     // properties key names
     private static final String REMOVE_EMPTY_OPERATORS = "removeempty";
@@ -58,9 +55,16 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private static final String COLON_REPLACEMENT = "colonreplacement";
     private static final String NORMALIZATION_FORM = "normalizationform";
     private static final String OPERATORS = "operators";
+    private static final String IDENTIFIERS = "identifiers";
 
     public OperatorNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty(REMOVE_EMPTY_OPERATORS);
+        declareProperty(OPERATORS_TO_REMOVE);
+        declareProperty(OPERATOR_REPLACEMENTS);
+        declareProperty(COLON_REPLACEMENT);
+        declareProperty(NORMALIZATION_FORM);
+        declareProperty(OPERATORS);
+        declareProperty(IDENTIFIERS);
     }
 
     @Override
@@ -115,6 +119,9 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         } else {
             replaceOperators(ancestor, replaceMap);
         }
+        
+        final Set<String> identifiers = getPropertySet(IDENTIFIERS);
+        operatorsToIdentifiers(ancestor, identifiers);
     }
 
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
@@ -147,7 +154,10 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
             if (isOperator(actual)) {
-                if (isSpareOperator(actual, spareOperators)) {
+            	//Keep special case where asterisk is by itself in a subscript
+                String parent = actual.getParentElement().getName();
+                if (isSpareOperator(actual, spareOperators) && !(parent.equals("msub"))
+                        && !(parent.equals("msubsup") && !(parent.equals("msup")))) {
                     actual.detach();
                     i--; // move iterator back after detaching so it points to next element
                     LOGGER.log(Level.FINE, "Operator {0} removed", actual);
@@ -167,7 +177,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private void replaceOperators(final Element element, final Map<String, String> replacements) {
         assert element != null && replacements != null;
         List<Element> operatorsToReplace = new ArrayList<Element>();
-        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR))) {
+        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
             if (replacements.containsKey(operator.getTextTrim())) {
                 operatorsToReplace.add(operator);
             }
@@ -184,7 +194,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
         assert ancestor != null && operators != null;
         final List<Element> toReplace = new ArrayList<Element>();
-        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER))) {
+        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER, MATHMLNS))) {
             // TODO: control whole ranges of symbols rather than listed ones
             if (operators.contains(element.getTextTrim())) {
                 toReplace.add(element);
@@ -196,16 +206,30 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
     }
 
+    private void operatorsToIdentifiers(final Element ancestor, final Set<String> identifiers) {
+        assert ancestor != null && identifiers != null;
+        final List<Element> toReplace = new ArrayList<Element>();
+        for (Element element : ancestor.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
+            if (identifiers.contains(element.getTextTrim())) {
+                toReplace.add(element);
+            }
+        }
+        for (Element element : toReplace) {
+            LOGGER.log(Level.FINE, "Creating an identifier from {0}", element.getText());
+            replaceElement(element, IDENTIFIER);
+        }
+    }
+    
     private Map<String, String> getPropertyMap(final String property) {
         assert property != null && isProperty(property);
         final Map<String, String> propertyMap = new HashMap<String, String>();
         final String[] mappings = getProperty(property).split(" ");
-        for (int i = 0; i < mappings.length; i++) {
-            final String[] mapping = mappings[i].split(":", 2);
-            if (mapping.length != 2) {
+        for (String mapping : mappings) {
+            final String[] mappingPair = mapping.split(":", 2);
+            if (mappingPair.length != 2) {
                 throw new IllegalArgumentException("property has wrong format");
             }
-            propertyMap.put(mapping[0], mapping[1]);
+            propertyMap.put(mappingPair[0], mappingPair[1]);
         }
         return propertyMap;
     }

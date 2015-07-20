@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,10 +53,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class ScriptNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "ScriptNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
     // properties key names
     private static final String SWAP_SCRIPTS = "swapscripts";
@@ -63,7 +60,9 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private static final String UNIFY_SCRIPTS = "unifyscripts";
 
     public ScriptNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty(SWAP_SCRIPTS);
+        declareProperty(SPLIT_SCRIPTS_ELEMENTS);
+        declareProperty(UNIFY_SCRIPTS);
     }
 
     @Override
@@ -116,10 +115,10 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 LOGGER.info("Invalid msup, skipped");
                 continue;
             }
-            final Element newMsub = new Element(SUBSCRIPT);
+            final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
             newMsub.addContent(superscriptChildren.get(0).detach());
             newMsub.addContent(subscriptChildren.get(1).detach());
-            final Element newMsup = new Element(SUPERSCRIPT);
+            final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
             newMsup.addContent(newMsub);
             newMsup.addContent(superscriptChildren.get(0).detach());
             children.set(i, newMsup);
@@ -141,10 +140,10 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 if (!firstChildren.contains(actualChildren.get(0).getName())) {
                     continue;
                 }
-                final Element newMsub = new Element(SUBSCRIPT);
+                final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
                 newMsub.addContent(actualChildren.get(0).detach());
                 newMsub.addContent(actualChildren.get(0).detach());
-                final Element newMsup = new Element(SUPERSCRIPT);
+                final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
                 newMsup.addContent(newMsub);
                 newMsup.addContent(actualChildren.get(0).detach());
                 children.set(i, newMsup);

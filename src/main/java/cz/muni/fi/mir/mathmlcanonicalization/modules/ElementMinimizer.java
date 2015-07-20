@@ -24,7 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.stream.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Remove useless elements and attributes from MathML.
@@ -47,15 +52,21 @@ import javax.xml.stream.*;
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "ElementMinimizer.properties";
     private Set<String> removeWithChildren;
     private Set<String> removeKeepChildren;
 
     public ElementMinimizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty("remove_all");
+        declareProperty("remove");
+        declareProperty("keepAttributes");
+        declareProperty("keepAttributes.mfrac");
+        declareProperty("keepAttributes.cn");
+        declareProperty("keepAttributes.ci");
+        declareProperty("keepAttributes.set");
+        declareProperty("keepAttributes.tendsto");
+        declareProperty("keepAttributes.interval");
+        declareProperty("keepAttributes.declare");
+        declareProperty("keepAttributes.mfenced");
     }
 
     @Override
@@ -89,12 +100,12 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         if (isProperty(elementPropertyName)) {
             property += " " + getProperty(elementPropertyName);
         }
-        List<String> whitelist = Arrays.asList(property.split(" "));
+        final List<String> whitelist = Arrays.asList(property.split(" "));
         for (String attribute : whitelist) {
             if (attributeName.equals(attribute)
                     || attribute.contains("=")
-                    && attributeName.equals(attribute.substring(0, attribute.lastIndexOf("=")))
-                    && attributeValue.equals(attribute.substring(attribute.lastIndexOf("=") + 1))) {
+                    && attributeName.equals(attribute.substring(0, attribute.lastIndexOf('=')))
+                    && attributeValue.equals(attribute.substring(attribute.lastIndexOf('=') + 1))) {
                 return true;
             }
         }

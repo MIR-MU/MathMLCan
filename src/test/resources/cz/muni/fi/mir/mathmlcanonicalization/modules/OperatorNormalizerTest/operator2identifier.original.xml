@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math xmlns="http://www.w3.org/1998/Math/MathML">
-    <mi>a</mi>
-    <mo>b</mo>
-    bb
+    <mo>sin</mo>
+    <mi>x</mi>
     <mrow>
-        <mi>A</mi>
+        <mn>10</mn>
+        <mo>+</mo>
+        <mo>log</mo>
+        <mi>y</mi>
     </mrow>
 </math>

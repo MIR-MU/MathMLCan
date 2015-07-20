@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<math>
+<math xmlns="http://www.w3.org/1998/Math/MathML">
     <msup>
-        <msub align="center">
+        <msub align="center" accentunder="true" id="1234">
             <mi>x</mi>
             <mn>1</mn>
         </msub>

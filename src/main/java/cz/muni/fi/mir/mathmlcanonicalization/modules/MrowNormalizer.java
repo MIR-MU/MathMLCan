@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -54,10 +55,6 @@ import org.jdom2.Parent;
  */
 public class MrowNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "MrowNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(MrowNormalizer.class.getName());
     // properties
     private static final String CHILD_COUNT_PREFIX = "childCount.";
@@ -67,7 +64,28 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
     private static final String WRAP_OUTSIDE = "wrapOutside";
 
     public MrowNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty(WRAP_OUTSIDE);
+        declareProperty(WRAP_ISIDE);
+        declareProperty(OPENING);
+        declareProperty(CLOSING);
+        declareProperty("childCount.msqrt");
+        declareProperty("childCount.mfrac");
+        declareProperty("childCount.mroot");
+        declareProperty("childCount.mstyle");
+        declareProperty("childCount.merror");
+        declareProperty("childCount.mpadded");
+        declareProperty("childCount.mphantom");
+        declareProperty("childCount.mfenced");
+        declareProperty("childCount.menclose");
+        declareProperty("childCount.msub");
+        declareProperty("childCount.msup");
+        declareProperty("childCount.msubsup");
+        declareProperty("childCount.munder");
+        declareProperty("childCount.munderover");
+        declareProperty("childCount.mtd");
+        declareProperty("childCount.mscarry");
+        declareProperty("childCount.math");
+        declareProperty("childCount.mrow");
     }
 
     @Override
@@ -75,25 +93,37 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        traverseChildrenElements(doc.getRootElement());
+        traverseRemoval(doc.getRootElement());
+        traverseAddition(doc.getRootElement());
     }
 
     /**
-     * Recursively searches element content to possibly remove or add mrow where
-     * needed.
+     * Recursively searches element content to possibly add mrow where needed
      *
      * @param element element to start at
      */
-    private void traverseChildrenElements(final Element element) {
+    private void traverseAddition(final Element element) {
         assert element != null;
         final List<Element> children = new ArrayList<Element>(element.getChildren());
         for (Element child : children) {
-            traverseChildrenElements(child);
+            traverseAddition(child);
+        }
+        checkAddition(element);
+    }
+
+    /**
+     * Recursively searches element content to possibly remove mrow where needed
+     *
+     * @param element element to start at
+     */
+    private void traverseRemoval(final Element element) {
+        assert element != null;
+        final List<Element> children = new ArrayList<Element>(element.getChildren());
+        for (Element child : children) {
+            traverseRemoval(child);
         }
         if (element.getName().equals(ROW)) {
             checkRemoval(element);
-        } else {
-            checkAddition(element);
         }
     }
 
@@ -113,7 +143,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
 
         if (children.size() <= 1) {
             removeElement(mrowElement, parentElement);
-            LOGGER.log(Level.FINE, "Element {0} removed", mrowElement);
+            LOGGER.log(Level.FINE, "Element \"{0}\" removed", mrowElement);
             return;
         }
 
@@ -127,7 +157,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             childCount = Integer.parseInt(childCountProperty);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING,
-                    "{0} must be an integer, property ignored", childCountProperty);
+                    "\"{0}\" is not an integer for \"" + childCountPropertyName + "\", property ignored", childCountProperty);
             return;
         }
 
@@ -188,7 +218,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         } else if (fenced.size() == 1) {
             innerElement = fenced.get(0); // no need to wrap, just one element
         } else {
-            innerElement = new Element(ROW);
+            innerElement = new Element(ROW, MATHMLNS);
             innerElement.addContent(fenced);
             LOGGER.fine("Inner mrow added");
         }
@@ -208,7 +238,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         // wrap outside in mrow
         opening.detach();
         closing.detach();
-        final Element outerMrowElement = new Element(ROW);
+        final Element outerMrowElement = new Element(ROW, MATHMLNS);
         outerMrowElement.addContent(opening);
         if (innerElement != null) {
             outerMrowElement.addContent(innerElement);

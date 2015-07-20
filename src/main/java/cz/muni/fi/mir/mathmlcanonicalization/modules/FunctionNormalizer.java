@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,16 +38,12 @@ import org.jdom2.Element;
  */
 public class FunctionNormalizer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "FunctionNormalizer.properties";
     private static final Logger LOGGER = Logger.getLogger(FunctionNormalizer.class.getName());
     // properties key names
     private static final String APPLY_FUNCTION_OPERATORS = "functionoperators";
 
     public FunctionNormalizer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty("functionoperators");
     }
 
     @Override
@@ -67,14 +64,14 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
                 final int parameterPosition = i + 2;
                 Element parameter = children.get(parameterPosition);
                 // mrow in which the parameter will be stored
-                final Element newParameter = new Element(ROW);
+                final Element newParameter = new Element(ROW, MATHMLNS);
 
                 if (parameter.getName().equals(ROW)) {
                     if (hasInsideBrackets(parameter)) {
                         children.get(i + 1).detach(); // just detach operator
                     } else { // add parentheses
-                        parameter.addContent(1, new Element(OPERATOR).setText("("));
-                        parameter.addContent(new Element(OPERATOR).setText(")"));
+                        parameter.addContent(1, new Element(OPERATOR, MATHMLNS).setText("("));
+                        parameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")"));
                         LOGGER.fine("Parentheses around function argument added");
                         children.get(i + 1).detach(); // detach funct app operator
                     }
@@ -94,13 +91,13 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
                         newParameter.addContent(parameter.detach());
                     }
                     for (; bracketsDepth > 0; bracketsDepth--) { // add missing right brackets
-                        newParameter.addContent(new Element(OPERATOR).setText(")"));
+                        newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")"));
                         LOGGER.fine("Added missing )");
                     }
                 } else { // if the paramether is neither mrow or (
-                    newParameter.addContent(new Element(OPERATOR).setText("(")); // add left bracket
+                    newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText("(")); // add left bracket
                     newParameter.addContent(children.get(parameterPosition).detach());
-                    newParameter.addContent(new Element(OPERATOR).setText(")")); // add right bracket
+                    newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")")); // add right bracket
                     LOGGER.fine("Function argument wrapped with parentheses and mrow");
                 }
                 children.set(i + 1, newParameter); // replace function app operator with newParameter

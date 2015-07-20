@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -55,10 +56,6 @@ import org.jdom2.filter.ElementFilter;
  */
 public class MfencedReplacer extends AbstractModule implements DOMModule {
 
-    /**
-     * Path to the property file with module settings.
-     */
-    private static final String PROPERTIES_FILENAME = "MfencedReplacer.properties";
     private static final Logger LOGGER = Logger.getLogger(MfencedReplacer.class.getName());
     // MathML attributes
     private static final String OPEN_FENCE = "open";
@@ -75,7 +72,14 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private static final String ADD_INNER_ROW = "innermrow";
 
     public MfencedReplacer() {
-        loadProperties(PROPERTIES_FILENAME);
+        declareProperty(ADD_OUTER_ROW);
+        declareProperty(ADD_INNER_ROW);
+        declareProperty(DEFAULT_OPEN);
+        declareProperty(DEFAULT_CLOSE);
+        declareProperty(DEFAULT_SEPARATORS);
+        declareProperty(FORCE_DEFAULT_OPEN);
+        declareProperty(FORCE_DEFAULT_CLOSE);
+        declareProperty(FORCE_DEFAULT_SEPARATORS);
     }
 
     @Override
@@ -84,7 +88,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
             throw new NullPointerException("doc");
         }
         final List<Element> toReplace = new ArrayList<Element>();
-        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED))) {
+        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED, MATHMLNS))) {
             toReplace.add(mfenced);
         }
         if (toReplace.isEmpty()) {

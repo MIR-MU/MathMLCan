@@ -22,13 +22,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -37,6 +41,12 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.JDOMException;
+import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Sample class using the canonizer.
@@ -52,11 +62,12 @@ public final class MathMLCanonicalizerCommandLineTool {
      * @param args the command line arguments
      * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
-    public static void main(String[] args) throws XMLStreamException {
+    public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException {
         final Options options = new Options();
         options.addOption("c", "config-file", true, "load configuration file");
         options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");
         options.addOption("w", "overwrite-inputs", false, "overwrite input files by canonical outputs");
+        options.addOption("p", "print-default-config-file", false, "print default configuration that will be used if no config file is supplied");
         options.addOption("h", "help", false, "print help");
 
         final CommandLineParser parser = new PosixParser();
@@ -68,12 +79,19 @@ public final class MathMLCanonicalizerCommandLineTool {
             System.exit(1);
         }
 
-        File config = null;
+        InputStream config = null;
         boolean overwrite = false;
         boolean dtdInjectionMode = false;
         if (line != null) {
             if (line.hasOption('c')) {
-                config = new File(line.getOptionValue('c'));
+                try {
+                    config = new FileInputStream(line.getOptionValue('c'));
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(2);
+                }
+            } else {
+                config = MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig"));
             }
 
             if (line.hasOption('d')) {
@@ -82,6 +100,11 @@ public final class MathMLCanonicalizerCommandLineTool {
 
             if (line.hasOption('w')) {
                 overwrite = true;
+            }
+
+            if (line.hasOption('p')) {
+                printDefaultConfig();
+                System.exit(0);
             }
 
             if (line.hasOption('h')) {
@@ -99,12 +122,6 @@ public final class MathMLCanonicalizerCommandLineTool {
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (ConfigException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (JDOMException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } catch (ModuleException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 }
             } else {
@@ -114,14 +131,12 @@ public final class MathMLCanonicalizerCommandLineTool {
         }
     }
 
-    private static void canonicalize(File file, File config, boolean dtdInjectionMode, boolean overwrite) throws
+    private static void canonicalize(File file, InputStream config, boolean dtdInjectionMode, boolean overwrite) throws
             ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException, XMLStreamException {
         assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
-        FileInputStream configInputStream;
         if (config != null) {
-            configInputStream = new FileInputStream(config);
-            mlcan = new MathMLCanonicalizer(configInputStream);
+            mlcan = new MathMLCanonicalizer(config);
         } else {
             mlcan = MathMLCanonicalizer.getDefaultCanonicalizer();
         }
@@ -158,11 +173,31 @@ public final class MathMLCanonicalizerCommandLineTool {
      *
      */
     private static void printHelp(Options options) {
-        System.err.println("Usage: java -jar " + JARFILE
-                + " [-c /path/to/config.xml] [-w] [-dtd]"
-                + " [/path/to/input.xhtml | /path/to/directory]...");
+        System.err.println("Usage:");
+        System.err.println("\tjava -jar " + JARFILE
+                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
+                + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
+        System.err.println("\tjava -jar " + JARFILE + " -p");
+        System.err.println("\tjava -jar " + JARFILE + " -h");
         System.err.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
         formatter.printOptions(new PrintWriter(System.err, true), 80, options, 8, 8);
     }
+
+    private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+        final InputSource src = new InputSource(MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
+        final Element document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
+
+        final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+        final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        final LSSerializer writer = impl.createLSSerializer();
+
+        writer.getDomConfig().setParameter("xml-declaration", true);
+        writer.getDomConfig().setParameter("format-pretty-print", true);
+
+        System.out.print(writer.writeToString(document));
+
+    }
+
 }

@@ -9,7 +9,7 @@
         <property name="remove_all">mphantom merror</property>
         
         <!-- keep attributes that bear semantics -->
-        <property name="keepAttributes">mathvariant encoding</property>
+        <property name="keepAttributes">mathvariant=bold mathvariant=italic mathvariant=bold-italic mathvariant=double-struck mathvariant=bold-fraktur mathvariant=script mathvariant=bold-script mathvariant=fraktur mathvariant=sans-serif mathvariant=bold-sans-serif mathvariant=sans-serif-italic mathvariant=sans-serif-bold-italic mathvariant=monospace mathvariant=initial mathvariant=tailed mathvariant=looped mathvariant=stretched encoding</property>
         <property name="keepAttributes.mfrac">linethickness=0</property>
         <property name="keepAttributes.cn">base type</property>
         <property name="keepAttributes.ci">type</property>
@@ -17,6 +17,7 @@
         <property name="keepAttributes.tendsto">type=above type=below type=two-sided</property>
         <property name="keepAttributes.interval">closure</property>
         <property name="keepAttributes.declare">nargs occurrence</property>
+        <property name="keepAttributes.mfenced">open close</property>
     </module>
     
     <module name="FunctionNormalizer">
@@ -46,8 +47,8 @@
         <property name="wrapInside">1</property>
 
         <!-- opening and closing parentheses -->
-        <property name="open">( [ {</property>
-        <property name="close">) ] }</property>
+        <property name="open">( [ { ⟨</property>
+        <property name="close">) ] } ⟩</property>
 
         <!--
         initialize childCount according to http://www.w3.org/TR/MathML3/chapter3.html#id.3.1.3.2
@@ -69,6 +70,8 @@
         <property name="childCount.munderover">3</property>
         <property name="childCount.mtd">1</property>
         <property name="childCount.mscarry">1</property>
+        <property name="childCount.math">1</property>
+        <property name="childCount.mrow">1</property>
     </module>
 
     <module name="OperatorNormalizer">
@@ -79,18 +82,18 @@
         operators which will be removed
         InvisibleTimes, InvisibleComma, sdot, *, ?, ?
         -->
-        <property name="removeoperators">⁢ ȀB ⋅ * ⁣ ⁤</property>
+        <property name="removeoperators">⁢ ȀB ⋅ ⁣ ⁤</property>
 
         <!--
         operators to replece in format "unwanted operator":"replacement"
         +- and -+ to plusminus, hyphen to -
         -->
-        <property name="replaceoperators">+-:± -+:± ­:-</property>
+        <property name="replaceoperators">+-:± -+:± ­:- &lt;=:≤ =&lt;:≤ ≦:≤ &gt;=:≥ =&gt;:≥ ≧:≥</property>
 
         <!--
         operator to replace ":" (cannot be set in replaceoperators due to parsing)
         -->
-        <property name="colonreplacement">/</property>
+        <property name="colonreplacement">:</property>
 
         <!--
         normalize all text nodes to the specified Unicode normalization form (NFC, NFD, NFKC or NFKD)
@@ -103,7 +106,8 @@
         all operators that should not be in mi element (but mo)
         operators from previous properties are added automatically
         -->
-        <property name="operators">+ - &lt; &gt; ( ) [ ] { } ^ ~ ' sin</property>
+        <property name="operators">+ - &lt; &gt; ( ) [ ] { } | ^ ~ ' ∓ × · ÷ ⁄  √ ∑ ∫ ∮ ∴ ∵ ! ¬ ∝ = ≠ ≈ =: := ⇔ :⇔ ≜ ≝ ≐ ≅ ≡ ↔ ≪ ≫ ≺ ≻ ◅ ▻ ⇒ → ⊆ ⊂ ⊇ ⊃ ↦ ⊧ ⊢ ⋕ # ≀ ↯ ⊕ ⊻ • ∀ ∂ ∃ ∃! ∈ ∉ ∌ ∋ o ∘ † ⊥ ∪ ∩ ∨ ∧ ⊗ ⋉ ⋊ ⋈ ∅</property>
+        <property name="identifiers">exp sin cos tan tg cot cotan cotg ctg ctn sec csc cosec arcsin arccos arctan arccot arcsec arccsc sinh cosh tanh coth cesh csch arcsinh arcosh artanh arcoth arsech arcsch log lg ln</property>
     </module>
 
     <module name="ScriptNormalizer">

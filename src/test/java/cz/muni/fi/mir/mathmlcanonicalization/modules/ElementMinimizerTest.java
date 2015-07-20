@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -26,6 +27,21 @@ public class ElementMinimizerTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new ElementMinimizer();
     private static final String RESOURCE_SUBDIR = ElementMinimizerTest.class.getSimpleName() + "/";
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        DEFAULT_INSTANCE.setProperty("remove", "mspace maligngroup malignmark mstyle mpadded menclose maction");
+        DEFAULT_INSTANCE.setProperty("remove_all", "mphantom merror");
+        DEFAULT_INSTANCE.setProperty("keepAttributes", "mathvariant=bold encoding");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.mfrac", "linethickness=0");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.cn", "base type");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.ci", "type");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.set", "type=normal type=multiset");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.tendsto", "type=above type=below type=two-sided");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.interval", "closure");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.declare", "nargs occurrence");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.mfenced", "open close");
+    }
 
     @Test
     public void testPhantom() {
