@@ -41,7 +41,7 @@ public class Settings {
     /**
      * Name of the property containing path to the MathML DTD
      */
-    private static final String MATHMLDTD = "mathmldtd";
+    private static final String XHTMLPlusMATHMLPlusSVGDTD = "dtdXHTMLPlusMathMLPlusSVG";
     private static final Properties PROPERTIES = new Properties();
 
     // load default properties from the file specified by PROPERTIES_FILENAME
@@ -124,7 +124,7 @@ public class Settings {
             @Override
             public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) {
                 if (systemID.endsWith("dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.MATHMLDTD);
+                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
                     return Settings.class.getResourceAsStream(dtdLocation);
                 }
                 return null;
@@ -142,14 +142,16 @@ public class Settings {
         final SAXBuilder builder = new SAXBuilder();
         builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
         builder.setFeature("http://xml.org/sax/features/validation", false);
-        //builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
+        builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
         builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", true);
         builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
         builder.setEntityResolver(new EntityResolver() {
             @Override
             public InputSource resolveEntity(String publicId, String systemId) {
-                if (systemId.endsWith("dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.MATHMLDTD);
+                if (publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN")
+                        || publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN")
+                        || systemId.endsWith("xhtml-math11-f.dtd")) {
+                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
                     return new InputSource(
                             Settings.class.getResourceAsStream(dtdLocation));
                 }

@@ -38,16 +38,16 @@ public class DTDManipulatorTest {
     private static final String RESOURCE_SUBDIR = DTDManipulatorTest.class.getSimpleName() + "/";
 
     /**
-     * Test of injectXHTMLPlusMathMLDTD method, of class DTDManipulator.
+     * Test of injectXHTML11PlusMathML20PlusSVG11DTD method, of class DTDManipulator.
      */
     @Test
-    public void testInjectXHTMLPlusMathMLDTD() throws IOException {
+    public void testInjectXHTMLPlusMathMLPlusSVGDTD() throws IOException {
 
         System.out.println("testInjectXHTMLPlusMathMLDTD");
 
-        InputStream in = this.getClass().getResourceAsStream(RESOURCE_SUBDIR + "injectXHTMLPlusMathMLDTD.input.xml");
-        InputStream expResult = this.getClass().getResourceAsStream(RESOURCE_SUBDIR + "injectXHTMLPlusMathMLDTD.output.xml");
-        InputStream result = DTDManipulator.injectXHTMLPlusMathMLDTD(in);
+        InputStream in = this.getClass().getResourceAsStream(RESOURCE_SUBDIR + "injectXHTMLPlusMathMLPlusSVGDTD.input.xml");
+        InputStream expResult = this.getClass().getResourceAsStream(RESOURCE_SUBDIR + "injectXHTMLPlusMathMLPlusSVGDTD.output.xml");
+        InputStream result = DTDManipulator.injectXHTML11PlusMathML20PlusSVG11DTD(in);
 
         StringWriter resultWriter = new StringWriter();
         IOUtils.copy(result, resultWriter);

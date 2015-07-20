@@ -33,9 +33,14 @@ import org.jdom2.filter.ElementFilter;
 
 /**
  * Normalize the way to express an function applied to arguments in MathML.
- * <h4>Input</h4> Well-formed MathML, not processed by MrowMinimizer yet
- * <h4>Output</h4> The original code with:<ul><li>normalized Unicode symbols
- * </li><li>unified operators</li><li>no redundant operators</li></ul>
+ * <div class="simpleTagLabel">Input</div> Well-formed MathML, not processed by
+ * MrowMinimizer yet
+ * <div class="simpleTagLabel">Output</div> The original code with:
+ * <ul>
+ * <li>normalized Unicode symbols</li>
+ * <li>unified operators</li>
+ * <li>no redundant operators</li>
+ * </ul>
  *
  * @author David Formanek
  */
