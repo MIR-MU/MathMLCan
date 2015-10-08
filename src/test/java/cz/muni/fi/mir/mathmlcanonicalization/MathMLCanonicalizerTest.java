@@ -15,24 +15,21 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import cz.muni.fi.mir.mathmlcanonicalization.modules.ElementMinimizerTest;
-import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
-import cz.muni.fi.mir.mathmlcanonicalization.modules.OperatorNormalizerTest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.JDOMException;
-
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.OperatorNormalizerTest;
 
 /**
  * Test cases for MathMLCanonicalizer class.
@@ -104,7 +101,7 @@ public class MathMLCanonicalizerTest {
 
         Throwable e = null;
         try {
-            MathMLCanonicalizer mlcan = new MathMLCanonicalizer(configStream);
+            new MathMLCanonicalizer(configStream);
         } catch (ConfigException ex) {
             e = ex;
         }
