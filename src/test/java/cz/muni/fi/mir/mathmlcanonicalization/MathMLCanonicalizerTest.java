@@ -15,14 +15,23 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ElementMinimizerTest;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.OperatorNormalizerTest;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.JDOMException;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 /**
@@ -31,7 +40,53 @@ import org.junit.Test;
 public class MathMLCanonicalizerTest {
 
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-
+    
+    /**
+     * Test resources relative to package of OperatorNormalizerTest class.
+     */
+    private static final String[] TEST_RESOURCES = {
+        "ElementMinimizerTest/attributes.original.xml",
+        "ElementMinimizerTest/comments.original.xml",
+        "ElementMinimizerTest/mfrac.original.xml",
+        "ElementMinimizerTest/mphantom.original.xml",
+        "FunctionNormalizerTest/function2.original.xml",
+        "FunctionNormalizerTest/function3.original.xml",
+        "FunctionNormalizerTest/function.original.xml",
+        "FunctionNormalizerTest/sin.original.xml",
+        "MfencedReplacerTest/blank-separators.original.xml",
+        "MfencedReplacerTest/interval-configured.original.xml",
+        "MfencedReplacerTest/interval.original.xml",
+        "MfencedReplacerTest/nested.original.xml",
+        "MfencedReplacerTest/no-children.original.xml",
+        "MfencedReplacerTest/sequence-separators.original.xml",
+        "MrowNormalizerTest/configured.original.xml",
+        "MrowNormalizerTest/frac.original.xml",
+        "MrowNormalizerTest/interval.original.xml",
+        "MrowNormalizerTest/mixed1.original.xml",
+        "MrowNormalizerTest/mixed2.original.xml",
+        "MrowNormalizerTest/mixed3.original.xml",
+        "MrowNormalizerTest/mixed4.original.xml",
+        "MrowNormalizerTest/parentheses1.original.xml",
+        "MrowNormalizerTest/parentheses2.original.xml",
+        "MrowNormalizerTest/parentheses3.original.xml",
+        "MrowNormalizerTest/parentheses4.original.xml",
+        "MrowNormalizerTest/parentheses5.original.xml",
+        "MrowNormalizerTest/sqrt.original.xml",
+        "MrowNormalizerTest/tuple.original.xml",
+        "OperatorNormalizerTest/identifier-replacement.original.xml",
+        "OperatorNormalizerTest/multiplication-blank.original.xml",
+        "OperatorNormalizerTest/multiplication-cdot.original.xml",
+        "OperatorNormalizerTest/operator2identifier.original.xml",
+        "OperatorNormalizerTest/operator-unification.original.xml",
+        "OperatorNormalizerTest/unicode.original.xml",
+        "ScriptNormalizerTest/complexsubsup.original.xml",
+        "ScriptNormalizerTest/invalid-scripts.original.xml",
+        "ScriptNormalizerTest/nested-sub-sup.original.xml",
+        "ScriptNormalizerTest/sub-sup.original.xml",
+        "ScriptNormalizerTest/subsup.original.xml",
+        "ScriptNormalizerTest/underover.original.xml"
+    };
+    
     public MathMLCanonicalizerTest() {
     }
 
@@ -57,4 +112,19 @@ public class MathMLCanonicalizerTest {
         assertEquals(Settings.getProperty("existing"), "value");
         assertFalse(Settings.isProperty("nonExisting"));
     }
+    
+    @Test
+    public void shouldCreateDefaultCanonicalizer() throws Exception {
+        MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
+
+        for (String resource : TEST_RESOURCES) {
+            canonicalizer.canonicalize( inputStream(resource), new ByteArrayOutputStream() );
+            // we don't check result; it just should not throw an exception
+        }
+    }
+    
+    private InputStream inputStream(String resource) {
+        return OperatorNormalizerTest.class.getResourceAsStream(resource);
+    }
+
 }

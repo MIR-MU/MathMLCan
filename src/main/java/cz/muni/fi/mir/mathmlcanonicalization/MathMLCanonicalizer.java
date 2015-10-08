@@ -46,9 +46,10 @@ import org.xml.sax.SAXException;
  */
 public final class MathMLCanonicalizer {
 
+    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizer.class.getName());
+    
     private List<StreamModule> streamModules = new LinkedList<StreamModule>();
     private List<DOMModule> domModules = new LinkedList<DOMModule>();
-    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizer.class.getName());
     private boolean enforcingXHTMLPlusMathMLDTD = false;
 
     // TODO: refactoring
@@ -58,19 +59,21 @@ public final class MathMLCanonicalizer {
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
-        String modulesProperty = Settings.getProperty("modules");
-        String[] modules = modulesProperty.split(" ");
-        List<String> listOfModules = Arrays.asList(modules);
-
         MathMLCanonicalizer result;
+        
         try {
             result = new MathMLCanonicalizer(Settings.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
         } catch (ConfigException ex) {
-            Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, "Failure loading default configuration.", ex);
+            LOGGER.log(Level.SEVERE, "Failure loading default configuration.", ex);
             result = new MathMLCanonicalizer();
-        }
-        for (String moduleName : listOfModules) {
-            result.addModule(moduleName);
+
+            String modulesProperty = Settings.getProperty("modules");
+            String[] modules = modulesProperty.split(" ");
+            List<String> listOfModules = Arrays.asList(modules);
+
+            for (String moduleName : listOfModules) {
+                result.addModule(moduleName);
+            }            
         }
 
         return result;
