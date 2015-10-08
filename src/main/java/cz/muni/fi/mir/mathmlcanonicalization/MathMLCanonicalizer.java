@@ -69,10 +69,6 @@ public final class MathMLCanonicalizer {
             Logger.getLogger(MathMLCanonicalizer.class.getName()).log(Level.SEVERE, "Failure loading default configuration.", ex);
             result = new MathMLCanonicalizer();
         }
-        for (String moduleName : listOfModules) {
-            result.addModule(moduleName);
-        }
-
         return result;
     }
 
