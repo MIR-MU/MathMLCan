@@ -20,8 +20,11 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLResolver;
+
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import org.xml.sax.EntityResolver;
@@ -34,6 +37,12 @@ import org.xml.sax.InputSource;
  */
 public class Settings {
 
+    private static final ThreadLocal<XMLInputFactory> xmlInputFactory = new ThreadLocal<XMLInputFactory>() {
+        protected XMLInputFactory initialValue() {
+            return createXmlInputFactory();
+        }
+    };
+    
     /**
      * Path to the property file with canonicalizer settings.
      */
@@ -114,6 +123,10 @@ public class Settings {
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
+        return xmlInputFactory.get();
+    }
+
+    private static XMLInputFactory createXmlInputFactory() throws FactoryConfigurationError {
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
         inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
