@@ -15,14 +15,16 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import cz.muni.fi.mir.mathmlcanonicalization.modules.*;
-import cz.muni.fi.mir.mathmlcanonicalization.utils.DTDManipulator;
-import java.io.*;
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -32,12 +34,19 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.xml.sax.SAXException;
+
+import cz.muni.fi.mir.mathmlcanonicalization.modules.DOMModule;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.Module;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.StreamModule;
+import cz.muni.fi.mir.mathmlcanonicalization.utils.DTDManipulator;
 
 /**
  * An input class for MathML canonicalization.
@@ -65,13 +74,14 @@ public final class MathMLCanonicalizer {
             result = new MathMLCanonicalizer(Settings.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
         } catch (ConfigException ex) {
             LOGGER.log(Level.SEVERE, "Failure loading default configuration.", ex);
+            // NB: does it make sense to create something which probably does not work?
+            // I think this exception should not be caught
             result = new MathMLCanonicalizer();
 
             String modulesProperty = Settings.getProperty("modules");
             String[] modules = modulesProperty.split(" ");
-            List<String> listOfModules = Arrays.asList(modules);
 
-            for (String moduleName : listOfModules) {
+            for (String moduleName : modules) {
                 result.addModule(moduleName);
             }            
         }
@@ -177,7 +187,7 @@ public final class MathMLCanonicalizer {
     private void validateXMLConfiguration(InputStream xmlConfigurationStream)
             throws IOException, ConfigException {
         assert xmlConfigurationStream != null;
-        final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        final SchemaFactory sf = Settings.xmlSchemaFactory();
         try {
             final Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
                     Settings.getProperty("configSchema")));
@@ -195,7 +205,7 @@ public final class MathMLCanonicalizer {
     private void loadXMLConfiguration(InputStream xmlConfigurationStream)
             throws ConfigException, XMLStreamException {
         assert xmlConfigurationStream != null;
-        final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory inputFactory = Settings.defaultXmlInputFactory();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
 
         boolean config = false;

@@ -18,12 +18,15 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLResolver;
+import javax.xml.validation.SchemaFactory;
 
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
@@ -37,9 +40,37 @@ import org.xml.sax.InputSource;
  */
 public class Settings {
 
+    private static final Logger log = Logger.getLogger(Settings.class.getName());
+    
+    // thread locals which allow creation of factories only once per thread
+    
     private static final ThreadLocal<XMLInputFactory> xmlInputFactory = new ThreadLocal<XMLInputFactory>() {
         protected XMLInputFactory initialValue() {
             return createXmlInputFactory();
+        }
+    };
+
+    private static final ThreadLocal<XMLInputFactory> defaultXmlInputFactory = new ThreadLocal<XMLInputFactory>() {
+        protected XMLInputFactory initialValue() {
+            return XMLInputFactory.newInstance();
+        }
+    };
+    
+    private static final ThreadLocal<XMLOutputFactory> xmlOutputFactory = new ThreadLocal<XMLOutputFactory>() {
+        protected XMLOutputFactory initialValue() {
+            return XMLOutputFactory.newInstance();
+        }
+    };
+    
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = new ThreadLocal<DocumentBuilderFactory>() {
+        protected DocumentBuilderFactory initialValue() {
+            return DocumentBuilderFactory.newInstance();
+        }
+    };
+
+    private static final ThreadLocal<SchemaFactory> xmlSchemaFactory = new ThreadLocal<SchemaFactory>() {
+        protected SchemaFactory initialValue() {
+            return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         }
     };
     
@@ -51,23 +82,8 @@ public class Settings {
      * Name of the property containing path to the MathML DTD
      */
     private static final String XHTMLPlusMATHMLPlusSVGDTD = "dtdXHTMLPlusMathMLPlusSVG";
-    private static final Properties PROPERTIES = new Properties();
-
-    // load default properties from the file specified by PROPERTIES_FILENAME
-    static {
-        try {
-            final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
-            if (resourceAsStream == null) {
-                throw new IOException("cannot find the property file");
-            }
-            PROPERTIES.load(resourceAsStream);
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.FINER, "canonicalizer properties loaded succesfully");
-        } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.SEVERE, "cannot load " + PROPERTIES_FILENAME, ex);
-        }
-    }
+    
+    private static final Properties PROPERTIES = readConfiguration();
 
     /**
      * Gets given global property from {@link
@@ -119,13 +135,46 @@ public class Settings {
 
     /**
      * Sets properties desired for MathML normalization purpose
-     *
+     * NB: this method creates factory only once per thread
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
         return xmlInputFactory.get();
     }
 
+    /**
+     * Returns XMLInputFactory instance with default configuration.
+     * NB: setupXMLInputFactory returns different factory customized for MathML
+     * NB: this method creates factory only once per thread
+     */
+    public static XMLInputFactory defaultXmlInputFactory() {
+        return defaultXmlInputFactory.get();
+    }
+    
+    /**
+     * Returns XMLOutputFactory instance with default configuration.
+     * NB: this method creates factory only once per thread
+     */
+    public static XMLOutputFactory xmlOutputFactory() {
+        return xmlOutputFactory.get();
+    }
+    
+    /**
+     * Returns DocumentBuilderFactory instance with default configuration.
+     * NB: this method creates factory only once per thread
+     */
+    public static DocumentBuilderFactory documentBuilderFactory() {
+        return documentBuilderFactory.get();
+    }
+    
+    /**
+     * Returns SchemaFactory instance dedicated to XML W3C Schema.
+     * NB: this method creates factory only once per thread
+     */
+    public static SchemaFactory xmlSchemaFactory() {
+        return xmlSchemaFactory.get();
+    }
+    
     private static XMLInputFactory createXmlInputFactory() throws FactoryConfigurationError {
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
@@ -178,4 +227,23 @@ public class Settings {
     private Settings() {
         assert false;
     }
+    
+    private static Properties readConfiguration() throws ConfigError {
+        Properties result = new Properties();
+        
+        final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
+        if (resourceAsStream == null) {
+            throw new ConfigError("cannot find property file " + PROPERTIES_FILENAME);
+        }
+        
+        try {
+            result.load(resourceAsStream);
+        } catch (IOException e) {
+            throw new ConfigError("Error while reading configuration");
+        }
+        log.finer("canonicalizer properties loaded succesfully");
+        
+        return result;
+    }
+    
 }
