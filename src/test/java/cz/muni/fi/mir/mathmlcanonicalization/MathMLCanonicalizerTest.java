@@ -23,13 +23,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.JDOMException;
 import org.junit.Test;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
-import cz.muni.fi.mir.mathmlcanonicalization.modules.OperatorNormalizerTest;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleTestResources;
 
 /**
  * Test cases for MathMLCanonicalizer class.
@@ -38,51 +39,7 @@ public class MathMLCanonicalizerTest {
 
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     
-    /**
-     * Test resources relative to package of OperatorNormalizerTest class.
-     */
-    private static final String[] TEST_RESOURCES = {
-        "ElementMinimizerTest/attributes.original.xml",
-        "ElementMinimizerTest/comments.original.xml",
-        "ElementMinimizerTest/mfrac.original.xml",
-        "ElementMinimizerTest/mphantom.original.xml",
-        "FunctionNormalizerTest/function2.original.xml",
-        "FunctionNormalizerTest/function3.original.xml",
-        "FunctionNormalizerTest/function.original.xml",
-        "FunctionNormalizerTest/sin.original.xml",
-        "MfencedReplacerTest/blank-separators.original.xml",
-        "MfencedReplacerTest/interval-configured.original.xml",
-        "MfencedReplacerTest/interval.original.xml",
-        "MfencedReplacerTest/nested.original.xml",
-        "MfencedReplacerTest/no-children.original.xml",
-        "MfencedReplacerTest/sequence-separators.original.xml",
-        "MrowNormalizerTest/configured.original.xml",
-        "MrowNormalizerTest/frac.original.xml",
-        "MrowNormalizerTest/interval.original.xml",
-        "MrowNormalizerTest/mixed1.original.xml",
-        "MrowNormalizerTest/mixed2.original.xml",
-        "MrowNormalizerTest/mixed3.original.xml",
-        "MrowNormalizerTest/mixed4.original.xml",
-        "MrowNormalizerTest/parentheses1.original.xml",
-        "MrowNormalizerTest/parentheses2.original.xml",
-        "MrowNormalizerTest/parentheses3.original.xml",
-        "MrowNormalizerTest/parentheses4.original.xml",
-        "MrowNormalizerTest/parentheses5.original.xml",
-        "MrowNormalizerTest/sqrt.original.xml",
-        "MrowNormalizerTest/tuple.original.xml",
-        "OperatorNormalizerTest/identifier-replacement.original.xml",
-        "OperatorNormalizerTest/multiplication-blank.original.xml",
-        "OperatorNormalizerTest/multiplication-cdot.original.xml",
-        "OperatorNormalizerTest/operator2identifier.original.xml",
-        "OperatorNormalizerTest/operator-unification.original.xml",
-        "OperatorNormalizerTest/unicode.original.xml",
-        "ScriptNormalizerTest/complexsubsup.original.xml",
-        "ScriptNormalizerTest/invalid-scripts.original.xml",
-        "ScriptNormalizerTest/nested-sub-sup.original.xml",
-        "ScriptNormalizerTest/sub-sup.original.xml",
-        "ScriptNormalizerTest/subsup.original.xml",
-        "ScriptNormalizerTest/underover.original.xml"
-    };
+    private static final Logger log = Logger.getLogger(MathMLCanonicalizerTest.class.getName());
     
     public MathMLCanonicalizerTest() {
     }
@@ -114,14 +71,31 @@ public class MathMLCanonicalizerTest {
     public void shouldCreateDefaultCanonicalizer() throws Exception {
         MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
 
-        for (String resource : TEST_RESOURCES) {
-            canonicalizer.canonicalize( inputStream(resource), new ByteArrayOutputStream() );
+        for (InputStream resource : ModuleTestResources.getAllTestResources()) {
+            canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
             // we don't check result; it just should not throw an exception
         }
     }
     
-    private InputStream inputStream(String resource) {
-        return OperatorNormalizerTest.class.getResourceAsStream(resource);
+    @Test
+    public void stressTest() throws Exception {
+        long start = System.currentTimeMillis();
+        
+        MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
+        
+        for (int i=1; i<=5000; i++) {
+            for (InputStream resource : ModuleTestResources.getAllTestResources()) {
+                canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
+                // we don't check result; it just should not throw an exception
+            }
+            
+            if (i%1000 == 0) {
+                log.info(i + " tests performed...");
+            }
+        }
+
+        long time = System.currentTimeMillis() - start;
+        log.info("Stress test finished in " + time + "ms");
     }
 
 }
