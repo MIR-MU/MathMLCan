@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.JDOMException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
@@ -77,6 +78,7 @@ public class MathMLCanonicalizerTest {
         }
     }
     
+    @Ignore
     @Test
     public void stressTest() throws Exception {
         long start = System.currentTimeMillis();
