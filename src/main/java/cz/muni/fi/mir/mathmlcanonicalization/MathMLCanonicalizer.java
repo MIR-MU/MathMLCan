@@ -320,6 +320,7 @@ public final class MathMLCanonicalizer {
     /**
      * Alternative to {@link #canonicalize(InputStream, OutputStream)} method
      * for clients which need JDOM document any way.
+     * NB: maybe add another method which returns org.w3c.dom.Document?
      */
     public Document canonicalize(final InputStream in) throws ModuleException, IOException, XMLStreamException, JDOMException {
         if (in == null) {
