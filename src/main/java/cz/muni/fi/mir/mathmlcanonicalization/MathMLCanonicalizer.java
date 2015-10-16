@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -297,47 +296,104 @@ public final class MathMLCanonicalizer {
             throw new NullPointerException("out");
         }
 
-        InputStream inputStream = in;
-        if (enforcingXHTMLPlusMathMLDTD) {
-            inputStream = DTDManipulator.injectXHTML11PlusMathML20PlusSVG11DTD(in);
-        }
-        ByteArrayOutputStream outputStream = null;
-
-        // calling stream modules
-        for (StreamModule module : streamModules) {
-            outputStream = module.execute(inputStream);
-            if (outputStream == null) {
-                throw new IOException("Module " + module + "returned null.");
-            }
-            inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        }
-
-        if (enforcingXHTMLPlusMathMLDTD) {
-            inputStream = DTDManipulator.removeDTD(inputStream);
-        }
+        ByteArrayOutputStream streamModulesResult = executeStreamModules(in);
 
         // do not create the JDOM representation if there are no modules
         if (domModules.isEmpty()) {
             if (streamModules.isEmpty()) {
                 throw new IOException("There are no modules added.");
             }
-            assert outputStream != null; // nonempty streamModules + nothing thrown in for
-            outputStream.writeTo(out);
+            assert streamModulesResult != null; // nonempty streamModules + nothing thrown in for
+            streamModulesResult.writeTo(out);
             return;
         }
 
+        final InputStream input = streamModulesResult==null ? in : new ByteArrayInputStream(streamModulesResult.toByteArray());
+        
+        final Document document = executeDomModules(input);
+
+        // convertong the JDOM representation back to stream
+        final XMLOutputter serializer = new XMLOutputter();
+        serializer.output(document, out);
+    }
+
+    /**
+     * Alternative to {@link #canonicalize(InputStream, OutputStream)} method
+     * for clients which need JDOM document any way.
+     */
+    public Document canonicalize(final InputStream in) throws ModuleException, IOException, XMLStreamException, JDOMException {
+        if (in == null) {
+            throw new NullPointerException("Input stream is null");
+        }
+
+        ByteArrayOutputStream streamModulesResult = executeStreamModules(in);
+
+        final InputStream input = streamModulesResult==null ? in : new ByteArrayInputStream(streamModulesResult.toByteArray());
+        
+        return executeDomModules(input);
+    }
+    
+    private Document executeDomModules(final InputStream input) throws JDOMException, IOException, ModuleException {
         // creating the JDOM representation from the stream
         final SAXBuilder builder = Settings.setupSAXBuilder();
-        final Document document = builder.build(inputStream);
+        final Document document = builder.build(input);
 
         // calling JDOM modules
         for (DOMModule module : domModules) {
             module.execute(document);
         }
+        return document;
+    }
 
-        // convertong the JDOM representation back to stream
-        final XMLOutputter serializer = new XMLOutputter();
-        serializer.output(document, out);
+    /**
+     * Returns result of stream modules execution or null if
+     * stream modules are not defined.
+     */
+    private ByteArrayOutputStream executeStreamModules(final InputStream in)
+            throws ModuleException, IOException, XMLStreamException {
+        
+        if (streamModules.isEmpty()) {
+            return null;
+        }
+                
+        ByteArrayOutputStream outputStream = null;
+
+        // calling stream modules
+        for (StreamModule module : streamModules) {
+            InputStream inputStream = outputStream==null
+                    ? injectDtdsIfNecessary(in)
+                    : new ByteArrayInputStream(outputStream.toByteArray());
+
+            outputStream = module.execute(inputStream);
+            if (outputStream == null) {
+                throw new IOException("Module " + module + " returned null");
+            }
+        }
+
+        return removeDtdsIfNecessary(outputStream);
+    }
+
+    private ByteArrayOutputStream removeDtdsIfNecessary(final ByteArrayOutputStream outputStream) throws XMLStreamException {
+        ByteArrayOutputStream result;
+        
+        if (enforcingXHTMLPlusMathMLDTD) {
+            InputStream inputStream = new ByteArrayInputStream( outputStream.toByteArray() );
+            result = DTDManipulator.removeDTDAndReturnOutputStream(inputStream);
+        } else {
+            result = outputStream;
+        }
+        
+        return result;
+    }
+
+    private InputStream injectDtdsIfNecessary(final InputStream in) {
+        InputStream inputStream;
+        if (enforcingXHTMLPlusMathMLDTD) {
+            inputStream = DTDManipulator.injectXHTML11PlusMathML20PlusSVG11DTD(in);
+        } else {
+            inputStream = in;
+        }
+        return inputStream;
     }
 
     /**

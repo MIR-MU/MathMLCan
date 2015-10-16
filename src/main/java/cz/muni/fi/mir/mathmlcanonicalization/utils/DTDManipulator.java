@@ -21,8 +21,7 @@ import java.io.InputStream;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
@@ -92,6 +91,13 @@ public class DTDManipulator {
      * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
     public static InputStream removeDTD(InputStream in) throws XMLStreamException {
+        byte[] buffer = removeDTDAndReturnOutputStream(in).toByteArray();
+        
+        return new ByteArrayInputStream(buffer);
+        
+    }
+    
+    public static ByteArrayOutputStream removeDTDAndReturnOutputStream(InputStream in) throws XMLStreamException {
 
         XMLEventReader reader = Settings.defaultXmlInputFactory().createXMLEventReader(in);
         ByteArrayOutputStream noDtdOutputStream = new ByteArrayOutputStream();
@@ -100,13 +106,13 @@ public class DTDManipulator {
         while (reader.hasNext()) {
             XMLEvent event = (XMLEvent) reader.next();
 
-            if (event.getEventType() != event.DTD) {
+            if (event.getEventType() != XMLStreamConstants.DTD) {
                 writer.add(event);
             }
         }
         writer.flush();
 
-        return new ByteArrayInputStream(noDtdOutputStream.toByteArray());
-
+        return noDtdOutputStream;
     }
+    
 }
