@@ -17,6 +17,7 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -224,6 +225,31 @@ public class Settings {
         return builder;
     }
 
+    /**
+     * Returns URL of classpath resource defined by specified property
+     */
+    public static URL getResourceFromProperty(String property) {
+        String resource = getProperty(property);
+        URL result = Settings.class.getResource(resource);
+        if (result == null) {
+            throw new ConfigError("Classpath resource '" + resource + "' defined by property '" + property
+                    + " does not exist");
+        }
+        return result;
+    }
+    
+    /**
+     * Returns stream of classpath resource defined by specified property
+     */    
+    public static InputStream getStreamFromProperty(String property) {
+        try {
+            return getResourceFromProperty(property).openStream();
+        } catch (IOException e) {
+            throw new ConfigError("Classpath resource resource defined by property '" + property
+                    + " could not be read", e);
+        }
+    }
+    
     private Settings() {
         assert false;
     }

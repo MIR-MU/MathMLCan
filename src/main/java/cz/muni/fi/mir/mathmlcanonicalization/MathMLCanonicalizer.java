@@ -68,25 +68,12 @@ public final class MathMLCanonicalizer {
      * @return itialized canonicalizer
      */
     public static MathMLCanonicalizer getDefaultCanonicalizer() {
-        MathMLCanonicalizer result;
-        
         try {
-            result = new MathMLCanonicalizer(Settings.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
+            return new MathMLCanonicalizer( Settings.getStreamFromProperty("defaultConfig") );
         } catch (ConfigException ex) {
-            LOGGER.log(Level.SEVERE, "Failure loading default configuration.", ex);
-            // NB: does it make sense to create something which probably does not work?
-            // I think this exception should not be caught
-            result = new MathMLCanonicalizer();
-
-            String modulesProperty = Settings.getProperty("modules");
-            String[] modules = modulesProperty.split(" ");
-
-            for (String moduleName : modules) {
-                result.addModule(moduleName);
-            }            
+            LOGGER.log(Level.SEVERE, "Failure loading default configuration", ex);
+            throw new ConfigError("Creation of default canonicalizer failed", ex);
         }
-
-        return result;
     }
 
     /**
