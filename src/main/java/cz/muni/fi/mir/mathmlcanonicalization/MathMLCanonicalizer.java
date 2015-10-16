@@ -176,8 +176,7 @@ public final class MathMLCanonicalizer {
         assert xmlConfigurationStream != null;
         final SchemaFactory sf = Settings.xmlSchemaFactory();
         try {
-            final Schema schema = sf.newSchema(MathMLCanonicalizer.class.getResource(
-                    Settings.getProperty("configSchema")));
+            final Schema schema = sf.newSchema( Settings.getResourceFromProperty("configSchema") );
 
             final Validator validator = schema.newValidator();
             validator.validate(new StreamSource(xmlConfigurationStream));

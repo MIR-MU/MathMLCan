@@ -187,8 +187,7 @@ public class Settings {
             @Override
             public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) {
                 if (systemID.endsWith("dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
-                    return Settings.class.getResourceAsStream(dtdLocation);
+                    return getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD);
                 }
                 return null;
             }
@@ -214,9 +213,7 @@ public class Settings {
                 if (publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN")
                         || publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN")
                         || systemId.endsWith("xhtml-math11-f.dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
-                    return new InputSource(
-                            Settings.class.getResourceAsStream(dtdLocation));
+                    return new InputSource( getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD) );
                 }
                 return null;
             }
