@@ -118,7 +118,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         // TODO: refactoring
         // TODO: add logging
         final XMLInputFactory inputFactory = Settings.setupXMLInputFactory();
-        final XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+        final XMLOutputFactory outputFactory = Settings.xmlOutputFactory();
         // stream for reading event from input stream
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
         // stream that writes events to given output stream

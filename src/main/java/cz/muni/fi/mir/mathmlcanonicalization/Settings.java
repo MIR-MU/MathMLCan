@@ -17,11 +17,18 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLResolver;
+import javax.xml.validation.SchemaFactory;
+
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import org.xml.sax.EntityResolver;
@@ -34,6 +41,40 @@ import org.xml.sax.InputSource;
  */
 public class Settings {
 
+    private static final Logger log = Logger.getLogger(Settings.class.getName());
+    
+    // thread locals which allow creation of factories only once per thread
+    
+    private static final ThreadLocal<XMLInputFactory> xmlInputFactory = new ThreadLocal<XMLInputFactory>() {
+        protected XMLInputFactory initialValue() {
+            return createXmlInputFactory();
+        }
+    };
+
+    private static final ThreadLocal<XMLInputFactory> defaultXmlInputFactory = new ThreadLocal<XMLInputFactory>() {
+        protected XMLInputFactory initialValue() {
+            return XMLInputFactory.newInstance();
+        }
+    };
+    
+    private static final ThreadLocal<XMLOutputFactory> xmlOutputFactory = new ThreadLocal<XMLOutputFactory>() {
+        protected XMLOutputFactory initialValue() {
+            return XMLOutputFactory.newInstance();
+        }
+    };
+    
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = new ThreadLocal<DocumentBuilderFactory>() {
+        protected DocumentBuilderFactory initialValue() {
+            return DocumentBuilderFactory.newInstance();
+        }
+    };
+
+    private static final ThreadLocal<SchemaFactory> xmlSchemaFactory = new ThreadLocal<SchemaFactory>() {
+        protected SchemaFactory initialValue() {
+            return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        }
+    };
+    
     /**
      * Path to the property file with canonicalizer settings.
      */
@@ -42,23 +83,8 @@ public class Settings {
      * Name of the property containing path to the MathML DTD
      */
     private static final String XHTMLPlusMATHMLPlusSVGDTD = "dtdXHTMLPlusMathMLPlusSVG";
-    private static final Properties PROPERTIES = new Properties();
-
-    // load default properties from the file specified by PROPERTIES_FILENAME
-    static {
-        try {
-            final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
-            if (resourceAsStream == null) {
-                throw new IOException("cannot find the property file");
-            }
-            PROPERTIES.load(resourceAsStream);
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.FINER, "canonicalizer properties loaded succesfully");
-        } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(
-                    Level.SEVERE, "cannot load " + PROPERTIES_FILENAME, ex);
-        }
-    }
+    
+    private static final Properties PROPERTIES = readConfiguration();
 
     /**
      * Gets given global property from {@link
@@ -110,10 +136,47 @@ public class Settings {
 
     /**
      * Sets properties desired for MathML normalization purpose
-     *
+     * NB: this method creates factory only once per thread
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
+        return xmlInputFactory.get();
+    }
+
+    /**
+     * Returns XMLInputFactory instance with default configuration.
+     * NB: setupXMLInputFactory returns different factory customized for MathML
+     * NB: this method creates factory only once per thread
+     */
+    public static XMLInputFactory defaultXmlInputFactory() {
+        return defaultXmlInputFactory.get();
+    }
+    
+    /**
+     * Returns XMLOutputFactory instance with default configuration.
+     * NB: this method creates factory only once per thread
+     */
+    public static XMLOutputFactory xmlOutputFactory() {
+        return xmlOutputFactory.get();
+    }
+    
+    /**
+     * Returns DocumentBuilderFactory instance with default configuration.
+     * NB: this method creates factory only once per thread
+     */
+    public static DocumentBuilderFactory documentBuilderFactory() {
+        return documentBuilderFactory.get();
+    }
+    
+    /**
+     * Returns SchemaFactory instance dedicated to XML W3C Schema.
+     * NB: this method creates factory only once per thread
+     */
+    public static SchemaFactory xmlSchemaFactory() {
+        return xmlSchemaFactory.get();
+    }
+    
+    private static XMLInputFactory createXmlInputFactory() throws FactoryConfigurationError {
         final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
         inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
@@ -124,8 +187,7 @@ public class Settings {
             @Override
             public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) {
                 if (systemID.endsWith("dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
-                    return Settings.class.getResourceAsStream(dtdLocation);
+                    return getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD);
                 }
                 return null;
             }
@@ -151,9 +213,7 @@ public class Settings {
                 if (publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN")
                         || publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN")
                         || systemId.endsWith("xhtml-math11-f.dtd")) {
-                    String dtdLocation = Settings.getProperty(Settings.XHTMLPlusMATHMLPlusSVGDTD);
-                    return new InputSource(
-                            Settings.class.getResourceAsStream(dtdLocation));
+                    return new InputSource( getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD) );
                 }
                 return null;
             }
@@ -162,7 +222,51 @@ public class Settings {
         return builder;
     }
 
+    /**
+     * Returns URL of classpath resource defined by specified property
+     */
+    public static URL getResourceFromProperty(String property) {
+        String resource = getProperty(property);
+        URL result = Settings.class.getResource(resource);
+        if (result == null) {
+            throw new ConfigError("Classpath resource '" + resource + "' defined by property '" + property
+                    + " does not exist");
+        }
+        return result;
+    }
+    
+    /**
+     * Returns stream of classpath resource defined by specified property
+     */    
+    public static InputStream getStreamFromProperty(String property) {
+        try {
+            return getResourceFromProperty(property).openStream();
+        } catch (IOException e) {
+            throw new ConfigError("Classpath resource resource defined by property '" + property
+                    + " could not be read", e);
+        }
+    }
+    
     private Settings() {
         assert false;
     }
+    
+    private static Properties readConfiguration() throws ConfigError {
+        Properties result = new Properties();
+        
+        final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
+        if (resourceAsStream == null) {
+            throw new ConfigError("cannot find property file " + PROPERTIES_FILENAME);
+        }
+        
+        try {
+            result.load(resourceAsStream);
+        } catch (IOException e) {
+            throw new ConfigError("Error while reading configuration");
+        }
+        log.finer("canonicalizer properties loaded succesfully");
+        
+        return result;
+    }
+    
 }
