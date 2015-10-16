@@ -60,8 +60,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     // TODO: refactoring
     /**
      * @param args the command line arguments
-     * @throws javax.xml.stream.XMLStreamException an error with XML processing
-     * occurs
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
      */
     public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException {
         final Options options = new Options();
@@ -92,7 +91,7 @@ public final class MathMLCanonicalizerCommandLineTool {
                     System.exit(2);
                 }
             } else {
-                config = MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig"));
+                config = Settings.getStreamFromProperty("defaultConfig");
             }
 
             if (line.hasOption('d')) {
@@ -187,8 +186,8 @@ public final class MathMLCanonicalizerCommandLineTool {
 
     private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        final InputSource src = new InputSource(MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
-        final Element document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
+        final InputSource src = new InputSource( Settings.getStreamFromProperty("defaultConfig") );
+        final Element document = Settings.documentBuilderFactory().newDocumentBuilder().parse(src).getDocumentElement();
 
         final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
