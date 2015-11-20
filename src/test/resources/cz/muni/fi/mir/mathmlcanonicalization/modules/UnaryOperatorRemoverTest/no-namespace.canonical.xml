@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math>
+    <mrow>
+        <mrow>
+            <mn>1</mn>
+            <mo>&#x2062;</mo>
+            <mfrac>
+                <mrow>
+                    <mrow>
+                        <mi>E</mi>
+                    </mrow>
+                    <mo>=</mo>
+                    <mrow>
+                        <mi>m</mi>
+                        <mo>&#x2062;</mo>
+                        <msup>
+                            <mi>c</mi>
+                            <mn>2</mn>
+                        </msup>
+                    </mrow>
+                </mrow>
+                <mrow>
+                    <mn>5</mn>
+                    <mo>-</mo>
+                    <mn>3</mn>
+                </mrow>
+            </mfrac>
+        </mrow>
+    </mrow>
+</math>

@@ -126,4 +126,9 @@
         -->
         <property name="unifyscripts">true</property>
     </module>
+
+    <module name="UnaryOperatorRemover">
+
+    </module>
+
 </config>
