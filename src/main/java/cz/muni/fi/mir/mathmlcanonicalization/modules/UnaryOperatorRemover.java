@@ -15,7 +15,6 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import org.jdom2.Document;
@@ -75,11 +74,10 @@ import org.jdom2.xpath.XPathFactory;
 public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
 
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
-    private static final List<Namespace> namespaces = new ArrayList<Namespace>();
-
-    public UnaryOperatorRemover() {
-        namespaces.add(Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
-    }
+    private static final XPathExpression<Element> xp = XPathFactory.instance().compile(
+            "//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]",
+            Filters.element(), null,
+            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
 
     @Override
     public void execute(final Document doc) {
@@ -98,7 +96,6 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
 
         assert rootElem != null;
 
-        XPathExpression<Element> xp = XPathFactory.instance().compile("//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]", Filters.element(), null, namespaces);
         List<Element> elemsToRemove = xp.evaluate(rootElem);
 
         for (Element toRemove : elemsToRemove) {
