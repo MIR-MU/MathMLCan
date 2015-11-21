@@ -16,6 +16,7 @@
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -74,10 +75,18 @@ import org.jdom2.xpath.XPathFactory;
 public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
 
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
+
+    // properties key names
+    private static final String UNARY_OPERATORS_TO_REMOVE = "removeunaryoperators";
+
     private static final XPathExpression<Element> xp = XPathFactory.instance().compile(
             "//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]",
             Filters.element(), null,
             Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
+
+    public UnaryOperatorRemover() {
+        declareProperty(UNARY_OPERATORS_TO_REMOVE);
+    }
 
     @Override
     public void execute(final Document doc) {
@@ -97,10 +106,17 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
         assert rootElem != null;
 
         List<Element> elemsToRemove = xp.evaluate(rootElem);
+        final Set<String> charsToRemove = getPropertySet(UNARY_OPERATORS_TO_REMOVE);
 
-        for (Element toRemove : elemsToRemove) {
-            LOGGER.finest("Removing element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
-            toRemove.detach();
+        if (!charsToRemove.isEmpty()) {
+            for (Element toRemove : elemsToRemove) {
+                if (charsToRemove.contains(toRemove.getValue())) {
+                    LOGGER.finest("Removing element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+                    toRemove.detach();
+                } else {
+                    LOGGER.finest("Skipping element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+                }
+            }
         }
 
         LOGGER.finer("RemoveUnaryOperator finished");

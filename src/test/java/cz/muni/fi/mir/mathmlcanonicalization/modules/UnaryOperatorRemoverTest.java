@@ -15,6 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -26,6 +27,11 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
 
     private static final Module DEFAULT_INSTANCE = new UnaryOperatorRemover();
     private static final String RESOURCE_SUBDIR = UnaryOperatorRemoverTest.class.getSimpleName() + "/";
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        DEFAULT_INSTANCE.setProperty("removeunaryoperators", "+ - ⁢ ⋅ * ⁣ ⁤ − ∓ ∔ ∕ ∖ ∗ ∘ ∙ ∸ ⊌ ⊍ ⊎ ⊏ ⊐ ⊑ ⊒ ⊓ ⊔ ⊕ ⊖ ⊗ ⊘ ⊙ ⊚ ⊛ ⊜ ⊝ ⊞ ⊟ ⊠ ⊡ ⊢ ⊣ ⊤ ⊥ ⊦ ⊧ ⊨ ⊩ ⊪ ⊫ ⊬ ⊭ ⊮ ⊯ ⊰ ⊱ ⊲ ⊳ ⊴ ⊵ ⊶ ⊷ ⊸ ⊹ ⊺ ⊻ ⊼ ⊽ ⊾ ⊿ ⋀ ⋁ ⋂ ⋃ ⋄ ⋅ ⋆ ⋇ ⋈ ⋉ ⋊ ⋋ ⋌ ⋍ ⋎ ⋏ ∀ ∃ ∄ ∏ ∐ ∑ ∧ ∨ ∩ ∪ ∻ ∼ ∽ ∾ ≁ ≂ ≃ ≄ ≅ ≆ ≇ ≈ ≉ ≊ ≋ ≌ ≍ ≎ ≏ ≐ ≑ ≒ ≓ ≔ ≕ ≖ ≗ ≘ ≙ ≚ ≛ ≜ ≝ ≞ ≟ ≠ ≡ ≢ ≣ ≤ ≥ ≦ ≧ ≨ ≩ ≪ ≫ ≬ ≭ ≮ ≯ ≰ ≱ ≲ ≳ ≴ ≵ ≶ ≷ ≸ ≹ ≺ ≻ ≼ ≽ ≾ ≿ ⊀ ⊁ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊈ ⊉ ⊊ ⊋ ⋐ ⋑ ⋒ ⋓ ⋔ ⋕ ⋖ ⋗ ⋘ ⋙ ⋚ ⋛ ⋜ ⋝ ⋞ ⋟ ⋠ ⋡ ⋢ ⋣ ⋤ ⋥ ⋦ ⋧ ⋨ ⋩ ⋪ ⋫ ⋬ ⋭ ⋮ ⋯ ⋰ ⋱ ⋲ ⋳ ⋴ ⋵ ⋶ ⋷ ⋸ ⋹ ⋺ ⋻ ⋼ ⋽ ⋾ ⋿");
+    }
 
     @Test
     public void testNoNamespace() {
