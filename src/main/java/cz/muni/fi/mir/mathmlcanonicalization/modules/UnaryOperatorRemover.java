@@ -69,7 +69,6 @@ import org.jdom2.xpath.XPathFactory;
  *   &lt;/mrow&gt;
  * &lt;/math&gt;
  * </pre>
- * </p>
  *
  * @author Michal Růžička
  */
