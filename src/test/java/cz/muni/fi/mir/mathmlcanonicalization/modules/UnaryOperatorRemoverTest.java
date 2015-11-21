@@ -34,13 +34,13 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
     }
 
     @Test
-    public void testNoNamespace() {
-        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "no-namespace");
+    public void testPMathMLNoNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "pmathml-no-namespace");
     }
 
     @Test
-    public void testMathMLNamespace() {
-        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "mathml-namespace");
+    public void testPMathMLWithNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "pmathml-with-namespace");
     }
 
 }
