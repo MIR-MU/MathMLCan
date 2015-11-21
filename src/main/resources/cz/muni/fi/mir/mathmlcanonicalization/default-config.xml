@@ -80,9 +80,9 @@
 
         <!--
         operators which will be removed
-        InvisibleTimes, InvisibleComma, sdot, *, ?, ?
+        InvisibleTimes, DotOperator, *, InvisibleSeparator, InvisiblePlus
         -->
-        <property name="removeoperators">⁢ ȀB ⋅ ⁣ ⁤</property>
+        <property name="removeoperators">⁢ ⋅ * ⁣ ⁤</property>
 
         <!--
         operators to replece in format "unwanted operator":"replacement"
