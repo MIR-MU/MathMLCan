@@ -129,7 +129,7 @@
 
     <module name="UnaryOperatorRemover">
         <!--
-        operators which will be removed if unary
+        operators which will be removed if unary in Presentation MathML
 
         + PLUS SIGN
         - HYPHEN-MINUS
@@ -148,7 +148,12 @@
 	⊞ ‎229E SQUARED PLUS
 	⊟ ‎229F SQUARED MINUS
         -->
-        <property name="removeunaryoperators">+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟</property>
+        <property name="pmathremoveunaryoperators">+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟</property>
+        
+        <!--
+        operators which will be removed if applied as unary in Content MathML
+        -->
+        <property name="cmathremoveunaryoperators">plus minus</property>
     </module>
 
 </config>

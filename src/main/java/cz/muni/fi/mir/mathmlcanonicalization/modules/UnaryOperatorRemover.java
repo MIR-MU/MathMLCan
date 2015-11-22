@@ -32,7 +32,7 @@ import org.jdom2.xpath.XPathFactory;
  * <p>
  * <span class="simpleTagLabel">Input</span>
  * <p>
- * Well-formed MathML
+ * Well-formed Presentation or Content MathML
  * </p>
  * <span class="simpleTagLabel">Output</span>
  * <p>
@@ -77,15 +77,21 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
     private static final Logger LOGGER = Logger.getLogger(ScriptNormalizer.class.getName());
 
     // properties key names
-    private static final String UNARY_OPERATORS_TO_REMOVE = "removeunaryoperators";
+    private static final String PM_UNARY_OPERATORS_TO_REMOVE = "pmathremoveunaryoperators";
+    private static final String CM_UNARY_OPERATORS_TO_REMOVE = "cmathremoveunaryoperators";
 
-    private static final XPathExpression<Element> xp = XPathFactory.instance().compile(
+    private static final XPathExpression<Element> xpPMUnaryOperators = XPathFactory.instance().compile(
             "//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]",
+            Filters.element(), null,
+            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
+    private static final XPathExpression<Element> xpCMApplyWithTwoChildrens = XPathFactory.instance().compile(
+            "//mathml:apply[count(child::*)=2]|//apply[count(child::*)=2]",
             Filters.element(), null,
             Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
 
     public UnaryOperatorRemover() {
-        declareProperty(UNARY_OPERATORS_TO_REMOVE);
+        declareProperty(PM_UNARY_OPERATORS_TO_REMOVE);
+        declareProperty(CM_UNARY_OPERATORS_TO_REMOVE);
     }
 
     @Override
@@ -105,12 +111,13 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
 
         assert rootElem != null;
 
-        List<Element> elemsToRemove = xp.evaluate(rootElem);
-        final Set<String> charsToRemove = getPropertySet(UNARY_OPERATORS_TO_REMOVE);
+        // Presentation MathML
+        List<Element> pmElemsToRemove = xpPMUnaryOperators.evaluate(rootElem);
+        final Set<String> pmCharsToRemove = getPropertySet(PM_UNARY_OPERATORS_TO_REMOVE);
 
-        if (!charsToRemove.isEmpty()) {
-            for (Element toRemove : elemsToRemove) {
-                if (charsToRemove.contains(toRemove.getValue())) {
+        if (!pmCharsToRemove.isEmpty()) {
+            for (Element toRemove : pmElemsToRemove) {
+                if (pmCharsToRemove.contains(toRemove.getValue())) {
                     LOGGER.finest("Removing element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
                     toRemove.detach();
                 } else {
@@ -119,7 +126,25 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
             }
         }
 
-        LOGGER.finer("RemoveUnaryOperator finished");
+        LOGGER.finer("RemoveUnaryOperator Presentation MathML finished");
+
+        // Content MathML
+        List<Element> applyWithTwoChildrens = xpCMApplyWithTwoChildrens.evaluate(rootElem);
+        final Set<String> cmOperatorsToRemove = getPropertySet(CM_UNARY_OPERATORS_TO_REMOVE);
+
+        for (Element applyElem : applyWithTwoChildrens) {
+            Element operator = applyElem.getChildren().get(0);
+            if (cmOperatorsToRemove.contains(operator.getName())) {
+                Element operand = applyElem.getChildren().get(1);
+                operand.detach();
+                Element parent = applyElem.getParentElement();
+                int applyElemIndex = parent.indexOf(applyElem);
+                applyElem.detach();
+                parent.setContent(applyElemIndex, operand);
+            }
+        }
+
+        LOGGER.finer("RemoveUnaryOperator Content MathML finished");
 
     }
 

@@ -30,7 +30,8 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        DEFAULT_INSTANCE.setProperty("removeunaryoperators", "+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟");
+        DEFAULT_INSTANCE.setProperty("pmathremoveunaryoperators", "+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟");
+        DEFAULT_INSTANCE.setProperty("cmathremoveunaryoperators", "plus minus");
     }
 
     @Test
@@ -41,6 +42,16 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
     @Test
     public void testPMathMLWithNamespace() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "pmathml-with-namespace");
+    }
+
+    @Test
+    public void testCMathMLNoNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "cmathml-no-namespace");
+    }
+
+    @Test
+    public void testCMathMLWithNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "cmathml-with-namespace");
     }
 
 }

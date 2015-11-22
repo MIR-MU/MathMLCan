@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $-1\frac{-E = mc^2 + 5-3}{\int_a^b \! f(x)\,dx = F(b) - F(a)}$ -->
+<!-- $+1\frac{-E = mc^2 + 5-3}{\int_a^b \! f(x)\,dx = F(b) - F(a)}$ -->
 <math xmlns="http://www.w3.org/1998/Math/MathML">
     <mrow>
-        <mo>-</mo>
+        <mo>+</mo>
         <mrow>
             <mn>1</mn>
             <mo>&#x2062;</mo>
