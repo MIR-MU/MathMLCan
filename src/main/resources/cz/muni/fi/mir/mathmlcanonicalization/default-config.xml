@@ -136,17 +136,17 @@
 	⁤ INVISIBLE PLUS
 
 	Operators
-	− ‎2212 MINUS SIGN
-	∓ ‎2213 MINUS-OR-PLUS SIGN
-	∔ ‎2214 DOT PLUS
-	∸ ‎2238 DOT MINUS
+	− 2212 MINUS SIGN
+	∓ 2213 MINUS-OR-PLUS SIGN
+	∔ 2214 DOT PLUS
+	∸ 2238 DOT MINUS
 
 	Operators
-	⊕ ‎2295 CIRCLED PLUS
-	⊖ ‎2296 CIRCLED MINUS
-	⊝ ‎229D CIRCLED DASH
-	⊞ ‎229E SQUARED PLUS
-	⊟ ‎229F SQUARED MINUS
+	⊕ 2295 CIRCLED PLUS
+	⊖ 2296 CIRCLED MINUS
+	⊝ 229D CIRCLED DASH
+	⊞ 229E SQUARED PLUS
+	⊟ 229F SQUARED MINUS
         -->
         <property name="pmathremoveunaryoperators">+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟</property>
         
