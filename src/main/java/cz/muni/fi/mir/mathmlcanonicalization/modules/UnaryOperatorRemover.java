@@ -136,11 +136,12 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
             Element operator = applyElem.getChildren().get(0);
             if (cmOperatorsToRemove.contains(operator.getName())) {
                 Element operand = applyElem.getChildren().get(1);
+                LOGGER.finest("Removing operator '" + operator.getQualifiedName() + "' for operand '" + operand.getQualifiedName() + "'.");
                 operand.detach();
                 Element parent = applyElem.getParentElement();
                 int applyElemIndex = parent.indexOf(applyElem);
-                applyElem.detach();
                 parent.setContent(applyElemIndex, operand);
+                applyElem.detach();
             }
         }
 
