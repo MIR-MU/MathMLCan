@@ -84,6 +84,10 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
             "//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]",
             Filters.element(), null,
             Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
+    private static final XPathExpression<Element> xpPMSecondOperatorInDoubleOperators = XPathFactory.instance().compile(
+            "//mathml:mo[preceding-sibling::*[1][self::mathml:mo]]|//mo[preceding-sibling::*[1][self::mo]]",
+            Filters.element(), null,
+            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
     private static final XPathExpression<Element> xpCMApplyWithTwoChildrens = XPathFactory.instance().compile(
             "//mathml:apply[count(child::*)=2]|//apply[count(child::*)=2]",
             Filters.element(), null,
@@ -111,11 +115,13 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
 
         assert rootElem != null;
 
-        // Presentation MathML
-        List<Element> pmElemsToRemove = xpPMUnaryOperators.evaluate(rootElem);
+        /* Presentation MathML */
         final Set<String> pmCharsToRemove = getPropertySet(PM_UNARY_OPERATORS_TO_REMOVE);
 
         if (!pmCharsToRemove.isEmpty()) {
+
+            // Unary operators
+            List<Element> pmElemsToRemove = xpPMUnaryOperators.evaluate(rootElem);
             for (Element toRemove : pmElemsToRemove) {
                 if (pmCharsToRemove.contains(toRemove.getValue())) {
                     LOGGER.finest("Removing element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
@@ -124,11 +130,23 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
                     LOGGER.finest("Skipping element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
                 }
             }
+
+            // Second of the double operators
+            pmElemsToRemove = xpPMSecondOperatorInDoubleOperators.evaluate(rootElem);
+            for (Element toRemove : pmElemsToRemove) {
+                if (pmCharsToRemove.contains(toRemove.getValue())) {
+                    LOGGER.finest("Removing the second element out of double elements '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+                    toRemove.detach();
+                } else {
+                    LOGGER.finest("Skipping the second element out of double elements '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+                }
+            }
+
         }
 
         LOGGER.finer("RemoveUnaryOperator Presentation MathML finished");
 
-        // Content MathML
+        /* Content MathML */
         List<Element> applyWithTwoChildrens = xpCMApplyWithTwoChildrens.evaluate(rootElem);
         final Set<String> cmOperatorsToRemove = getPropertySet(CM_UNARY_OPERATORS_TO_REMOVE);
 

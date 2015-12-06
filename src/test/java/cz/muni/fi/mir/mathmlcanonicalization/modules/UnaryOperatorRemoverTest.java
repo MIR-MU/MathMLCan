@@ -54,4 +54,24 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "cmathml-with-namespace");
     }
 
+    @Test
+    public void testDoubleOperatorPMathMLNoNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "pmathml-double-operator-no-namespace");
+    }
+
+    @Test
+    public void testDoubleOperatorPMathMLWithNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "pmathml-double-operator-with-namespace");
+    }
+
+    @Test
+    public void testDoubleOperatorCMathMLNoNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "cmathml-double-operator-no-namespace");
+    }
+
+    @Test
+    public void testDoubleOperatorCMathMLWithNamespace() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "cmathml-double-operator-with-namespace");
+    }
+
 }
