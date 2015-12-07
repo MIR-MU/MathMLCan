@@ -47,8 +47,8 @@
         <property name="wrapInside">1</property>
 
         <!-- opening and closing parentheses -->
-        <property name="open">( [ { ⟨</property>
-        <property name="close">) ] } ⟩</property>
+        <property name="open">( [ { &#10216;</property>
+        <property name="close">) ] } &#10217;</property>
 
         <!--
         initialize childCount according to http://www.w3.org/TR/MathML3/chapter3.html#id.3.1.3.2

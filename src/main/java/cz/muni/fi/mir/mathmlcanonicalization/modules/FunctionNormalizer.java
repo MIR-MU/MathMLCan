@@ -70,7 +70,7 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
                     if (hasInsideBrackets(parameter)) {
                         children.get(i + 1).detach(); // just detach operator
                     } else { // add parentheses
-                        parameter.addContent(1, new Element(OPERATOR, MATHMLNS).setText("("));
+                        parameter.addContent(0, new Element(OPERATOR, MATHMLNS).setText("("));
                         parameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")"));
                         LOGGER.fine("Parentheses around function argument added");
                         children.get(i + 1).detach(); // detach funct app operator
