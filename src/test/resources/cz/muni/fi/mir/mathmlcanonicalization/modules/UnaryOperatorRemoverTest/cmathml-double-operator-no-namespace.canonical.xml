@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $B < \infty$ -->
 <math>
-	<apply>
+    <apply>
         <lt/>
         <ci>B</ci>
-		<infinity/>
+        <infinity/>
     </apply>
 </math>

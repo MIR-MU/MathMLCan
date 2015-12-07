@@ -31,8 +31,8 @@ public class OperatorNormalizerTest extends AbstractModuleTest {
     @BeforeClass
     public static void setUpBeforeClass() {
         DEFAULT_INSTANCE.setProperty("removeempty", "true");
-        DEFAULT_INSTANCE.setProperty("removeoperators", "⁢ ⋅ * ⁣ ⁤");
-        DEFAULT_INSTANCE.setProperty("replaceoperators", "+-:± -+:± ­:-");
+        DEFAULT_INSTANCE.setProperty("removeoperators", "\u2062 \u22c5 * \u2063 \u2064");
+        DEFAULT_INSTANCE.setProperty("replaceoperators", "+-:\u00b1 -+:\u00b1 \u00ad:-");
         DEFAULT_INSTANCE.setProperty("colonreplacement", "/");
         DEFAULT_INSTANCE.setProperty("normalizationform", "NFKD");
         DEFAULT_INSTANCE.setProperty("operators", "+ - < > ( ) [ ] { } ^ ~ '");

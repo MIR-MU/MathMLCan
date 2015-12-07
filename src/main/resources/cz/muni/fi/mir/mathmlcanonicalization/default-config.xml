@@ -22,7 +22,7 @@
     
     <module name="FunctionNormalizer">
         <!-- function operators -->
-        <property name="functionoperators">⁡</property>
+        <property name="functionoperators">&#8289;</property>
     </module>
     
     <module name="MfencedReplacer">
@@ -82,13 +82,13 @@
         operators which will be removed
         InvisibleTimes, DotOperator, *, InvisibleSeparator, InvisiblePlus
         -->
-        <property name="removeoperators">⁢ ⋅ * ⁣ ⁤</property>
+        <property name="removeoperators">&#8290; &#8901; * &#8291; &#8292;</property>
 
         <!--
         operators to replece in format "unwanted operator":"replacement"
         +- and -+ to plusminus, hyphen to -
         -->
-        <property name="replaceoperators">+-:± -+:± ­:- &lt;=:≤ =&lt;:≤ ≦:≤ &gt;=:≥ =&gt;:≥ ≧:≥</property>
+        <property name="replaceoperators">+-:&#177; -+:&#177; &#173;:- &lt;=:&#8804; =&lt;:&#8804; &#8806;:&#8804; &gt;=:&#8805; =&gt;:&#8805; &#8807;:&#8805;</property>
 
         <!--
         operator to replace ":" (cannot be set in replaceoperators due to parsing)
@@ -106,7 +106,7 @@
         all operators that should not be in mi element (but mo)
         operators from previous properties are added automatically
         -->
-        <property name="operators">+ - &lt; &gt; ( ) [ ] { } | ^ ~ ' ∓ × · ÷ ⁄  √ ∑ ∫ ∮ ∴ ∵ ! ¬ ∝ = ≠ ≈ =: := ⇔ :⇔ ≜ ≝ ≐ ≅ ≡ ↔ ≪ ≫ ≺ ≻ ◅ ▻ ⇒ → ⊆ ⊂ ⊇ ⊃ ↦ ⊧ ⊢ ⋕ # ≀ ↯ ⊕ ⊻ • ∀ ∂ ∃ ∃! ∈ ∉ ∌ ∋ o ∘ † ⊥ ∪ ∩ ∨ ∧ ⊗ ⋉ ⋊ ⋈ ∅</property>
+        <property name="operators">+ - &lt; &gt; ( ) [ ] { } | ^ ~ &apos; &#8723; &#215; &#183; &#247; &#8260;  &#8730; &#8721; &#8747; &#8750; &#8756; &#8757; ! &#172; &#8733; = &#8800; &#8776; =: := &#8660; :&#8660; &#8796; &#8797; &#8784; &#8773; &#8801; &#8596; &#8810; &#8811; &#8826; &#8827; &#9669; &#9659; &#8658; &#8594; &#8838; &#8834; &#8839; &#8835; &#8614; &#8871; &#8866; &#8917; # &#8768; &#8623; &#8853; &#8891; &#8226; &#8704; &#8706; &#8707; &#8707;! &#8712; &#8713; &#8716; &#8715; o &#8728; &#8224; &#8869; &#8746; &#8745; &#8744; &#8743; &#8855; &#8905; &#8906; &#8904; &#8709;</property>
         <property name="identifiers">exp sin cos tan tg cot cotan cotg ctg ctn sec csc cosec arcsin arccos arctan arccot arcsec arccsc sinh cosh tanh coth cesh csch arcsinh arcosh artanh arcoth arsech arcsch log lg ln</property>
     </module>
 
@@ -131,24 +131,24 @@
         <!--
         operators which will be removed if unary in Presentation MathML
 
-        + PLUS SIGN
-        - HYPHEN-MINUS
-	⁤ INVISIBLE PLUS
+        +       PLUS SIGN
+        -       HYPHEN-MINUS
+        &#8292; INVISIBLE PLUS
 
-	Operators
-	− 2212 MINUS SIGN
-	∓ 2213 MINUS-OR-PLUS SIGN
-	∔ 2214 DOT PLUS
-	∸ 2238 DOT MINUS
+        Operators
+        &#8722; MINUS SIGN
+        &#8723; MINUS-OR-PLUS SIGN
+        &#8724; DOT PLUS
+        &#8760; DOT MINUS
 
-	Operators
-	⊕ 2295 CIRCLED PLUS
-	⊖ 2296 CIRCLED MINUS
-	⊝ 229D CIRCLED DASH
-	⊞ 229E SQUARED PLUS
-	⊟ 229F SQUARED MINUS
+        Operators
+        &#8853; CIRCLED PLUS
+        &#8854; CIRCLED MINUS
+        &#8861; CIRCLED DASH
+        &#8862; SQUARED PLUS
+        &#8863; SQUARED MINUS
         -->
-        <property name="pmathremoveunaryoperators">+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟</property>
+        <property name="pmathremoveunaryoperators">+ - &#8292; &#8722; &#8723; &#8724; &#8760; &#8853; &#8854; &#8861; &#8862; &#8863;</property>
         
         <!--
         operators which will be removed if applied as unary in Content MathML

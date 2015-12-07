@@ -30,7 +30,7 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        DEFAULT_INSTANCE.setProperty("pmathremoveunaryoperators", "+ - ⁤ − ∓ ∔ ∸ ⊕ ⊖ ⊝ ⊞ ⊟");
+        DEFAULT_INSTANCE.setProperty("pmathremoveunaryoperators", "+ - \u2064 \u2212 \u2213 \u2214 \u2238 \u2295 \u2296 \u229d \u229e \u229f");
         DEFAULT_INSTANCE.setProperty("cmathremoveunaryoperators", "plus minus");
     }
 
