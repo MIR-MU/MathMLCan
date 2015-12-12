@@ -178,7 +178,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     private static void printHelp(Options options) {
         System.err.println("Usage:");
         System.err.println("\tjava -jar " + JARFILE
-                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
+                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
                 + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
         System.err.println("\tjava -jar " + JARFILE + " -p");
         System.err.println("\tjava -jar " + JARFILE + " -h");
