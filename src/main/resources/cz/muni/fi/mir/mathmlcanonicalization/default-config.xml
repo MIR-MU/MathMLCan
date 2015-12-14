@@ -148,12 +148,12 @@
         &#8862; SQUARED PLUS
         &#8863; SQUARED MINUS
         -->
-        <property name="pmathremoveunaryoperators">+ - &#8292; &#8722; &#8723; &#8724; &#8760; &#8853; &#8854; &#8861; &#8862; &#8863;</property>
+        <property name="pmathremoveunaryoperators"></property>
         
         <!--
         operators which will be removed if applied as unary in Content MathML
         -->
-        <property name="cmathremoveunaryoperators">plus minus</property>
+        <property name="cmathremoveunaryoperators"></property>
     </module>
 
 </config>
