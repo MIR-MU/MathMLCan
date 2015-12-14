@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $+1\frac{-E = mc^2 + 5-3}{\int_a^b \! f(x)\,dx = F(b) - F(a)}$ -->
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+    <apply>
+        <plus/>
+        <apply>
+            <times/>
+            <cn type="integer">1</cn>
+            <apply>
+                <divide/>
+                <apply>
+                    <eq/>
+                    <apply>
+                        <minus/>
+                        <ci>E</ci>
+                    </apply>
+                    <apply>
+                        <minus/>
+                        <apply>
+                            <plus/>
+                            <apply>
+                                <times/>
+                                <ci>m</ci>
+                                <apply>
+                                    <csymbol cd="ambiguous">superscript</csymbol>
+                                    <ci>c</ci>
+                                    <cn type="integer">2</cn>
+                                </apply>
+                            </apply>
+                            <cn type="integer">5</cn>
+                        </apply>
+                        <cn type="integer">3</cn>
+                    </apply>
+                </apply>
+                <apply>
+                    <eq/>
+                    <apply>
+                        <apply>
+                            <csymbol cd="ambiguous">superscript</csymbol>
+                            <apply>
+                                <csymbol cd="ambiguous">subscript</csymbol>
+                                <int/>
+                                <ci>a</ci>
+                            </apply>
+                            <ci>b</ci>
+                        </apply>
+                        <apply>
+                            <times/>
+                            <ci>f</ci>
+                            <ci>x</ci>
+                            <ci>d</ci>
+                            <ci>x</ci>
+                        </apply>
+                    </apply>
+                    <apply>
+                        <minus/>
+                        <apply>
+                            <times/>
+                            <ci>F</ci>
+                            <ci>b</ci>
+                        </apply>
+                        <apply>
+                            <times/>
+                            <ci>F</ci>
+                            <ci>a</ci>
+                        </apply>
+                    </apply>
+                </apply>
+            </apply>
+        </apply>
+    </apply>
+</math>

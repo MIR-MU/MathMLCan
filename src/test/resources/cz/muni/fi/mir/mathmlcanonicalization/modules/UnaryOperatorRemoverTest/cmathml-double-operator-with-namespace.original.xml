@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $B < + \infty$ -->
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+    <apply>
+        <lt/>
+        <ci>B</ci>
+        <apply>
+            <plus/>
+            <infinity/>
+        </apply>
+    </apply>
+</math>

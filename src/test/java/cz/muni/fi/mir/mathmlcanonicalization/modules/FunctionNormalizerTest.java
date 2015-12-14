@@ -30,7 +30,7 @@ public class FunctionNormalizerTest extends AbstractModuleTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        DEFAULT_INSTANCE.setProperty("functionoperators", "⁡");
+        DEFAULT_INSTANCE.setProperty("functionoperators", "\u2061");
     }
     
     @Test

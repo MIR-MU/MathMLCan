@@ -1,2 +1,5 @@
 /target/
 mathml-canonicalizer.iml
+/.settings/
+/.classpath
+/.project

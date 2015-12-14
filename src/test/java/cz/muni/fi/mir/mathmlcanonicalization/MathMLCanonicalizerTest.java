@@ -15,15 +15,23 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-import org.jdom2.JDOMException;
+import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.jdom2.JDOMException;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
+import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleTestResources;
 
 /**
  * Test cases for MathMLCanonicalizer class.
@@ -31,7 +39,9 @@ import org.junit.Test;
 public class MathMLCanonicalizerTest {
 
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-
+    
+    private static final Logger log = Logger.getLogger(MathMLCanonicalizerTest.class.getName());
+    
     public MathMLCanonicalizerTest() {
     }
 
@@ -49,7 +59,7 @@ public class MathMLCanonicalizerTest {
 
         Throwable e = null;
         try {
-            MathMLCanonicalizer mlcan = new MathMLCanonicalizer(configStream);
+            new MathMLCanonicalizer(configStream);
         } catch (ConfigException ex) {
             e = ex;
         }
@@ -57,4 +67,37 @@ public class MathMLCanonicalizerTest {
         assertEquals(Settings.getProperty("existing"), "value");
         assertFalse(Settings.isProperty("nonExisting"));
     }
+    
+    @Test
+    public void shouldCreateDefaultCanonicalizer() throws Exception {
+        MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
+
+        for (InputStream resource : ModuleTestResources.getAllTestResources()) {
+            canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
+            // we don't check result; it just should not throw an exception
+        }
+    }
+    
+    @Ignore
+    @Test
+    public void stressTest() throws Exception {
+        long start = System.currentTimeMillis();
+        
+        MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
+        
+        for (int i=1; i<=5000; i++) {
+            for (InputStream resource : ModuleTestResources.getAllTestResources()) {
+                canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
+                // we don't check result; it just should not throw an exception
+            }
+            
+            if (i%1000 == 0) {
+                log.info(i + " tests performed...");
+            }
+        }
+
+        long time = System.currentTimeMillis() - start;
+        log.info("Stress test finished in " + time + "ms");
+    }
+
 }

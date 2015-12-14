@@ -86,7 +86,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         }
         Collection<String> chosenElements = getPropertySet(SPLIT_SCRIPTS_ELEMENTS);
         if (chosenElements.isEmpty()) {
-            LOGGER.fine("Msubsup conversion is switched off");
+            LOGGER.finer("Msubsup conversion is switched off");
         } else {
             normalizeMsubsup(root, chosenElements);
         }
@@ -104,7 +104,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
             List<Element> subscriptChildren = actual.getChildren();
             if (subscriptChildren.size() != 2) {
-                LOGGER.info("Invalid msub, skipped");
+                LOGGER.fine("Invalid msub, skipped");
                 continue;
             }
             if (!subscriptChildren.get(0).getName().equals(SUPERSCRIPT)) {
@@ -112,7 +112,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             }
             final List<Element> superscriptChildren = subscriptChildren.get(0).getChildren();
             if (superscriptChildren.size() != 2) {
-                LOGGER.info("Invalid msup, skipped");
+                LOGGER.fine("Invalid msup, skipped");
                 continue;
             }
             final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
@@ -122,7 +122,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             newMsup.addContent(newMsub);
             newMsup.addContent(superscriptChildren.get(0).detach());
             children.set(i, newMsup);
-            LOGGER.fine("Sub/sup scripts swapped");
+            LOGGER.finer("Sub/sup scripts swapped");
         }
     }
 
@@ -134,7 +134,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             if (actual.getName().equals(SUBSUP)) {
                 final List<Element> actualChildren = actual.getChildren();
                 if (actualChildren.size() != 3) {
-                    LOGGER.info("Invalid msubsup, skipped");
+                    LOGGER.fine("Invalid msubsup, skipped");
                     continue;
                 }
                 if (!firstChildren.contains(actualChildren.get(0).getName())) {
@@ -148,7 +148,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
                 newMsup.addContent(actualChildren.get(0).detach());
                 children.set(i, newMsup);
                 i--; // move back to check the children of the new transformation
-                LOGGER.fine("Msubsup converted to nested msub and msup");
+                LOGGER.finer("Msubsup converted to nested msub and msup");
             } else {
                 normalizeMsubsup(actual, firstChildren);
             }

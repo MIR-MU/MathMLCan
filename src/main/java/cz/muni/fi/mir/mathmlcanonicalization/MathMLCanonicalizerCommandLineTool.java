@@ -24,12 +24,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -41,9 +42,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.JDOMException;
-import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -60,7 +62,8 @@ public final class MathMLCanonicalizerCommandLineTool {
     // TODO: refactoring
     /**
      * @param args the command line arguments
-     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing
+     * occurs
      */
     public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException {
         final Options options = new Options();
@@ -91,7 +94,7 @@ public final class MathMLCanonicalizerCommandLineTool {
                     System.exit(2);
                 }
             } else {
-                config = MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig"));
+                config = Settings.getStreamFromProperty("defaultConfig");
             }
 
             if (line.hasOption('d')) {
@@ -175,7 +178,7 @@ public final class MathMLCanonicalizerCommandLineTool {
     private static void printHelp(Options options) {
         System.err.println("Usage:");
         System.err.println("\tjava -jar " + JARFILE
-                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
+                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
                 + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
         System.err.println("\tjava -jar " + JARFILE + " -p");
         System.err.println("\tjava -jar " + JARFILE + " -h");
@@ -186,17 +189,23 @@ public final class MathMLCanonicalizerCommandLineTool {
 
     private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        final InputSource src = new InputSource(MathMLCanonicalizer.class.getResourceAsStream(Settings.getProperty("defaultConfig")));
-        final Element document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
+        final InputSource src = new InputSource(Settings.getStreamFromProperty("defaultConfig"));
+        final Document document = Settings.documentBuilderFactory().newDocumentBuilder().parse(src);
 
         final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        final LSOutput lsOutput = impl.createLSOutput();
         final LSSerializer writer = impl.createLSSerializer();
 
+        Writer stringWriter = new StringWriter();
+        lsOutput.setCharacterStream(stringWriter);
+        lsOutput.setEncoding("UTF-8");
+
+        writer.write(document, lsOutput);
         writer.getDomConfig().setParameter("xml-declaration", true);
         writer.getDomConfig().setParameter("format-pretty-print", true);
 
-        System.out.print(writer.writeToString(document));
+        System.out.print(stringWriter.toString());
 
     }
 
