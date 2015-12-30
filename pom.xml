@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</url>
-        <developerConnection>scm:svn:https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</developerConnection>
-        <connection>scm:svn:https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</connection>
+        <url>https://github.com/michal-ruzicka/MathMLUnificator</url>
+        <developerConnection>scm:git:https://github.com/michal-ruzicka/MathMLCan.git</developerConnection>
+        <connection>scm:svn:https://github.com/michal-ruzicka/MathMLCan.git</connection>
     </scm>
     <developers>
         <developer>
