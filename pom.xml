@@ -5,7 +5,7 @@
 
     <groupId>cz.muni.fi.mir</groupId>
     <artifactId>mathml-canonicalizer</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     <name>MathMLCanonicalizer</name>
@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</url>
-        <developerConnection>scm:svn:https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</developerConnection>
-        <connection>scm:svn:https://mir.fi.muni.cz/svn/software/mathml-canonicalizer</connection>
+        <url>https://github.com/michal-ruzicka/MathMLUnificator</url>
+        <developerConnection>scm:git:https://github.com/michal-ruzicka/MathMLCan.git</developerConnection>
+        <connection>scm:svn:https://github.com/michal-ruzicka/MathMLCan.git</connection>
     </scm>
     <developers>
         <developer>
