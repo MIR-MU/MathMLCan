@@ -217,4 +217,5 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         writer.flush();
         writer.close();
     }
+
 }

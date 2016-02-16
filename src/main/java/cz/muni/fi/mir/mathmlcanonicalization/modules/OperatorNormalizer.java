@@ -75,7 +75,6 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         final Element root = doc.getRootElement();
 
         // TODO: convert Unicode superscripts (supX entities) to msup etc.
-
         final String normalizerFormStr = getProperty(NORMALIZATION_FORM);
         if (normalizerFormStr.isEmpty()) {
             LOGGER.fine("Unicode text normalization is switched off");
@@ -119,14 +118,14 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         } else {
             replaceOperators(ancestor, replaceMap);
         }
-        
+
         final Set<String> identifiers = getPropertySet(IDENTIFIERS);
         operatorsToIdentifiers(ancestor, identifiers);
     }
 
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
         assert ancestor != null && form != null;
-        final List<Text> texts = new ArrayList<Text>();
+        final List<Text> texts = new ArrayList<>();
         final ContentFilter textFilter = new ContentFilter(ContentFilter.TEXT);
         for (Content text : ancestor.getContent(textFilter)) {
             texts.add((Text) text);
@@ -154,7 +153,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
             if (isOperator(actual)) {
-            	//Keep special case where asterisk is by itself in a subscript
+                //Keep special case where asterisk is by itself in a subscript
                 String parent = actual.getParentElement().getName();
                 if (isSpareOperator(actual, spareOperators) && !(parent.equals("msub"))
                         && !(parent.equals("msubsup") && !(parent.equals("msup")))) {
@@ -176,7 +175,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
     private void replaceOperators(final Element element, final Map<String, String> replacements) {
         assert element != null && replacements != null;
-        List<Element> operatorsToReplace = new ArrayList<Element>();
+        List<Element> operatorsToReplace = new ArrayList<>();
         for (Element operator : element.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
             if (replacements.containsKey(operator.getTextTrim())) {
                 operatorsToReplace.add(operator);
@@ -193,7 +192,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
     private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
         assert ancestor != null && operators != null;
-        final List<Element> toReplace = new ArrayList<Element>();
+        final List<Element> toReplace = new ArrayList<>();
         for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER, MATHMLNS))) {
             // TODO: control whole ranges of symbols rather than listed ones
             if (operators.contains(element.getTextTrim())) {
@@ -208,7 +207,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
     private void operatorsToIdentifiers(final Element ancestor, final Set<String> identifiers) {
         assert ancestor != null && identifiers != null;
-        final List<Element> toReplace = new ArrayList<Element>();
+        final List<Element> toReplace = new ArrayList<>();
         for (Element element : ancestor.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
             if (identifiers.contains(element.getTextTrim())) {
                 toReplace.add(element);
@@ -219,10 +218,10 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
             replaceElement(element, IDENTIFIER);
         }
     }
-    
+
     private Map<String, String> getPropertyMap(final String property) {
         assert property != null && isProperty(property);
-        final Map<String, String> propertyMap = new HashMap<String, String>();
+        final Map<String, String> propertyMap = new HashMap<>();
         final String[] mappings = getProperty(property).split(" ");
         for (String mapping : mappings) {
             final String[] mappingPair = mapping.split(":", 2);
@@ -233,4 +232,5 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         }
         return propertyMap;
     }
+
 }

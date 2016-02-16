@@ -157,12 +157,12 @@ public final class MathMLCanonicalizerCommandLineTool {
 
     private static List<File> getFiles(File file) throws IOException {
         assert file != null;
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null) {
-                for (int i = 0; i < files.length; i++) {
-                    result.addAll(getFiles(files[i]));
+                for (File f : files) {
+                    result.addAll(getFiles(f));
                 }
             }
         } else {

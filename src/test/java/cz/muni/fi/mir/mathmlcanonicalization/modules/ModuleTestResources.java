@@ -19,7 +19,7 @@ public class ModuleTestResources {
 
         @Override
         public InputStream next() {
-            return ModuleTestResources.class.getResourceAsStream( TEST_RESOURCES[index++] );
+            return ModuleTestResources.class.getResourceAsStream(TEST_RESOURCES[index++]);
         }
 
         @Override
@@ -73,7 +73,7 @@ public class ModuleTestResources {
         "ScriptNormalizerTest/subsup.original.xml",
         "ScriptNormalizerTest/underover.original.xml"
     };
-    
+
     public static Iterable<InputStream> getAllTestResources() {
         return new Iterable<InputStream>() {
             @Override
@@ -82,5 +82,5 @@ public class ModuleTestResources {
             }
         };
     }
-    
+
 }

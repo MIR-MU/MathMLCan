@@ -38,10 +38,8 @@ public class DTDManipulator {
 
     /**
      * Inject into a XML document XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD
-     * reference 
-     * (<code>&lt;!DOCTYPE math SYSTEM "xhtml-math11-f.dtd"&gt;</code>). Named
-     * MathML entities 
-     * (<code>&amp;alpha;</code> ...) can be used in such a XML document.
+     * reference ({@code <!DOCTYPE math SYSTEM "xhtml-math11-f.dtd">}). Named
+     * MathML entities ({@code &alpha;} ...) can be used in such a XML document.
      *
      * @param in XML document as InputStream
      * @return the XML document with injected XHTML 1.1 plus MathML 2.0 plus SVG
@@ -54,10 +52,9 @@ public class DTDManipulator {
     }
 
     /**
-     * Inject into a XML document MathML 2.0 DTD reference (
-     * <code>&lt;!DOCTYPE math SYSTEM "mathml2.dtd"&gt;</code>). Named MathML
-     * entities (
-     * <code>&amp;alpha;</code> ...) can be used in such a XML document.
+     * Inject into a XML document MathML 2.0 DTD reference
+     * ({@code  <!DOCTYPE math SYSTEM "mathml2.dtd">}). Named MathML entities
+     * ({@code &alpha;} ...) can be used in such a XML document.
      *
      * @param in XML document as InputStream
      * @return the XML document with injected MathML 2.0 DTD reference
@@ -69,10 +66,9 @@ public class DTDManipulator {
     }
 
     /**
-     * Inject into a XML document MathML 3.0 DTD reference (
-     * <code>&lt;!DOCTYPE math SYSTEM "mathml3.dtd"&gt;</code>). Named MathML
-     * entities (<code>&amp;alpha;</code> ...) can be used in such a XML 
-     * document.
+     * Inject into a XML document MathML 3.0 DTD reference
+     * ({@code <!DOCTYPE math SYSTEM "mathml3.dtd">}). Named MathML entities
+     * ({@code &alpha;} ...) can be used in such a XML document.
      *
      * @param in XML document as InputStream
      * @return the XML document with injected MathML 3.0 DTD reference
@@ -88,15 +84,16 @@ public class DTDManipulator {
      *
      * @param in XML document as InputStream
      * @return the XML document without DTD reference
-     * @throws javax.xml.stream.XMLStreamException an error with XML processing occurs
+     * @throws javax.xml.stream.XMLStreamException an error with XML processing
+     * occurs
      */
     public static InputStream removeDTD(InputStream in) throws XMLStreamException {
         byte[] buffer = removeDTDAndReturnOutputStream(in).toByteArray();
-        
+
         return new ByteArrayInputStream(buffer);
-        
+
     }
-    
+
     public static ByteArrayOutputStream removeDTDAndReturnOutputStream(InputStream in) throws XMLStreamException {
 
         XMLEventReader reader = Settings.defaultXmlInputFactory().createXMLEventReader(in);
@@ -114,5 +111,5 @@ public class DTDManipulator {
 
         return noDtdOutputStream;
     }
-    
+
 }

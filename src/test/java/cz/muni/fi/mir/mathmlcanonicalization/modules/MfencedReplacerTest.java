@@ -82,4 +82,5 @@ public class MfencedReplacerTest extends AbstractModuleTest {
     public void testConfigured() {
         testXML(CONFIGURED_INSTANCE, RESOURCE_SUBDIR + "interval-configured");
     }
+
 }

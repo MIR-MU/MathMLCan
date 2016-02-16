@@ -39,9 +39,9 @@ import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleTestResources;
 public class MathMLCanonicalizerTest {
 
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    
+
     private static final Logger log = Logger.getLogger(MathMLCanonicalizerTest.class.getName());
-    
+
     public MathMLCanonicalizerTest() {
     }
 
@@ -67,31 +67,31 @@ public class MathMLCanonicalizerTest {
         assertEquals(Settings.getProperty("existing"), "value");
         assertFalse(Settings.isProperty("nonExisting"));
     }
-    
+
     @Test
     public void shouldCreateDefaultCanonicalizer() throws Exception {
         MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
 
         for (InputStream resource : ModuleTestResources.getAllTestResources()) {
-            canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
+            canonicalizer.canonicalize(resource, new ByteArrayOutputStream());
             // we don't check result; it just should not throw an exception
         }
     }
-    
+
     @Ignore
     @Test
     public void stressTest() throws Exception {
         long start = System.currentTimeMillis();
-        
+
         MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
-        
-        for (int i=1; i<=5000; i++) {
+
+        for (int i = 1; i <= 5000; i++) {
             for (InputStream resource : ModuleTestResources.getAllTestResources()) {
-                canonicalizer.canonicalize( resource, new ByteArrayOutputStream() );
+                canonicalizer.canonicalize(resource, new ByteArrayOutputStream());
                 // we don't check result; it just should not throw an exception
             }
-            
-            if (i%1000 == 0) {
+
+            if (i % 1000 == 0) {
                 log.info(i + " tests performed...");
             }
         }

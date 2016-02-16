@@ -30,21 +30,22 @@ import org.jdom2.filter.ElementFilter;
  * Handle sub/super/under/over/multi script elements in MathML.
  *
  * <p>
- * Normalize the occurence of &lt;msub&gt;, &lt;msup&gt;, &lt;msubsup&gt;,
- * &lt;munder&gt;, &lt;mover&gt;, &lt;munderover&gt; and &lt;mmultiscripts&gt;
- * (with children &lt;mprescripts/&gt; and &lt;none/&gt;) elements in MathML.
+ * Normalize the occurence of {@code <msub>}, {@code <msup>}, {@code <msubsup>},
+ * {@code <munder>}, {@code <mover>}, {@code <munderover>} and
+ * {@code <mmultiscripts>} (with children {@code <mprescripts/>} and
+ * {@code <none/>}) elements in MathML.
  * </p><span class="simpleTagLabel">Input</span>
  * Well-formed MathML
  * <div class="simpleTagLabel">Output</div>
  * The original code with always used:<ul>
- * <li>&lt;msubsup&gt; (or &lt;msub&gt;) for sums, integrals, etc. (converted
- * from &lt;munderover&gt;, &lt;munder&gt; and &lt;msub&gt;, &lt;msup&gt;
- * combinations)</li>
- * <li>&lt;msub&gt; inside &lt;msup&gt; in nested formulae</li>
- * <li>nested &lt;msub&gt; and &lt;msup&gt; instead of &lt;msubsup&gt; in
+ * <li>{@code <msubsup>} (or {@code <msub>}) for sums, integrals, etc.
+ * (converted from {@code <munderover>}, {@code <munder>} and
+ * {@code <msub>}, {@code <msup>} combinations)</li>
+ * <li>{@code <msub>} inside {@code <msup>} in nested formulae</li>
+ * <li>nested {@code <msub>} and {@code <msup>} instead of {@code <msubsup>} in
  * identifiers (not for sums, integrals, etc.)</li>
  * <li>Unicode scripts converted to MathML scripts</li>
- * <li>(sub/super)scripts instead of &lt;mmultiscript&gt; where possible</li>
+ * <li>(sub/super)scripts instead of {@code <mmultiscript>} where possible</li>
  * <li>maybe conversion all (under/over)scripts to (sub/super) scripts?</li>
  * </ul>
  *
@@ -72,7 +73,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         }
         final Element root = doc.getRootElement();
         if (isEnabled(UNIFY_SCRIPTS)) {
-            final Map<String, String> replaceMap = new HashMap<String, String>();
+            final Map<String, String> replaceMap = new HashMap<>();
             replaceMap.put(UNDERSCRIPT, SUBSCRIPT);
             replaceMap.put(OVERSCRIPT, SUPERSCRIPT);
             replaceMap.put(UNDEROVER, SUBSUP);
@@ -157,7 +158,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
 
     private void replaceDescendants(final Element ancestor, final Map<String, String> map) {
         assert ancestor != null && map != null;
-        final List<Element> toReplace = new ArrayList<Element>();
+        final List<Element> toReplace = new ArrayList<>();
         for (Element element : ancestor.getDescendants(new ElementFilter())) {
             if (map.containsKey(element.getName())) {
                 toReplace.add(element);
@@ -167,4 +168,5 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
             replaceElement(element, map.get(element.getName()));
         }
     }
+
 }
