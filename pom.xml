@@ -23,7 +23,7 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/michal-ruzicka/MathMLUnificator</url>
+        <url>https://github.com/michal-ruzicka/MathMLCan</url>
         <developerConnection>scm:git:https://github.com/michal-ruzicka/MathMLCan.git</developerConnection>
         <connection>scm:svn:https://github.com/michal-ruzicka/MathMLCan.git</connection>
     </scm>
