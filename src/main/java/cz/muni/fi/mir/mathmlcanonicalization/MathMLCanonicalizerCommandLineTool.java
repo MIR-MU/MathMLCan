@@ -16,16 +16,8 @@
 package cz.muni.fi.mir.mathmlcanonicalization;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +33,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -117,11 +110,15 @@ public final class MathMLCanonicalizerCommandLineTool {
 
             final List<String> arguments = Arrays.asList(line.getArgs());
             if (arguments.size() > 0) {
+
+                byte[] configContent = IOUtils.toByteArray(config);
+
                 for (String arg : arguments) {
                     try {
                         List<File> files = getFiles(new File(arg));
                         for (File file : files) {
-                            canonicalize(file, config, dtdInjectionMode, overwrite);
+                            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(configContent);
+                            canonicalize(file, byteArrayInputStream, dtdInjectionMode, overwrite);
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
