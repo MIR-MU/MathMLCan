@@ -128,6 +128,10 @@ public final class MathMLCanonicalizerCommandLineTool {
                 printHelp(options);
                 System.exit(0);
             }
+
+            if (config != null) {
+                config.close();
+            }
         }
     }
 
