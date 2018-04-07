@@ -26,12 +26,8 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
@@ -66,7 +62,7 @@ public final class MathMLCanonicalizerCommandLineTool {
         options.addOption("p", "print-default-config-file", false, "print default configuration that will be used if no config file is supplied");
         options.addOption("h", "help", false, "print help");
 
-        final CommandLineParser parser = new PosixParser();
+        final CommandLineParser parser = new DefaultParser();
         CommandLine line = null;
         try {
             line = parser.parse(options, args);
