@@ -41,7 +41,7 @@ import org.xml.sax.InputSource;
  */
 public class Settings {
 
-    private static final Logger log = Logger.getLogger(Settings.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
 
     // thread local which allow creation of factories only once per thread
     private static final ThreadLocal<XmlFactories> xmlFactories = new ThreadLocal<XmlFactories>() {
@@ -209,7 +209,7 @@ public class Settings {
         } catch (IOException e) {
             throw new ConfigError("Error while reading configuration");
         }
-        log.finer("canonicalizer properties loaded succesfully");
+        LOGGER.finer("canonicalizer properties loaded succesfully");
 
         return result;
     }

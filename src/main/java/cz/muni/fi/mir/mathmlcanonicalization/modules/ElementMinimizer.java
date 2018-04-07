@@ -52,6 +52,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
 
+    private static final Logger LOGGER = Logger.getLogger(ElementMinimizer.class.getName());
+
     private Set<String> removeWithChildren;
     private Set<String> removeKeepChildren;
 
@@ -81,8 +83,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         try {
             minimizeElements(input, output);
         } catch (XMLStreamException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "error while parsing the input file. ", ex);
+            LOGGER.log(Level.SEVERE, "error while parsing the input file. ", ex);
             throw new ModuleException("Error while parsing the input file", ex);
         }
         return output;

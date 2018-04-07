@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
 public final class MathMLCanonicalizerCommandLineTool {
 
     private static final String JARFILE = "mathml-canonicalizer.jar";
+    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName());
 
     // TODO: refactoring
     /**
@@ -79,7 +80,7 @@ public final class MathMLCanonicalizerCommandLineTool {
                 try {
                     config = new FileInputStream(line.getOptionValue('c'));
                 } catch (FileNotFoundException ex) {
-                    Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, null, ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                     System.exit(2);
                 }
             } else {
@@ -117,7 +118,7 @@ public final class MathMLCanonicalizerCommandLineTool {
                             canonicalize(file, byteArrayInputStream, dtdInjectionMode, overwrite);
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 }
             } else {
@@ -143,7 +144,7 @@ public final class MathMLCanonicalizerCommandLineTool {
         mlcan.setEnforcingXHTMLPlusMathMLDTD(dtdInjectionMode);
 
         if (overwrite) {
-            Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
+            LOGGER.log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
             ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
 
             mlcan.canonicalize(source, new FileOutputStream(file));
