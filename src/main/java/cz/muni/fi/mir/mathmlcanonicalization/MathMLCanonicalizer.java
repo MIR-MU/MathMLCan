@@ -93,10 +93,9 @@ public final class MathMLCanonicalizer {
             throw new NullPointerException("xmlConfigurationStream is null");
         }
         try {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(xmlConfigurationStream, baos);
-            validateXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
-            loadXMLConfiguration(new ByteArrayInputStream(baos.toByteArray()));
+            byte[] configContent = IOUtils.toByteArray(xmlConfigurationStream);
+            validateXMLConfiguration(new ByteArrayInputStream(configContent));
+            loadXMLConfiguration(new ByteArrayInputStream(configContent));
         } catch (XMLStreamException | IOException ex) {
             LOGGER.log(Level.SEVERE, "cannot load configuration. ", ex);
             throw new ConfigException("cannot load configuration", ex);
