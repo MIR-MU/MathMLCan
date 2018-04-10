@@ -18,6 +18,7 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -266,7 +267,7 @@ public final class MathMLCanonicalizerCommandLineTool {
 
         Writer stringWriter = new StringWriter();
         lsOutput.setCharacterStream(stringWriter);
-        lsOutput.setEncoding("UTF-8");
+        lsOutput.setEncoding(StandardCharsets.UTF_8.name());
 
         writer.write(document, lsOutput);
         writer.getDomConfig().setParameter("xml-declaration", true);

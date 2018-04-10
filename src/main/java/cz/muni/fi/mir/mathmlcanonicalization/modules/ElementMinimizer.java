@@ -19,6 +19,7 @@ import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -123,7 +124,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         // stream for reading event from input stream
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
         // stream that writes events to given output stream
-        final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
+        final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, StandardCharsets.UTF_8.name());
         writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
         // depth of current branch, used when removing element with all its children
         int depth = 0;

@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -53,7 +54,7 @@ public class MathMLCanonicalizerTest {
                 + " <property name=\"existing\">value</property>"
                 + " <property name=\"nonExisting\">value</property>"
                 + "</config>";
-        final InputStream configStream = new ByteArrayInputStream(config.getBytes("UTF-8"));
+        final InputStream configStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8));
 
         Settings.setProperty("existing", "");
 

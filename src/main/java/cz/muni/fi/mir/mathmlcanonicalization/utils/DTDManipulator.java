@@ -18,6 +18,7 @@ package cz.muni.fi.mir.mathmlcanonicalization.utils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -47,7 +48,7 @@ public class DTDManipulator {
      */
     public static InputStream injectXHTML11PlusMathML20PlusSVG11DTD(InputStream in) {
 
-        return new DoctypeInputStream(in, "UTF-8", "math", "xhtml-math11-f.dtd");
+        return new DoctypeInputStream(in, StandardCharsets.UTF_8.name(), "math", "xhtml-math11-f.dtd");
 
     }
 
@@ -61,7 +62,7 @@ public class DTDManipulator {
      */
     public static InputStream injectMathML20DTD(InputStream in) {
 
-        return new DoctypeInputStream(in, "UTF-8", "math", "mathml2.dtd");
+        return new DoctypeInputStream(in, StandardCharsets.UTF_8.name(), "math", "mathml2.dtd");
 
     }
 
@@ -75,7 +76,7 @@ public class DTDManipulator {
      */
     public static InputStream injectMathML30DTD(InputStream in) {
 
-        return new DoctypeInputStream(in, "UTF-8", "math", "mathml3.dtd");
+        return new DoctypeInputStream(in, StandardCharsets.UTF_8.name(), "math", "mathml3.dtd");
 
     }
 
@@ -98,7 +99,7 @@ public class DTDManipulator {
 
         XMLEventReader reader = Settings.defaultXmlInputFactory().createXMLEventReader(in);
         ByteArrayOutputStream noDtdOutputStream = new ByteArrayOutputStream();
-        XMLEventWriter writer = Settings.xmlOutputFactory().createXMLEventWriter(noDtdOutputStream, "UTF-8");
+        XMLEventWriter writer = Settings.xmlOutputFactory().createXMLEventWriter(noDtdOutputStream, StandardCharsets.UTF_8.name());
 
         while (reader.hasNext()) {
             XMLEvent event = (XMLEvent) reader.next();
