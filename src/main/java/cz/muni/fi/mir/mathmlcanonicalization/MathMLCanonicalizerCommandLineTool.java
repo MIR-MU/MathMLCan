@@ -84,7 +84,7 @@ public final class MathMLCanonicalizerCommandLineTool {
         if (line != null) {
             if (line.hasOption(OPTION_CONFIG)) {
                 try {
-                    config = new FileInputStream(line.getOptionValue('c'));
+                    config = new FileInputStream(line.getOptionValue(OPTION_CONFIG));
                 } catch (FileNotFoundException ex) {
                     LOGGER.log(Level.SEVERE, null, ex);
                     System.exit(2);
