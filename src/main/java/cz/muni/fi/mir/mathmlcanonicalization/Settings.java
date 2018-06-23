@@ -42,39 +42,15 @@ import org.xml.sax.InputSource;
 public class Settings {
 
     private static final Logger log = Logger.getLogger(Settings.class.getName());
-    
-    // thread locals which allow creation of factories only once per thread
-    
-    private static final ThreadLocal<XMLInputFactory> xmlInputFactory = new ThreadLocal<XMLInputFactory>() {
-        protected XMLInputFactory initialValue() {
-            return createXmlInputFactory();
+
+    // thread local which allow creation of factories only once per thread
+    private static final ThreadLocal<XmlFactories> xmlFactories = new ThreadLocal<XmlFactories>() {
+        @Override
+        protected XmlFactories initialValue() {
+            return new XmlFactories();
         }
     };
 
-    private static final ThreadLocal<XMLInputFactory> defaultXmlInputFactory = new ThreadLocal<XMLInputFactory>() {
-        protected XMLInputFactory initialValue() {
-            return XMLInputFactory.newInstance();
-        }
-    };
-    
-    private static final ThreadLocal<XMLOutputFactory> xmlOutputFactory = new ThreadLocal<XMLOutputFactory>() {
-        protected XMLOutputFactory initialValue() {
-            return XMLOutputFactory.newInstance();
-        }
-    };
-    
-    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = new ThreadLocal<DocumentBuilderFactory>() {
-        protected DocumentBuilderFactory initialValue() {
-            return DocumentBuilderFactory.newInstance();
-        }
-    };
-
-    private static final ThreadLocal<SchemaFactory> xmlSchemaFactory = new ThreadLocal<SchemaFactory>() {
-        protected SchemaFactory initialValue() {
-            return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        }
-    };
-    
     /**
      * Path to the property file with canonicalizer settings.
      */
@@ -83,7 +59,7 @@ public class Settings {
      * Name of the property containing path to the MathML DTD
      */
     private static final String XHTMLPlusMATHMLPlusSVGDTD = "dtdXHTMLPlusMathMLPlusSVG";
-    
+
     private static final Properties PROPERTIES = readConfiguration();
 
     /**
@@ -136,90 +112,59 @@ public class Settings {
 
     /**
      * Sets properties desired for MathML normalization purpose
+     *
      * NB: this method creates factory only once per thread
+     *
      * @return initialized XMLInputFactory instance
      */
     public static XMLInputFactory setupXMLInputFactory() {
-        return xmlInputFactory.get();
+        return xmlFactories.get().getXmlInputFactory();
     }
 
     /**
      * Returns XMLInputFactory instance with default configuration.
+     *
      * NB: setupXMLInputFactory returns different factory customized for MathML
      * NB: this method creates factory only once per thread
      */
     public static XMLInputFactory defaultXmlInputFactory() {
-        return defaultXmlInputFactory.get();
+        return xmlFactories.get().getDefaultXmlInputFactory();
     }
-    
+
     /**
      * Returns XMLOutputFactory instance with default configuration.
+     *
      * NB: this method creates factory only once per thread
      */
     public static XMLOutputFactory xmlOutputFactory() {
-        return xmlOutputFactory.get();
+        return xmlFactories.get().getXmlOutputFactory();
     }
-    
+
     /**
      * Returns DocumentBuilderFactory instance with default configuration.
+     *
      * NB: this method creates factory only once per thread
      */
     public static DocumentBuilderFactory documentBuilderFactory() {
-        return documentBuilderFactory.get();
+        return xmlFactories.get().getDocumentBuilderFactory();
     }
-    
+
     /**
      * Returns SchemaFactory instance dedicated to XML W3C Schema.
+     *
      * NB: this method creates factory only once per thread
      */
     public static SchemaFactory xmlSchemaFactory() {
-        return xmlSchemaFactory.get();
-    }
-    
-    private static XMLInputFactory createXmlInputFactory() throws FactoryConfigurationError {
-        final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
-        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
-        inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-        inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, true);
-        inputFactory.setProperty(XMLInputFactory.RESOLVER, new XMLResolver() {
-            @Override
-            public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) {
-                if (systemID.endsWith("dtd")) {
-                    return getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD);
-                }
-                return null;
-            }
-        });
-        return inputFactory;
+        return xmlFactories.get().getXmlSchemaFactory();
     }
 
     /**
-     * Sets properties desired for MathML normalization purpose
+     * Returns SAXBuilder dedicated for MathML normalization
      *
-     * @return initialized SAXBuilder instance
+     * NB: this method creates factory only once per thread
      */
     public static SAXBuilder setupSAXBuilder() {
-        final SAXBuilder builder = new SAXBuilder();
-        builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
-        builder.setFeature("http://xml.org/sax/features/validation", false);
-        builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
-        builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", true);
-        builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
-        builder.setEntityResolver(new EntityResolver() {
-            @Override
-            public InputSource resolveEntity(String publicId, String systemId) {
-                if (publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN")
-                        || publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN")
-                        || systemId.endsWith("xhtml-math11-f.dtd")) {
-                    return new InputSource( getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD) );
-                }
-                return null;
-            }
-        });
-
-        return builder;
+        return xmlFactories.get().getSaxBuilder();
     }
 
     /**
@@ -234,10 +179,10 @@ public class Settings {
         }
         return result;
     }
-    
+
     /**
      * Returns stream of classpath resource defined by specified property
-     */    
+     */
     public static InputStream getStreamFromProperty(String property) {
         try {
             return getResourceFromProperty(property).openStream();
@@ -246,27 +191,104 @@ public class Settings {
                     + " could not be read", e);
         }
     }
-    
+
     private Settings() {
         assert false;
     }
-    
+
     private static Properties readConfiguration() throws ConfigError {
         Properties result = new Properties();
-        
+
         final InputStream resourceAsStream = Settings.class.getResourceAsStream(PROPERTIES_FILENAME);
         if (resourceAsStream == null) {
             throw new ConfigError("cannot find property file " + PROPERTIES_FILENAME);
         }
-        
+
         try {
             result.load(resourceAsStream);
         } catch (IOException e) {
             throw new ConfigError("Error while reading configuration");
         }
         log.finer("canonicalizer properties loaded succesfully");
-        
+
         return result;
     }
-    
+
+    // single container for XML factories
+    private static class XmlFactories {
+
+        private final SAXBuilder saxBuilder = createSaxBuilder();
+        private final XMLInputFactory xmlInputFactory = createXmlInputFactory();
+        private final XMLInputFactory defaultXmlInputFactory = XMLInputFactory.newInstance();
+        private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+        private final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        private final SchemaFactory xmlSchemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+        public SAXBuilder getSaxBuilder() {
+            return saxBuilder;
+        }
+
+        public XMLInputFactory getXmlInputFactory() {
+            return xmlInputFactory;
+        }
+
+        public XMLInputFactory getDefaultXmlInputFactory() {
+            return defaultXmlInputFactory;
+        }
+
+        public XMLOutputFactory getXmlOutputFactory() {
+            return xmlOutputFactory;
+        }
+
+        public DocumentBuilderFactory getDocumentBuilderFactory() {
+            return documentBuilderFactory;
+        }
+
+        public SchemaFactory getXmlSchemaFactory() {
+            return xmlSchemaFactory;
+        }
+
+        private static SAXBuilder createSaxBuilder() {
+            final SAXBuilder builder = new SAXBuilder();
+            builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
+            builder.setFeature("http://xml.org/sax/features/validation", false);
+            builder.setFeature("http://xml.org/sax/features/external-general-entities", true);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", true);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
+            builder.setEntityResolver(new EntityResolver() {
+                @Override
+                public InputSource resolveEntity(String publicId, String systemId) {
+                    if (publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN")
+                            || publicId.equalsIgnoreCase("-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN")
+                            || systemId.endsWith("xhtml-math11-f.dtd")) {
+                        return new InputSource(getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD));
+                    }
+                    return null;
+                }
+            });
+
+            return builder;
+        }
+
+        private static XMLInputFactory createXmlInputFactory() throws FactoryConfigurationError {
+            final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
+            inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
+            inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+            inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, true);
+            inputFactory.setProperty(XMLInputFactory.RESOLVER, new XMLResolver() {
+                @Override
+                public Object resolveEntity(String publicID, String systemID, String baseURI, String namespace) {
+                    if (systemID.endsWith("dtd")) {
+                        return getStreamFromProperty(XHTMLPlusMATHMLPlusSVGDTD);
+                    }
+                    return null;
+                }
+            });
+            return inputFactory;
+        }
+
+    }
+
 }

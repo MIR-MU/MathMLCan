@@ -62,4 +62,5 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     public void testAttributes() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "attributes");
     }
+
 }

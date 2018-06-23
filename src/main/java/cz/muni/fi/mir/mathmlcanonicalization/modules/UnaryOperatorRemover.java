@@ -26,8 +26,7 @@ import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
 /**
- * Removes unary operators, i.e.
- * <code>//mo[count(preceding-sibling::*) = 0]</code>.
+ * Removes unary operators, i.e. {@code //mo[count(preceding-sibling::*) = 0]}.
  *
  * <p>
  * <span class="simpleTagLabel">Input</span>
@@ -39,36 +38,36 @@ import org.jdom2.xpath.XPathFactory;
  * The original code with all unatry operators removed
  * </p>
  * <span class="simpleTagLabel">Example Input</span>
- * <pre>
- * &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
- * &lt;math&gt;
- *   &lt;mrow&gt;
- *     <strong>&lt;mo&gt;-&lt;/mo&gt;</strong>
- *     &lt;mi&gt;E&lt;/mi&gt;
- *     &lt;mo&gt;=&lt;/mo&gt;
- *     &lt;mi&gt;m&lt;/mi&gt;
- *     &lt;msup&gt;
- *       &lt;mi&gt;c&lt;/mi&gt;
- *       &lt;mn&gt;2&lt;/mn&gt;
- *     &lt;/msup&gt;
- *   &lt;/mrow&gt;
- * &lt;/math&gt;
- * </pre>
+ * <pre>{@code
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <math>
+ *   <mrow>
+ *     }<strong>{@code <mo>-</mo>}</strong>{@code
+ *     <mi>E</mi>
+ *     <mo>=</mo>
+ *     <mi>m</mi>
+ *     <msup>
+ *       <mi>c</mi>
+ *       <mn>2</mn>
+ *     </msup>
+ *   </mrow>
+ * </math>
+ * }</pre>
  * <span class="simpleTagLabel">Example Output</span>
- * <pre>
- * &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
- * &lt;math&gt;
- *   &lt;mrow&gt;
- *     &lt;mi&gt;E&lt;/mi&gt;
- *     &lt;mo&gt;=&lt;/mo&gt;
- *     &lt;mi&gt;m&lt;/mi&gt;
- *     &lt;msup&gt;
- *       &lt;mi&gt;c&lt;/mi&gt;
- *       &lt;mn&gt;2&lt;/mn&gt;
- *     &lt;/msup&gt;
- *   &lt;/mrow&gt;
- * &lt;/math&gt;
- * </pre>
+ * <pre>{@code
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <math>
+ *   <mrow>
+ *     <mi>E</mi>
+ *     <mo>=</mo>
+ *     <mi>m</mi>
+ *     <msup>
+ *       <mi>c</mi>
+ *       <mn>2</mn>
+ *     </msup>
+ *   </mrow>
+ * </math>
+ * }</pre>
  *
  * @author Michal Růžička
  */

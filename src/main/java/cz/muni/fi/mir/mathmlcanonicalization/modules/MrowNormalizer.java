@@ -34,22 +34,24 @@ import org.jdom2.Parent;
  * The original code with changes in mrow elements:<ul>
  * <li>added mrow elements to places, where detected fenced formulae (and not
  * already encapsulated in mrow)</li>
- * <li>removed redundant mrow elements in unneeded grouping - e.q. parents
+ * <li>removed redundant mrow elements in unneeded grouping – e.q. parents
  * requiring only one child element accept any number of elements so the mrow
  * tag is not needed (see example) or grouping with only presentation purpose
  * </li></ul>
- * <div class="simpleTagLabel">Example</div><pre>
- * &lt;msqrt&gt;
- *     &lt;mrow&gt;
- *         &lt;mo&gt;-&lt;/mo&gt;
- *         &lt;mn&gt;1&lt;/mn&gt;
- *     &lt;/mrow&gt;
- * &lt;/msqrt&gt;</pre> is transformed to<pre>
- * &lt;msqrt&gt;
- *     &lt;mo&gt;-&lt;/mo&gt;
- *     &lt;mn&gt;1&lt;/mn&gt;
- * &lt;/msqrt&gt;
- * </pre>
+ * <div class="simpleTagLabel">Example</div>
+ * <pre>{@code
+ * <msqrt>
+ *     <mrow>
+ *         <mo>-</mo>
+ *         <mn>1</mn>
+ *     </mrow>
+ * </msqrt>}</pre> is transformed to
+ * <pre>{@code
+ * <msqrt>
+ *     <mo>-</mo>
+ *     <mn>1</mn>
+ * </msqrt>
+ * }</pre>
  *
  * @author Jakub Adler
  */
@@ -104,7 +106,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void traverseAddition(final Element element) {
         assert element != null;
-        final List<Element> children = new ArrayList<Element>(element.getChildren());
+        final List<Element> children = new ArrayList<>(element.getChildren());
         for (Element child : children) {
             traverseAddition(child);
         }
@@ -118,7 +120,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void traverseRemoval(final Element element) {
         assert element != null;
-        final List<Element> children = new ArrayList<Element>(element.getChildren());
+        final List<Element> children = new ArrayList<>(element.getChildren());
         for (Element child : children) {
             traverseRemoval(child);
         }
@@ -267,7 +269,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             int nesting = 0;
 
             // list of elements inside parentheses
-            final List<Element> fenced = new ArrayList<Element>();
+            final List<Element> fenced = new ArrayList<>();
 
             for (int i = siblings.indexOf(element) + 1; i < siblings.size(); i++) {
                 final Element current = siblings.get(i);
@@ -287,4 +289,5 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             }
         }
     }
+
 }

@@ -64,9 +64,10 @@ public class OperatorNormalizerTest extends AbstractModuleTest {
     public void testIdentifierReplacing() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "identifier-replacement");
     }
-    
+
     @Test
     public void testOperators2identifiers() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "operator2identifier");
     }
+
 }

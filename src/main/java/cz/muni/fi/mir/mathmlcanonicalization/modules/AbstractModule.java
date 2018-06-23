@@ -32,7 +32,7 @@ import org.jdom2.Namespace;
  * @author David Formanek
  */
 abstract class AbstractModule implements Module {
-    
+
     protected final Properties properties = new Properties();
     private static final Logger LOGGER = Logger.getLogger(AbstractModule.class.getName());
     protected static final Namespace MATHMLNS = Namespace.getNamespace("http://www.w3.org/1998/Math/MathML");
@@ -48,7 +48,7 @@ abstract class AbstractModule implements Module {
     protected static final String SUBSUP = "msubsup";
     protected static final String UNDEROVER = "munderover";
     protected static final String UNDERSCRIPT = "munder";
-    
+
     @Override
     public String getProperty(String key) {
         if (key == null) {
@@ -60,7 +60,7 @@ abstract class AbstractModule implements Module {
         }
         return property;
     }
-    
+
     @Override
     public boolean isProperty(String key) {
         if (key == null) {
@@ -68,7 +68,7 @@ abstract class AbstractModule implements Module {
         }
         return properties.getProperty(key) != null;
     }
-    
+
     @Override
     public void setProperty(String key, String value) {
         if (key == null) {
@@ -79,16 +79,16 @@ abstract class AbstractModule implements Module {
         }
         properties.setProperty(key, value);
     }
-    
+
     public void declareProperty(String key) {
         properties.setProperty(key, "");
     }
-    
+
     @Override
     public Set<String> getPropertyNames() {
         return properties.stringPropertyNames();
     }
-    
+
     protected boolean isEnabled(String key) {
         assert key != null;
         if (properties.getProperty(key).equals("1")
@@ -102,21 +102,21 @@ abstract class AbstractModule implements Module {
         throw new IllegalArgumentException("'" + properties.getProperty(key)
                 + "' is not a valid boolean value of " + key);
     }
-    
+
     protected Set<String> getPropertySet(final String property) {
         assert property != null && !property.isEmpty();
-        return new HashSet<String>(Arrays.asList(getProperty(property).split(" ")));
+        return new HashSet<>(Arrays.asList(getProperty(property).split(" ")));
     }
-    
+
     protected boolean isOperator(final Element element, final String operator) {
         return isOperator(element) && element.getTextTrim().equals(operator);
     }
-    
+
     protected boolean isOperator(final Element element) {
         assert element != null;
         return element.getName().equals(OPERATOR);
     }
-    
+
     protected void replaceElement(final Element toReplace, final String replacementName) {
         assert toReplace != null && replacementName != null;
         assert !replacementName.isEmpty();
@@ -135,4 +135,5 @@ abstract class AbstractModule implements Module {
         LOGGER.log(Level.FINE, "{0} replaced with {1}",
                 new Object[]{toReplace, replacementName});
     }
+
 }

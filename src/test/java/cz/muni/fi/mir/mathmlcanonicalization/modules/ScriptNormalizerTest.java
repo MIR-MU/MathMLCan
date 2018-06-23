@@ -64,4 +64,5 @@ public class ScriptNormalizerTest extends AbstractModuleTest {
     public void testUnderOver() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "underover");
     }
+
 }

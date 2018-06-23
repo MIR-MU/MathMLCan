@@ -28,29 +28,33 @@ import org.jdom2.filter.ElementFilter;
  * Replace mfenced elements in MathML for equivalent.
  *
  * <div class="simpleTagLabel">Input</div>
- * Well-formed MathML, preserved non-default attributes in &lt;mfenced&gt; tags,
- * not processed by MrowMinimizer yet
+ * Well-formed MathML, preserved non-default attributes in {@code <mfenced>}
+ * tags, not processed by MrowMinimizer yet
  * <div class="simpleTagLabel">Output</div>
- * The original code containing no &lt;mfenced&gt; elements, originally fenced
- * formulae are enclosed in &lt;mrow&gt; tag, contain delimiters and separators
- * (from &lt;mfenced&gt; attributes) in &lt;mo&gt; elements, inner content is
- * placed into another &lt;mrow&gt; element. Module can be configured not to add
- * mrow outside and inside or your own fixed or default parentheses and
- * separators for fenced expressions can be specified.
+ * The original code containing no {@code <mfenced>} elements, originally fenced
+ * formulae are enclosed in {@code <mrow>} tag, contain delimiters and
+ * separators (from {@code <mfenced>} attributes) in {@code <mo>} elements,
+ * inner content is placed into another {@code <mrow>} element. Module can be
+ * configured not to add mrow outside and inside or your own fixed or default
+ * parentheses and separators for fenced expressions can be specified.
  * <div class="simpleTagLabel">Example</div>
- * <pre> &lt;mfenced open="["&gt;
- *     &lt;mi&gt;x&lt;mi&gt;
- *     &lt;mi&gt;y&lt;mi&gt;
- * &lt;/mfenced&gt;</pre> is transformed to<pre>
- * &lt;mrow&gt;
- *     &lt;mo&gt;[&lt;/mo&gt;
- *     &lt;mrow&gt;
- *         &lt;mi&gt;x&lt;mi&gt;
- *         &lt;mo&gt;,&lt;/mo&gt;
- *         &lt;mi&gt;y&lt;mi&gt;
- *     &lt;/mrow&gt;
- *     &lt;mo&gt;)&lt;/mo&gt;
- * &lt;/mrow&gt;</pre>
+ * <pre>{@code
+ * <mfenced open="[">
+ *   <mi>x<mi>
+ *   <mi>y<mi>
+ * </mfenced>
+ * }</pre> is transformed to
+ * <pre>{@code
+ * <mrow>
+ *     <mo>[</mo>
+ *     <mrow>
+ *         <mi>x<mi>
+ *         <mo>,</mo>
+ *         <mi>y<mi>
+ *     </mrow>
+ *     <mo>)</mo>
+ * </mrow>
+ * }</pre>
  *
  * @author David Formanek
  */
@@ -87,7 +91,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        final List<Element> toReplace = new ArrayList<Element>();
+        final List<Element> toReplace = new ArrayList<>();
         for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED, MATHMLNS))) {
             toReplace.add(mfenced);
         }
@@ -174,4 +178,5 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         return element.getAttributeValue(SEPARATORS,
                 getProperty(DEFAULT_SEPARATORS)).trim().toCharArray();
     }
+
 }

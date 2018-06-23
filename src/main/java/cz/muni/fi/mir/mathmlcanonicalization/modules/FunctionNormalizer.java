@@ -30,8 +30,9 @@ import org.jdom2.Element;
  * <ul>
  * <li>removed entities for function application (and multiplying where it
  * should not be)</li>
- * <li>the name of function placed in &lt;mi&gt; element (not &lt;mo&gt;)</li>
- * <li>function arguments placed in parentheses and &lt;mrow&gt;</li>
+ * <li>the name of function placed in {@code <mi>} element (not
+ * {@code <mo>})</li>
+ * <li>function arguments placed in parentheses and {@code <mrow>}</li>
  * </ul>
  *
  * @author Jaroslav Dufek
@@ -142,4 +143,5 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
         }
         return false;
     }
+
 }

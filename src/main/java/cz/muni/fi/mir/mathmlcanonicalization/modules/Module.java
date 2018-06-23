@@ -55,4 +55,5 @@ public interface Module {
      * @return the module property names of type String
      */
     public Set<String> getPropertyNames();
+
 }

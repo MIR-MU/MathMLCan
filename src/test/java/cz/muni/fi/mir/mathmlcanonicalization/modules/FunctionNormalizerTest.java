@@ -32,7 +32,7 @@ public class FunctionNormalizerTest extends AbstractModuleTest {
     public static void setUpBeforeClass() {
         DEFAULT_INSTANCE.setProperty("functionoperators", "\u2061");
     }
-    
+
     @Test
     public void testFunction() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "function");
@@ -52,4 +52,5 @@ public class FunctionNormalizerTest extends AbstractModuleTest {
     public void testSine() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "sin");
     }
+
 }
