@@ -13,7 +13,7 @@ See the project [wiki][] for more information.
 
  [mathmlcan]: https://mir.fi.muni.cz/mathml-normalization/#mathml-canonicalizer
  [mias]: https://github.com/MIR-MU/MIaS
- [wiki]: https://github.com/michal-ruzicka/MathMLCan/wiki
+ [wiki]: https://github.com/MIR-MU/MathMLCan/wiki
 
 Citing MathMLCan
 ================
