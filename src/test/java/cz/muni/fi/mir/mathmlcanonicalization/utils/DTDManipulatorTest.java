@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
@@ -51,10 +52,10 @@ public class DTDManipulatorTest {
         InputStream result = DTDManipulator.injectXHTML11PlusMathML20PlusSVG11DTD(in);
 
         StringWriter resultWriter = new StringWriter();
-        IOUtils.copy(result, resultWriter);
+        IOUtils.copy(result, resultWriter, StandardCharsets.UTF_8);
         String resultString = resultWriter.toString();
         StringWriter expResultWriter = new StringWriter();
-        IOUtils.copy(expResult, expResultWriter);
+        IOUtils.copy(expResult, expResultWriter, StandardCharsets.UTF_8);
         String expResultString = expResultWriter.toString();
 
         assertEquals("DTD not properly injected", expResultString, resultString);
