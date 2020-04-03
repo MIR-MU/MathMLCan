@@ -32,10 +32,6 @@ public class ModuleTestResources {
      * Test resources relative to this class package.
      */
     private static final String[] TEST_RESOURCES = {
-        "ElementMinimizerTest/attributes.original.xml",
-        "ElementMinimizerTest/comments.original.xml",
-        "ElementMinimizerTest/mfrac.original.xml",
-        "ElementMinimizerTest/mphantom.original.xml",
         "FunctionNormalizerTest/function2.original.xml",
         "FunctionNormalizerTest/function3.original.xml",
         "FunctionNormalizerTest/function.original.xml",
