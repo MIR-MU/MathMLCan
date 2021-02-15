@@ -1,0 +1,19 @@
+name: Build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  MathMLCan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '8'
+    - uses: actions/checkout@v2
+    - run: mvn clean install
+    - run: mvn integration-test
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MathMLCan
+        path: .
