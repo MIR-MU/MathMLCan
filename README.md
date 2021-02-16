@@ -1,8 +1,8 @@
 MathMLCan – Canonicalization of different MathML encodings of equivalent formulae
 =================================================================================
-[![CircleCI](https://circleci.com/gh/MIR-MU/MathMLCan/tree/master.svg?style=shield)][ci]
+[![ci](https://github.com/MIR-MU/MathMLCan/workflows/Build/badge.svg)][ci]
 
- [ci]: https://circleci.com/gh/MIR-MU/MathMLCan/tree/master (CircleCI)
+ [ci]: https://github.com/MIR-MU/MathMLCan/actions (GitHub Actions)
 
 [MathMLCan][] is a tool which performs canonicalization of mathematical
 expressions written in MathML. It is being primary developed to meet the needs
