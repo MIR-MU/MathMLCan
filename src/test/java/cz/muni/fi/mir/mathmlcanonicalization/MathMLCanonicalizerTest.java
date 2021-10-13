@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -40,7 +41,7 @@ public class MathMLCanonicalizerTest {
 
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-    private static final Logger log = Logger.getLogger(MathMLCanonicalizerTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizerTest.class.getName());
 
     public MathMLCanonicalizerTest() {
     }
@@ -53,7 +54,7 @@ public class MathMLCanonicalizerTest {
                 + " <property name=\"existing\">value</property>"
                 + " <property name=\"nonExisting\">value</property>"
                 + "</config>";
-        final InputStream configStream = new ByteArrayInputStream(config.getBytes("UTF-8"));
+        final InputStream configStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8));
 
         Settings.setProperty("existing", "");
 
@@ -92,12 +93,12 @@ public class MathMLCanonicalizerTest {
             }
 
             if (i % 1000 == 0) {
-                log.info(i + " tests performed...");
+                LOGGER.info(i + " tests performed...");
             }
         }
 
         long time = System.currentTimeMillis() - start;
-        log.info("Stress test finished in " + time + "ms");
+        LOGGER.info("Stress test finished in " + time + "ms");
     }
 
 }

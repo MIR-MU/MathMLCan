@@ -19,6 +19,7 @@ import cz.muni.fi.mir.mathmlcanonicalization.Settings;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class ElementMinimizer extends AbstractModule implements StreamModule {
 
+    private static final Logger LOGGER = Logger.getLogger(ElementMinimizer.class.getName());
+
     private Set<String> removeWithChildren;
     private Set<String> removeKeepChildren;
 
@@ -81,8 +84,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         try {
             minimizeElements(input, output);
         } catch (XMLStreamException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "error while parsing the input file. ", ex);
+            LOGGER.log(Level.SEVERE, "error while parsing the input file. ", ex);
             throw new ModuleException("Error while parsing the input file", ex);
         }
         return output;
@@ -122,7 +124,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
         // stream for reading event from input stream
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
         // stream that writes events to given output stream
-        final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, "UTF-8");
+        final XMLStreamWriter writer = outputFactory.createXMLStreamWriter(outputStream, StandardCharsets.UTF_8.name());
         writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
         // depth of current branch, used when removing element with all its children
         int depth = 0;

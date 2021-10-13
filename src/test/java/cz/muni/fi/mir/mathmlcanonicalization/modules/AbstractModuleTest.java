@@ -114,8 +114,7 @@ abstract class AbstractModuleTest {
             }
             return getInputStream(output);
         } catch (ModuleException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "cannot execute the module", ex);
+            LOGGER.log(Level.SEVERE, "cannot execute the module", ex);
             return null;
         }
     }
@@ -130,14 +129,11 @@ abstract class AbstractModuleTest {
             instance.execute(doc);
             serializer.output(doc, output);
         } catch (JDOMException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "cannot build document", ex);
+            LOGGER.log(Level.SEVERE, "cannot build document", ex);
         } catch (IOException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "cannot convert between stream and DOM", ex);
+            LOGGER.log(Level.SEVERE, "cannot convert between stream and DOM", ex);
         } catch (ModuleException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.SEVERE, "cannot execute the module", ex);
+            LOGGER.log(Level.SEVERE, "cannot execute the module", ex);
         }
         if (shouldPrint) {
             printDocument(output, "Output of " + instance);
@@ -163,8 +159,7 @@ abstract class AbstractModuleTest {
         try {
             output.writeTo(System.out);
         } catch (IOException ex) {
-            Logger.getLogger(this.getClass().getName()).log(
-                    Level.WARNING, "cannot print result", ex);
+            LOGGER.log(Level.WARNING, "cannot print result", ex);
         }
         System.out.println("--------------------");
         System.out.println();

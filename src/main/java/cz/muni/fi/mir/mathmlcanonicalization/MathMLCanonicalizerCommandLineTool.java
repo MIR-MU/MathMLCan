@@ -16,16 +16,9 @@
 package cz.muni.fi.mir.mathmlcanonicalization;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,13 +27,10 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -58,6 +48,18 @@ import org.xml.sax.SAXException;
 public final class MathMLCanonicalizerCommandLineTool {
 
     private static final String JARFILE = "mathml-canonicalizer.jar";
+    private static final Logger LOGGER = Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName());
+
+    private static final String OPTION_CONFIG = "c";
+    private static final String OPTION_CONFIG_LONG = "config-file";
+    private static final String OPTION_INJECTION = "d";
+    private static final String OPTION_INJECTION_LONG = "inject-xhtml-mathml-svg-dtd";
+    private static final String OPTION_OVERWRITE = "w";
+    private static final String OPTION_OVERWRITE_LONG = "overwrite-inputs";
+    private static final String OPTION_PRINT_DEFAULT_CONFIG = "p";
+    private static final String OPTION_PRINT_DEFAULT_CONFIG_LONG = "print-default-config-file";
+    private static final String OPTION_HELP = "h";
+    private static final String OPTION_HELP_LONG = "help";
 
     // TODO: refactoring
     /**
@@ -66,14 +68,8 @@ public final class MathMLCanonicalizerCommandLineTool {
      * occurs
      */
     public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException {
-        final Options options = new Options();
-        options.addOption("c", "config-file", true, "load configuration file");
-        options.addOption("d", "inject-xhtml-mathml-svg-dtd", false, "enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents");
-        options.addOption("w", "overwrite-inputs", false, "overwrite input files by canonical outputs");
-        options.addOption("p", "print-default-config-file", false, "print default configuration that will be used if no config file is supplied");
-        options.addOption("h", "help", false, "print help");
-
-        final CommandLineParser parser = new PosixParser();
+        final Options options = createOptions();
+        final CommandLineParser parser = new DefaultParser();
         CommandLine line = null;
         try {
             line = parser.parse(options, args);
@@ -86,52 +82,107 @@ public final class MathMLCanonicalizerCommandLineTool {
         boolean overwrite = false;
         boolean dtdInjectionMode = false;
         if (line != null) {
-            if (line.hasOption('c')) {
+            if (line.hasOption(OPTION_CONFIG)) {
                 try {
-                    config = new FileInputStream(line.getOptionValue('c'));
+                    config = new FileInputStream(line.getOptionValue(OPTION_CONFIG));
                 } catch (FileNotFoundException ex) {
-                    Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, null, ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                     System.exit(2);
                 }
             } else {
                 config = Settings.getStreamFromProperty("defaultConfig");
             }
 
-            if (line.hasOption('d')) {
+            if (line.hasOption(OPTION_INJECTION)) {
                 dtdInjectionMode = true;
             }
 
-            if (line.hasOption('w')) {
+            if (line.hasOption(OPTION_OVERWRITE)) {
                 overwrite = true;
             }
 
-            if (line.hasOption('p')) {
+            if (line.hasOption(OPTION_PRINT_DEFAULT_CONFIG)) {
                 printDefaultConfig();
                 System.exit(0);
             }
 
-            if (line.hasOption('h')) {
+            if (line.hasOption(OPTION_HELP)) {
                 printHelp(options);
                 System.exit(0);
             }
 
             final List<String> arguments = Arrays.asList(line.getArgs());
             if (arguments.size() > 0) {
+
+                byte[] configContent = IOUtils.toByteArray(config);
+
                 for (String arg : arguments) {
                     try {
                         List<File> files = getFiles(new File(arg));
                         for (File file : files) {
-                            canonicalize(file, config, dtdInjectionMode, overwrite);
+                            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(configContent);
+                            canonicalize(file, byteArrayInputStream, dtdInjectionMode, overwrite);
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 }
             } else {
                 printHelp(options);
                 System.exit(0);
             }
+
+            if (config != null) {
+                config.close();
+            }
         }
+    }
+
+    private static Options createOptions() {
+        Options options = new Options();
+
+        options.addOption(Option
+                .builder(OPTION_CONFIG)
+                .longOpt(OPTION_CONFIG_LONG)
+                .desc("Load configuration file.")
+                .argName("arg")
+                .hasArg()
+                .build()
+        );
+
+        options.addOption(Option
+                .builder(OPTION_INJECTION)
+                .longOpt(OPTION_INJECTION_LONG)
+                .desc("Enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents.")
+                .hasArg(false)
+                .build()
+        );
+
+        options.addOption(Option
+                .builder(OPTION_OVERWRITE)
+                .longOpt(OPTION_OVERWRITE_LONG)
+                .desc("Overwrite input files by produced canonical outputs.")
+                .hasArg(false)
+                .build()
+        );
+
+        options.addOption(Option
+                .builder(OPTION_PRINT_DEFAULT_CONFIG)
+                .longOpt(OPTION_PRINT_DEFAULT_CONFIG_LONG)
+                .desc("Print default configuration that will be used if no config file is supplied.")
+                .hasArg(false)
+                .build()
+        );
+
+        options.addOption(Option
+                .builder(OPTION_HELP)
+                .longOpt(OPTION_HELP_LONG)
+                .desc("Print help (this screen).")
+                .hasArg(false)
+                .build()
+        );
+
+        return options;
     }
 
     private static void canonicalize(File file, InputStream config, boolean dtdInjectionMode, boolean overwrite) throws
@@ -146,7 +197,7 @@ public final class MathMLCanonicalizerCommandLineTool {
         mlcan.setEnforcingXHTMLPlusMathMLDTD(dtdInjectionMode);
 
         if (overwrite) {
-            Logger.getLogger(MathMLCanonicalizerCommandLineTool.class.getName()).log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
+            LOGGER.log(Level.INFO, "overwriting the file {0}", file.getAbsolutePath());
             ByteArrayInputStream source = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
 
             mlcan.canonicalize(source, new FileOutputStream(file));
@@ -176,15 +227,32 @@ public final class MathMLCanonicalizerCommandLineTool {
      *
      */
     private static void printHelp(Options options) {
-        System.err.println("Usage:");
-        System.err.println("\tjava -jar " + JARFILE
-                + " [ -c /path/to/config.xml ] [ -w ] [ -d ]"
-                + " { /path/to/input.xhtml | /path/to/directory [ | ... ] }");
-        System.err.println("\tjava -jar " + JARFILE + " -p");
-        System.err.println("\tjava -jar " + JARFILE + " -h");
-        System.err.println("Options:");
+        final String RUN_JAR = "java -jar";
+        final String PATH_TO_CONFIG = "/path/to/config.xml";
+        final String PATH_TO_FILE = "/path/to/file.xhtml";
+        final String PATH_TO_DIR = "/path/to/directory";
+        final String PATH = "/path/to/input";
+
+        PrintWriter output = new PrintWriter(System.out, true);
+
+        output.println("Usage:");
+        output.printf("\t%s %s [ -%s <%s> ] [ -%s ] [ -%s ] <%s>...\n",
+                RUN_JAR, JARFILE,
+                OPTION_CONFIG, PATH_TO_CONFIG,
+                OPTION_OVERWRITE,
+                OPTION_INJECTION,
+                PATH);
+        output.printf("\t%s %s -%s | --%s\n",
+                RUN_JAR, JARFILE,
+                OPTION_PRINT_DEFAULT_CONFIG, OPTION_PRINT_DEFAULT_CONFIG_LONG);
+        output.printf("\t%s %s -%s | --%s\n",
+                RUN_JAR, JARFILE,
+                OPTION_HELP, OPTION_HELP_LONG);
+        output.printf("\nNB: <%s> is %s or %s\n\n",
+                PATH, PATH_TO_FILE, PATH_TO_DIR);
+        output.println("Options:");
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printOptions(new PrintWriter(System.err, true), 80, options, 8, 8);
+        formatter.printOptions(output, 80, options, 8, 8);
     }
 
     private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -199,7 +267,7 @@ public final class MathMLCanonicalizerCommandLineTool {
 
         Writer stringWriter = new StringWriter();
         lsOutput.setCharacterStream(stringWriter);
-        lsOutput.setEncoding("UTF-8");
+        lsOutput.setEncoding(StandardCharsets.UTF_8.name());
 
         writer.write(document, lsOutput);
         writer.getDomConfig().setParameter("xml-declaration", true);
