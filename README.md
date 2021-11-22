@@ -28,8 +28,8 @@ BibTeX
 ``` bib
 @inproceedings{ceur:921:05,
       title = {Normalization of Digital Mathematics Library Content},
-     author = {David Form{\'a}nek and Martin L{\'\i}{\v s}ka
-	       and Michal R{\r u}{\v z}i{\v c}ka and Petr Sojka},
+     author = {David Form\'{a}nek and Martin L\'{i}\v{s}ka
+	       and Michal R\r{u}\v{z}i\v{c}ka and Petr Sojka},
       pages = {91--103},
         url = {http://ceur-ws.org/Vol-921/wip-05.pdf},
    crossref = {ceur:921},
