@@ -25,9 +25,9 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -58,7 +58,7 @@ public class DTDManipulatorTest {
         IOUtils.copy(expResult, expResultWriter, StandardCharsets.UTF_8);
         String expResultString = expResultWriter.toString();
 
-        assertEquals("DTD not properly injected", expResultString, resultString);
+        assertEquals(expResultString, resultString, "DTD not properly injected");
 
     }
 
@@ -77,7 +77,7 @@ public class DTDManipulatorTest {
         IOUtils.copy(result, resultWriter);
         String resultString = resultWriter.toString();
 
-        assertFalse("DTD not properly removed – string '<!DOCTYPE' presented in the result", resultString.contains("<!DOCTYPE"));
+        assertFalse(resultString.contains("<!DOCTYPE"), "DTD not properly removed – string '<!DOCTYPE' presented in the result");
 
         InputStreamReader expResult = new InputStreamReader(this.getClass().getResourceAsStream(RESOURCE_SUBDIR + "testRemoveDTD.output.xml"));
         // Once read, the input stream can not be read again.

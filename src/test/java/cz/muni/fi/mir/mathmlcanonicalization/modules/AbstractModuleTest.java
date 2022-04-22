@@ -29,7 +29,7 @@ import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.xml.sax.SAXException;
 
 /**
@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
  *
  * @author David Formanek
  */
-@Ignore // no tests
+@Disabled // no tests
 abstract class AbstractModuleTest {
 
     private static final Logger LOGGER = Logger.getLogger(

@@ -15,9 +15,9 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.JDOMException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleTestResources;
@@ -79,7 +79,7 @@ public class MathMLCanonicalizerTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void stressTest() throws Exception {
         long start = System.currentTimeMillis();
