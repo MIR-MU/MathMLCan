@@ -48,6 +48,7 @@ abstract class AbstractModule implements Module {
     protected static final String SUBSUP = "msubsup";
     protected static final String UNDEROVER = "munderover";
     protected static final String UNDERSCRIPT = "munder";
+    protected static final String MGLYPH = "mglyph";
 
     @Override
     public String getProperty(String key) {

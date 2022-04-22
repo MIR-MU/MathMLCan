@@ -154,6 +154,17 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                         if (depth > 0) {
                             continue;
                         }
+                        if (name.equals(MGLYPH)) {
+                            for (int index = 0; index < reader.getAttributeCount(); ++index) {
+                                final String attributeName = reader.getAttributeLocalName(index);
+                                final String attributeValue = reader.getAttributeValue(index);
+                                if (attributeName == "alt") {
+                                    writer.writeCharacters(attributeValue);
+                                }
+                            }
+                            depth++;
+                            continue;
+                        }
                     }
                     writer.writeStartElement(reader.getName().getPrefix(), name, reader.getName().getNamespaceURI());
                     for (int index = 0; index < reader.getAttributeCount(); ++index) {
@@ -186,7 +197,7 @@ public class ElementMinimizer extends AbstractModule implements StreamModule {
                             continue;
                         }
                         if (depth > 0) {
-                            if (removeWithChildren.contains(name)) {
+                            if (removeWithChildren.contains(name) || name.equals(MGLYPH)) {
                                 depth--;
                             }
                             continue;

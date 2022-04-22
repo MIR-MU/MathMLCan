@@ -5,7 +5,7 @@
 
     <groupId>cz.muni.fi.mir</groupId>
     <artifactId>mathml-canonicalizer</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
     
     <name>MathMLCanonicalizer</name>
@@ -48,6 +48,11 @@
             <name>Maros Kucbel</name>
             <email>kocka@mail.muni.cz</email>
         </developer>
+		<developer>
+			<id>lalik</id>
+			<name>Marian Lalik</name>
+			<email>xlalik@mail.muni.cz</email>
+		</developer>
     </developers>
 
     <profiles>
