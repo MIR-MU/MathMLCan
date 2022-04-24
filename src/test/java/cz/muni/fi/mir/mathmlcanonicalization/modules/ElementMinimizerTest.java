@@ -41,6 +41,7 @@ public class ElementMinimizerTest extends AbstractModuleTest {
         DEFAULT_INSTANCE.setProperty("keepAttributes.interval", "closure");
         DEFAULT_INSTANCE.setProperty("keepAttributes.declare", "nargs occurrence");
         DEFAULT_INSTANCE.setProperty("keepAttributes.mfenced", "open close");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.math", "xmlns");
     }
 
     @Test

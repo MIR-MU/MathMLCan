@@ -15,14 +15,11 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.filter.ElementFilter;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Replace mfenced elements in MathML for equivalent.
@@ -38,12 +35,16 @@ import org.jdom2.filter.ElementFilter;
  * configured not to add mrow outside and inside or your own fixed or default
  * parentheses and separators for fenced expressions can be specified.
  * <div class="simpleTagLabel">Example</div>
+ * 
  * <pre>{@code
  * <mfenced open="[">
  *   <mi>x<mi>
  *   <mi>y<mi>
  * </mfenced>
- * }</pre> is transformed to
+ * }</pre>
+ * 
+ * is transformed to
+ * 
  * <pre>{@code
  * <mrow>
  *     <mo>[</mo>
@@ -92,7 +93,7 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
             throw new NullPointerException("doc");
         }
         final List<Element> toReplace = new ArrayList<>();
-        for (Element mfenced : doc.getDescendants(new ElementFilter(FENCED, MATHMLNS))) {
+        for (Element mfenced : doc.getElementsByTag(FENCED)) {
             toReplace.add(mfenced);
         }
         if (toReplace.isEmpty()) {
@@ -107,26 +108,25 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
     private void replaceMfenced(final Element mfencedElement) {
         assert mfencedElement != null;
         final char[] separators = getSeparators(mfencedElement);
-        final Namespace ns = mfencedElement.getNamespace();
-        final List<Element> children = mfencedElement.getChildren();
+        final List<Element> children = mfencedElement.children();
         final int nChildren = children.size();
         final int last = Math.min(separators.length - 1, nChildren - 2);
 
         Element insideFence = null;
-        if (nChildren == 1 && children.get(0).getName().equals(ROW)) {
+        if (nChildren == 1 && children.get(0).tagName().equals(ROW)) {
             // we do not want to add another mrow
-            insideFence = children.get(0).detach();
+            insideFence = children.get(0);
         } else if (nChildren != 0) {
-            insideFence = new Element(ROW, ns);
+            insideFence = new Element(ROW);
             for (int i = 0; i < nChildren; i++) {
                 // add separator
                 if (i > 0 && last >= 0) { // not before first or when blank separators
                     char separatorChar = separators[(i - 1 > last) ? last : i - 1];
                     String separatorStr = Character.toString(separatorChar);
-                    insideFence.addContent(new Element(OPERATOR, ns).setText(separatorStr));
+                    insideFence.appendChild(new Element(OPERATOR).text(separatorStr));
                 }
                 // add original child
-                insideFence.addContent(children.get(0).detach());
+                insideFence.appendChild(children.get(i));
             }
         }
         replaceMfenced(mfencedElement, insideFence);
@@ -134,38 +134,38 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
 
     private void replaceMfenced(final Element mfencedElement, final Element insideContent) {
         assert mfencedElement != null; // but insideContent can be null
-        final Namespace ns = mfencedElement.getNamespace();
-        Element replacement = new Element(ROW, ns);
+        Element replacement = new Element(ROW);
         String openStr = getProperty(DEFAULT_OPEN);
         String closeStr = getProperty(DEFAULT_CLOSE);
         if (openStr.isEmpty() || closeStr.isEmpty()) {
             LOGGER.warning("Default open or close fence not set");
         }
 
-        if (!isEnabled(FORCE_DEFAULT_OPEN)) {
-            openStr = mfencedElement.getAttributeValue(OPEN_FENCE, openStr);
+        if (!isEnabled(FORCE_DEFAULT_OPEN) && mfencedElement.hasAttr(OPEN_FENCE)) {
+            openStr = mfencedElement.attr(OPEN_FENCE);
         }
-        if (!isEnabled(FORCE_DEFAULT_CLOSE)) {
-            closeStr = mfencedElement.getAttributeValue(CLOSE_FENCE, closeStr);
+        if (!isEnabled(FORCE_DEFAULT_CLOSE) && mfencedElement.hasAttr(CLOSE_FENCE)) {
+            closeStr = mfencedElement.attr(CLOSE_FENCE);
         }
 
-        replacement.addContent(new Element(OPERATOR, ns).setText(openStr));
+        replacement.appendChild(new Element(OPERATOR).text(openStr));
         if (insideContent != null) {
             if (isEnabled(ADD_INNER_ROW)) {
-                replacement.addContent(insideContent);
+                replacement.appendChild(insideContent);
             } else {
-                replacement.addContent(insideContent.removeContent());
+                replacement.appendChildren(insideContent.childNodes());
+                insideContent.remove();
             }
         }
-        replacement.addContent(new Element(OPERATOR, ns).setText(closeStr));
+        replacement.appendChild(new Element(OPERATOR).text(closeStr));
 
-        final Element parent = mfencedElement.getParentElement();
-        final int index = parent.indexOf(mfencedElement);
-        parent.removeContent(index);
+        final Element parent = mfencedElement.parent();
+        final int index = mfencedElement.siblingIndex();
+        mfencedElement.remove();
         if (isEnabled(ADD_OUTER_ROW)) {
-            parent.addContent(index, replacement);
+            parent.insertChildren(index, replacement);
         } else {
-            parent.addContent(index, replacement.removeContent());
+            parent.insertChildren(index, replacement.childNodes());
         }
         LOGGER.fine("Mfenced element converted");
     }
@@ -175,8 +175,8 @@ public class MfencedReplacer extends AbstractModule implements DOMModule {
         if (isEnabled(FORCE_DEFAULT_SEPARATORS)) {
             return getProperty(DEFAULT_SEPARATORS).toCharArray();
         }
-        return element.getAttributeValue(SEPARATORS,
-                getProperty(DEFAULT_SEPARATORS)).trim().toCharArray();
+        return (element.hasAttr(SEPARATORS) ? element.attr(SEPARATORS).trim().toCharArray()
+                : getProperty(DEFAULT_SEPARATORS).toCharArray());
     }
 
 }

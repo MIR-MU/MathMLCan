@@ -15,12 +15,11 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Normalize the way to express an function applied to arguments in MathML.
@@ -52,56 +51,57 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        normalizeFunctionApplication(doc.getRootElement(), getPropertySet(APPLY_FUNCTION_OPERATORS));
+        normalizeFunctionApplication(doc.root(), getPropertySet(APPLY_FUNCTION_OPERATORS));
     }
 
     // TODO: refactoring
     private void normalizeFunctionApplication(final Element element,
             final Collection<String> functionOperators) {
         assert element != null && functionOperators != null;
-        final List<Element> children = element.getChildren();
+        final List<Element> children = element.children();
         for (int i = 0; i < children.size(); i++) {
             if (isFunction(i, children, functionOperators)) {
                 final int parameterPosition = i + 2;
                 Element parameter = children.get(parameterPosition);
                 // mrow in which the parameter will be stored
-                final Element newParameter = new Element(ROW, MATHMLNS);
+                final Element newParameter = new Element(ROW);
 
-                if (parameter.getName().equals(ROW)) {
+                if (parameter.tagName().equals(ROW)) {
                     if (hasInsideBrackets(parameter)) {
-                        children.get(i + 1).detach(); // just detach operator
+                        children.get(i + 1).remove(); // just detach operator
                     } else { // add parentheses
-                        parameter.addContent(0, new Element(OPERATOR, MATHMLNS).setText("("));
-                        parameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")"));
+                        parameter.insertChildren(0, new Element(OPERATOR).text("("));
+                        parameter.appendChild(new Element(OPERATOR).text(")"));
                         LOGGER.fine("Parentheses around function argument added");
-                        children.get(i + 1).detach(); // detach funct app operator
+                        children.get(i + 1).remove(); // detach funct app operator
                     }
                     LOGGER.fine("Function application operator removed");
                     continue; // no need to set newParameter
                 } else if (isOperator(parameter, "(")) {
                     int bracketsDepth = 1;
-                    newParameter.addContent(parameter.detach());
-
-                    while ((parameterPosition < children.size()) && (bracketsDepth > 0)) {
-                        parameter = children.get(parameterPosition);
+                    newParameter.appendChild(parameter);
+                    int viewPosition = parameterPosition + 1;
+                    while ((viewPosition < children.size()) && (bracketsDepth > 0)) {
+                        parameter = children.get(viewPosition);
                         if (isOperator(parameter, "(")) {
                             bracketsDepth++;
                         } else if (isOperator(parameter, ")")) {
                             bracketsDepth--;
                         }
-                        newParameter.addContent(parameter.detach());
+                        newParameter.appendChild(parameter);
+                        viewPosition++;
                     }
                     for (; bracketsDepth > 0; bracketsDepth--) { // add missing right brackets
-                        newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")"));
+                        newParameter.appendChild(new Element(OPERATOR).text(")"));
                         LOGGER.fine("Added missing )");
                     }
                 } else { // if the paramether is neither mrow or (
-                    newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText("(")); // add left bracket
-                    newParameter.addContent(children.get(parameterPosition).detach());
-                    newParameter.addContent(new Element(OPERATOR, MATHMLNS).setText(")")); // add right bracket
+                    newParameter.appendChild(new Element(OPERATOR).text("(")); // add left bracket
+                    newParameter.appendChild(children.get(parameterPosition));
+                    newParameter.appendChild(new Element(OPERATOR).text(")")); // add right bracket
                     LOGGER.fine("Function argument wrapped with parentheses and mrow");
                 }
-                children.set(i + 1, newParameter); // replace function app operator with newParameter
+                children.get(i + 1).replaceWith(newParameter); // replace function app operator with newParameter
                 LOGGER.fine("Function application operator removed");
             } else { // if there isnt start of function application apply normalization on children
                 normalizeFunctionApplication(children.get(i), functionOperators);
@@ -113,14 +113,14 @@ public class FunctionNormalizer extends AbstractModule implements DOMModule {
             final Collection<String> functionOperators) {
         assert i >= 0 && children != null && i < children.size() && functionOperators != null;
         return ((i < children.size() - 2)
-                && children.get(i).getName().equals(IDENTIFIER)
+                && children.get(i).tagName().equals(IDENTIFIER)
                 && isOperator(children.get(i + 1))
-                && functionOperators.contains(children.get(i + 1).getTextTrim()));
+                && functionOperators.contains(children.get(i + 1).ownText().trim()));
     }
 
     private boolean hasInsideBrackets(final Element element) {
         assert element != null;
-        final List<Element> children = element.getChildren();
+        final List<Element> children = element.children();
         if ((children.size() > 1) && isOperator(children.get(0), "(")) {
             int bracketsDepth = 1;
             Element child;
