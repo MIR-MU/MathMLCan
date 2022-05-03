@@ -109,7 +109,6 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
             for (Element operator : rootElem.getElementsByTag(OPERATOR)) {
                 int index = operator.elementSiblingIndex();
                 if (index != 0 && operator.previousElementSibling().tagName().equals(OPERATOR)) {
-                    System.out.println(operator.text());
                     index = 0;
                 }
                 if (index == 0) {

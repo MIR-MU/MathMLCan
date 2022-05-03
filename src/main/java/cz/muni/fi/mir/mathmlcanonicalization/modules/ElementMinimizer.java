@@ -132,7 +132,6 @@ public class ElementMinimizer extends AbstractModule implements DOMModule {
     }
 
     private Boolean isWhitelisted(Attribute attribute, List<String> whitelist) {
-        System.out.println(attribute.getKey());
         for (String attr : whitelist) {
             if (attribute.getKey().equals(attr)
                     || attr.contains("=")
