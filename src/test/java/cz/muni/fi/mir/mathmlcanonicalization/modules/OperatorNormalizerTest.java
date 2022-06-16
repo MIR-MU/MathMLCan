@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for OperatorNormalizer canonicalization DOM Module.
@@ -28,8 +28,8 @@ public class OperatorNormalizerTest extends AbstractModuleTest {
     private static final Module DEFAULT_INSTANCE = new OperatorNormalizer();
     private static final String RESOURCE_SUBDIR = OperatorNormalizerTest.class.getSimpleName() + "/";
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("removeempty", "true");
         DEFAULT_INSTANCE.setProperty("removeoperators", "\u2062 \u22c5 * \u2063 \u2064");
         DEFAULT_INSTANCE.setProperty("replaceoperators", "+-:\u00b1 -+:\u00b1 \u00ad:-");

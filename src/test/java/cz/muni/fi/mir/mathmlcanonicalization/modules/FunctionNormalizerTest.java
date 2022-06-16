@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for FunctionNormalizer canonicalization DOM Module.
@@ -28,8 +28,8 @@ public class FunctionNormalizerTest extends AbstractModuleTest {
     private static final Module DEFAULT_INSTANCE = new FunctionNormalizer();
     private static final String RESOURCE_SUBDIR = FunctionNormalizerTest.class.getSimpleName() + "/";
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("functionoperators", "\u2061");
     }
 

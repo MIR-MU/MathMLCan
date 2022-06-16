@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for MrowNormalizer canonicalization DOM Module.
@@ -36,8 +36,8 @@ public class MrowNormalizerTest extends AbstractModuleTest {
         CONFIGURED_INSTANCE.setProperty("wrapOutside", "1");
     }
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("wrapOutside", "1");
         DEFAULT_INSTANCE.setProperty("wrapInside", "1");
         DEFAULT_INSTANCE.setProperty("open", "( [ {");

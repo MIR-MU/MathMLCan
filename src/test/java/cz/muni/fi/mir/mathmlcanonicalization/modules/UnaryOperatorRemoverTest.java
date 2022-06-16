@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for UnaryOperatorRemover canonicalization DOM Module.
@@ -28,8 +28,8 @@ public class UnaryOperatorRemoverTest extends AbstractModuleTest {
     private static final Module DEFAULT_INSTANCE = new UnaryOperatorRemover();
     private static final String RESOURCE_SUBDIR = UnaryOperatorRemoverTest.class.getSimpleName() + "/";
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("pmathremoveunaryoperators", "+ - \u2064 \u2212 \u2213 \u2214 \u2238 \u2295 \u2296 \u229d \u229e \u229f");
         DEFAULT_INSTANCE.setProperty("cmathremoveunaryoperators", "plus minus");
     }

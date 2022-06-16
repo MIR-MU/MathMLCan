@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for MfencedReplacer canonicalization DOM Module.
@@ -41,8 +41,8 @@ public class MfencedReplacerTest extends AbstractModuleTest {
         CONFIGURED_INSTANCE.setProperty("outermrow", "0");
     }
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("outermrow", "1");
         DEFAULT_INSTANCE.setProperty("innermrow", "1");
         DEFAULT_INSTANCE.setProperty("open", "(");

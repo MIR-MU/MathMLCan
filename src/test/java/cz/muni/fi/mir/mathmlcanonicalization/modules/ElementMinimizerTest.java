@@ -15,8 +15,8 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for ElementMinimizer canonicalization stream module
@@ -28,8 +28,8 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     private static final Module DEFAULT_INSTANCE = new ElementMinimizer();
     private static final String RESOURCE_SUBDIR = ElementMinimizerTest.class.getSimpleName() + "/";
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
+    @BeforeAll
+    public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("remove", "mspace maligngroup malignmark mstyle mpadded menclose maction");
         DEFAULT_INSTANCE.setProperty("remove_all", "mphantom merror");
         DEFAULT_INSTANCE.setProperty("keepAttributes", "mathvariant=bold encoding");
