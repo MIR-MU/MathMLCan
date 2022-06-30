@@ -17,14 +17,11 @@ package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom2.Attribute;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
+import org.jsoup.nodes.Element;
 
 /**
  * Module implementation with property loading
@@ -35,7 +32,6 @@ abstract class AbstractModule implements Module {
 
     protected final Properties properties = new Properties();
     private static final Logger LOGGER = Logger.getLogger(AbstractModule.class.getName());
-    protected static final Namespace MATHMLNS = Namespace.getNamespace("http://www.w3.org/1998/Math/MathML");
     // MathML elements
     protected static final String FENCED = "mfenced";
     protected static final String IDENTIFIER = "mi";
@@ -48,6 +44,7 @@ abstract class AbstractModule implements Module {
     protected static final String SUBSUP = "msubsup";
     protected static final String UNDEROVER = "munderover";
     protected static final String UNDERSCRIPT = "munder";
+    protected static final String MGLYPH = "mglyph";
 
     @Override
     public String getProperty(String key) {
@@ -109,31 +106,20 @@ abstract class AbstractModule implements Module {
     }
 
     protected boolean isOperator(final Element element, final String operator) {
-        return isOperator(element) && element.getTextTrim().equals(operator);
+        return isOperator(element) && element.ownText().trim().equals(operator);
     }
 
     protected boolean isOperator(final Element element) {
         assert element != null;
-        return element.getName().equals(OPERATOR);
+        return element.tagName().equals(OPERATOR);
     }
 
     protected void replaceElement(final Element toReplace, final String replacementName) {
         assert toReplace != null && replacementName != null;
         assert !replacementName.isEmpty();
-        final Element parent = toReplace.getParentElement();
-        assert parent != null;
-        final Element replacement = new Element(replacementName, toReplace.getNamespace());
-        replacement.addContent(toReplace.removeContent());
-        final List<Attribute> attributes = toReplace.getAttributes();
-        while (attributes.size() > 0) {
-            Attribute currentAttribute = attributes.get(0);
-            replacement.setAttribute(currentAttribute.detach());
-        }
-        final int parentIndex = parent.indexOf(toReplace);
-        parent.removeContent(parentIndex);
-        parent.addContent(parentIndex, replacement);
+        toReplace.tagName(replacementName);
         LOGGER.log(Level.FINE, "{0} replaced with {1}",
-                new Object[]{toReplace, replacementName});
+                new Object[] { toReplace, replacementName });
     }
 
 }

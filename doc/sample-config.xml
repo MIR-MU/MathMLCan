@@ -6,7 +6,7 @@
         <property name="remove">mspace maligngroup malignmark mstyle mpadded menclose maction</property>
         
         <!-- remove these elements with their children -->
-        <property name="remove_all">mphantom merror</property>
+        <property name="remove_all">mphantom merror cerror</property>
         
         <!-- keep attributes that bear semantics -->
         <property name="keepAttributes">mathvariant=bold mathvariant=italic mathvariant=bold-italic mathvariant=double-struck mathvariant=bold-fraktur mathvariant=script mathvariant=bold-script mathvariant=fraktur mathvariant=sans-serif mathvariant=bold-sans-serif mathvariant=sans-serif-italic mathvariant=sans-serif-bold-italic mathvariant=monospace mathvariant=initial mathvariant=tailed mathvariant=looped mathvariant=stretched encoding</property>

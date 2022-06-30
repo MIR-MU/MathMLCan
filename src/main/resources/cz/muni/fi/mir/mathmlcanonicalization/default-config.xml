@@ -18,6 +18,7 @@
         <property name="keepAttributes.interval">closure</property>
         <property name="keepAttributes.declare">nargs occurrence</property>
         <property name="keepAttributes.mfenced">open close</property>
+        <property name="keepAttributes.math">xmlns</property>
     </module>
     
     <module name="FunctionNormalizer">

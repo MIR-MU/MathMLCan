@@ -15,11 +15,10 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Make sure any {@code <math>} element has exactly one child.
@@ -42,27 +41,21 @@ public class SingleTopElementOutputter extends AbstractModule implements DOMModu
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        traverseDocument(doc.getRootElement());
+        traverseDocument(doc.root());
     }
 
-    private void traverseDocument(final Element element) {
-        assert element != null;
-        final List<Element> children = new ArrayList<Element>(element.getChildren());
+    private void traverseDocument(final Element rootElement) {
+        assert rootElement != null;
+        final List<Element> mathElements = rootElement.getElementsByTag("math");
+        LOGGER.fine(mathElements.size() + MATH + " elements found");
 
-        if (element.getName().equals(MATH)) {
-            LOGGER.fine(MATH + " element found");
-            if (element.getChildren().size() > 1) {
+        for (Element mathElement : mathElements) {
+            if (mathElement.childNodeSize() > 1) {
                 LOGGER.fine(MATH + " element found have multiple children");
                 Element mrow = new Element(ROW);
-                mrow.setNamespace(element.getNamespace());
-                LOGGER.fine("Namespace of the new " + ROW + " element set to " + mrow.getNamespace());
-                mrow.setContent(element.cloneContent());
-                element.setContent(mrow);
+                mrow.appendChildren(mathElement.childNodes());
+                mathElement.appendChild(mrow);
                 LOGGER.fine(MATH + " children moved under new " + ROW + " element");
-            }
-        } else { // <math> cannot contain nested <math> elements so no need to traverse
-            for (Element child : children) {
-                traverseDocument(child);
             }
         }
     }

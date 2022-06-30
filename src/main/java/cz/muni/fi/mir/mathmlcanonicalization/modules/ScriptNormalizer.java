@@ -15,16 +15,14 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.filter.ElementFilter;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Handle sub/super/under/over/multi script elements in MathML.
@@ -34,10 +32,12 @@ import org.jdom2.filter.ElementFilter;
  * {@code <munder>}, {@code <mover>}, {@code <munderover>} and
  * {@code <mmultiscripts>} (with children {@code <mprescripts/>} and
  * {@code <none/>}) elements in MathML.
- * </p><span class="simpleTagLabel">Input</span>
+ * </p>
+ * <span class="simpleTagLabel">Input</span>
  * Well-formed MathML
  * <div class="simpleTagLabel">Output</div>
- * The original code with always used:<ul>
+ * The original code with always used:
+ * <ul>
  * <li>{@code <msubsup>} (or {@code <msub>}) for sums, integrals, etc.
  * (converted from {@code <munderover>}, {@code <munder>} and
  * {@code <msub>}, {@code <msup>} combinations)</li>
@@ -71,7 +71,7 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        final Element root = doc.getRootElement();
+        final Element root = doc.root();
         if (isEnabled(UNIFY_SCRIPTS)) {
             final Map<String, String> replaceMap = new HashMap<>();
             replaceMap.put(UNDERSCRIPT, SUBSCRIPT);
@@ -96,62 +96,63 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
 
     private void normalizeSupInSub(final Element element) {
         assert element != null;
-        final List<Element> children = element.getChildren();
+        final List<Element> children = element.children();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i);
             normalizeSupInSub(actual);
-            if (!actual.getName().equals(SUBSCRIPT)) {
+            if (!actual.tagName().equals(SUBSCRIPT)) {
                 continue;
             }
-            List<Element> subscriptChildren = actual.getChildren();
+            List<Element> subscriptChildren = actual.children();
             if (subscriptChildren.size() != 2) {
                 LOGGER.fine("Invalid msub, skipped");
                 continue;
             }
-            if (!subscriptChildren.get(0).getName().equals(SUPERSCRIPT)) {
+            if (!subscriptChildren.get(0).tagName().equals(SUPERSCRIPT)) {
                 continue;
             }
-            final List<Element> superscriptChildren = subscriptChildren.get(0).getChildren();
+            final List<Element> superscriptChildren = subscriptChildren.get(0).children();
             if (superscriptChildren.size() != 2) {
                 LOGGER.fine("Invalid msup, skipped");
                 continue;
             }
-            final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
-            newMsub.addContent(superscriptChildren.get(0).detach());
-            newMsub.addContent(subscriptChildren.get(1).detach());
-            final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
-            newMsup.addContent(newMsub);
-            newMsup.addContent(superscriptChildren.get(0).detach());
-            children.set(i, newMsup);
+            final Element newMsub = new Element(SUBSCRIPT);
+            newMsub.appendChild(superscriptChildren.get(0));
+            newMsub.appendChild(subscriptChildren.get(1));
+            final Element newMsup = new Element(SUPERSCRIPT);
+            newMsup.appendChild(newMsub);
+            newMsup.appendChild(superscriptChildren.get(1));
+            children.get(i).replaceWith(newMsup);
             LOGGER.finer("Sub/sup scripts swapped");
         }
     }
 
     private void normalizeMsubsup(final Element element, Collection<String> firstChildren) {
         assert element != null && firstChildren != null;
-        final List<Element> children = element.getChildren();
+        final List<Element> children = element.children();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i);
-            if (actual.getName().equals(SUBSUP)) {
-                final List<Element> actualChildren = actual.getChildren();
+
+            // traverse and normalise children first
+            normalizeMsubsup(actual, firstChildren);
+
+            if (actual.tagName().equals(SUBSUP)) {
+                final List<Element> actualChildren = actual.children();
                 if (actualChildren.size() != 3) {
                     LOGGER.fine("Invalid msubsup, skipped");
                     continue;
                 }
-                if (!firstChildren.contains(actualChildren.get(0).getName())) {
+                if (!firstChildren.contains(actualChildren.get(0).tagName())) {
                     continue;
                 }
-                final Element newMsub = new Element(SUBSCRIPT, MATHMLNS);
-                newMsub.addContent(actualChildren.get(0).detach());
-                newMsub.addContent(actualChildren.get(0).detach());
-                final Element newMsup = new Element(SUPERSCRIPT, MATHMLNS);
-                newMsup.addContent(newMsub);
-                newMsup.addContent(actualChildren.get(0).detach());
-                children.set(i, newMsup);
-                i--; // move back to check the children of the new transformation
+                final Element newMsub = new Element(SUBSCRIPT);
+                newMsub.appendChild(actualChildren.get(0));
+                newMsub.appendChild(actualChildren.get(1));
+                final Element newMsup = new Element(SUPERSCRIPT);
+                newMsup.appendChild(newMsub);
+                newMsup.appendChild(actualChildren.get(2));
+                children.get(i).replaceWith(newMsup);
                 LOGGER.finer("Msubsup converted to nested msub and msup");
-            } else {
-                normalizeMsubsup(actual, firstChildren);
             }
         }
     }
@@ -159,13 +160,13 @@ public class ScriptNormalizer extends AbstractModule implements DOMModule {
     private void replaceDescendants(final Element ancestor, final Map<String, String> map) {
         assert ancestor != null && map != null;
         final List<Element> toReplace = new ArrayList<>();
-        for (Element element : ancestor.getDescendants(new ElementFilter())) {
-            if (map.containsKey(element.getName())) {
+        for (Element element : ancestor.getAllElements()) {
+            if (map.containsKey(element.tagName())) {
                 toReplace.add(element);
             }
         }
         for (Element element : toReplace) {
-            replaceElement(element, map.get(element.getName()));
+            replaceElement(element, map.get(element.tagName()));
         }
     }
 

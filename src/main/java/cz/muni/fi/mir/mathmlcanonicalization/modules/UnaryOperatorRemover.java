@@ -15,15 +15,12 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.filter.Filters;
-import org.jdom2.xpath.XPathExpression;
-import org.jdom2.xpath.XPathFactory;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Removes unary operators, i.e. {@code //mo[count(preceding-sibling::*) = 0]}.
@@ -38,6 +35,7 @@ import org.jdom2.xpath.XPathFactory;
  * The original code with all unatry operators removed
  * </p>
  * <span class="simpleTagLabel">Example Input</span>
+ * 
  * <pre>{@code
  * <?xml version="1.0" encoding="UTF-8"?>
  * <math>
@@ -53,7 +51,9 @@ import org.jdom2.xpath.XPathFactory;
  *   </mrow>
  * </math>
  * }</pre>
+ * 
  * <span class="simpleTagLabel">Example Output</span>
+ * 
  * <pre>{@code
  * <?xml version="1.0" encoding="UTF-8"?>
  * <math>
@@ -79,19 +79,6 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
     private static final String PM_UNARY_OPERATORS_TO_REMOVE = "pmathremoveunaryoperators";
     private static final String CM_UNARY_OPERATORS_TO_REMOVE = "cmathremoveunaryoperators";
 
-    private static final XPathExpression<Element> xpPMUnaryOperators = XPathFactory.instance().compile(
-            "//mathml:mo[count(preceding-sibling::*) = 0]|//mo[count(preceding-sibling::*) = 0]",
-            Filters.element(), null,
-            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
-    private static final XPathExpression<Element> xpPMSecondOperatorInDoubleOperators = XPathFactory.instance().compile(
-            "//mathml:mo[preceding-sibling::*[1][self::mathml:mo]]|//mo[preceding-sibling::*[1][self::mo]]",
-            Filters.element(), null,
-            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
-    private static final XPathExpression<Element> xpCMApplyWithTwoChildrens = XPathFactory.instance().compile(
-            "//mathml:apply[count(child::*)=2]|//apply[count(child::*)=2]",
-            Filters.element(), null,
-            Namespace.getNamespace("mathml", "http://www.w3.org/1998/Math/MathML"));
-
     public UnaryOperatorRemover() {
         declareProperty(PM_UNARY_OPERATORS_TO_REMOVE);
         declareProperty(CM_UNARY_OPERATORS_TO_REMOVE);
@@ -104,7 +91,7 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
             throw new NullPointerException("doc");
         }
 
-        final Element root = doc.getRootElement();
+        final Element root = doc.root();
 
         removeUnaryOperator(root);
 
@@ -118,26 +105,26 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
         final Set<String> pmCharsToRemove = getPropertySet(PM_UNARY_OPERATORS_TO_REMOVE);
 
         if (!pmCharsToRemove.isEmpty()) {
-
-            // Unary operators
-            List<Element> pmElemsToRemove = xpPMUnaryOperators.evaluate(rootElem);
-            for (Element toRemove : pmElemsToRemove) {
-                if (pmCharsToRemove.contains(toRemove.getValue())) {
-                    LOGGER.finest("Removing element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
-                    toRemove.detach();
-                } else {
-                    LOGGER.finest("Skipping element '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+            List<Element> pmElemsToRemove = new ArrayList<>();
+            for (Element operator : rootElem.getElementsByTag(OPERATOR)) {
+                int index = operator.elementSiblingIndex();
+                if (index != 0 && operator.previousElementSibling().tagName().equals(OPERATOR)) {
+                    index = 0;
+                }
+                if (index == 0) {
+                    pmElemsToRemove.add(operator);
                 }
             }
 
-            // Second of the double operators
-            pmElemsToRemove = xpPMSecondOperatorInDoubleOperators.evaluate(rootElem);
+            // Unary operators
             for (Element toRemove : pmElemsToRemove) {
-                if (pmCharsToRemove.contains(toRemove.getValue())) {
-                    LOGGER.finest("Removing the second element out of double elements '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
-                    toRemove.detach();
+                if (pmCharsToRemove.contains(toRemove.text())) {
+                    LOGGER.finest(
+                            "Removing element '" + toRemove.tagName() + "' with value '" + toRemove.text() + "'.");
+                    toRemove.remove();
                 } else {
-                    LOGGER.finest("Skipping the second element out of double elements '" + toRemove.getQualifiedName() + "' with value '" + toRemove.getValue() + "'.");
+                    LOGGER.finest(
+                            "Skipping element '" + toRemove.tagName() + "' with value '" + toRemove.text() + "'.");
                 }
             }
 
@@ -146,19 +133,25 @@ public class UnaryOperatorRemover extends AbstractModule implements DOMModule {
         LOGGER.finer("RemoveUnaryOperator Presentation MathML finished");
 
         /* Content MathML */
-        List<Element> applyWithTwoChildrens = xpCMApplyWithTwoChildrens.evaluate(rootElem);
+        List<Element> applyWithTwoChildrens = new ArrayList<>();
+        for (Element element : rootElem.getElementsByTag("apply")) {
+            if (element.childrenSize() == 2) {
+                applyWithTwoChildrens.add(element);
+            }
+        }
+
         final Set<String> cmOperatorsToRemove = getPropertySet(CM_UNARY_OPERATORS_TO_REMOVE);
 
         for (Element applyElem : applyWithTwoChildrens) {
-            Element operator = applyElem.getChildren().get(0);
-            if (cmOperatorsToRemove.contains(operator.getName())) {
-                Element operand = applyElem.getChildren().get(1);
-                LOGGER.finest("Removing operator '" + operator.getQualifiedName() + "' for operand '" + operand.getQualifiedName() + "'.");
-                operand.detach();
-                Element parent = applyElem.getParentElement();
-                int applyElemIndex = parent.indexOf(applyElem);
-                parent.setContent(applyElemIndex, operand);
-                applyElem.detach();
+            Element operator = applyElem.children().get(0);
+            if (cmOperatorsToRemove.contains(operator.tagName())) {
+                Element operand = applyElem.children().get(1);
+                LOGGER.finest(
+                        "Removing operator '" + operator.tagName() + "' for operand '" + operand.tagName() + "'.");
+                Element parent = applyElem.parent();
+                int applyElemIndex = applyElem.siblingIndex();
+                parent.insertChildren(applyElemIndex, operand);
+                applyElem.remove();
             }
         }
 

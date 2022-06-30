@@ -15,7 +15,7 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import org.jdom2.Document;
+import org.jsoup.nodes.Document;
 
 /**
  * Modules processing the input using Document Object Model

@@ -15,7 +15,6 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,12 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom2.Content;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Text;
-import org.jdom2.filter.ContentFilter;
-import org.jdom2.filter.ElementFilter;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 
 /**
  * Normalize the way to express an function applied to arguments in MathML.
@@ -72,7 +70,7 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        final Element root = doc.getRootElement();
+        final Element root = doc.root();
 
         // TODO: convert Unicode superscripts (supX entities) to msup etc.
         final String normalizerFormStr = getProperty(NORMALIZATION_FORM);
@@ -125,40 +123,37 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
     private void normalizeUnicode(final Element ancestor, final Normalizer.Form form) {
         assert ancestor != null && form != null;
-        final List<Text> texts = new ArrayList<>();
-        final ContentFilter textFilter = new ContentFilter(ContentFilter.TEXT);
-        for (Content text : ancestor.getContent(textFilter)) {
-            texts.add((Text) text);
-        }
-        for (Element element : ancestor.getDescendants(new ElementFilter())) {
-            for (Content text : element.getContent(textFilter)) {
-                texts.add((Text) text);
+
+        final List<Node> texts = new ArrayList<>();
+        for (Element descendant : ancestor.getAllElements()) {
+            for (Node text : descendant.textNodes()) {
+                texts.add(text);
             }
         }
-        for (Text text : texts) {
-            if (Normalizer.isNormalized(text.getText(), form)) {
+
+        for (Node text : texts) {
+            final String textString = text.attr("#text");
+            if (Normalizer.isNormalized(textString, form)) {
                 continue;
             }
-            final String normalizedString = Normalizer.normalize(text.getText(), form);
+            text.attr("#text", Normalizer.normalize(textString, form));
             LOGGER.log(Level.FINE, "Text ''{0}'' normalized to ''{1}''",
-                    new Object[]{text.getText(), normalizedString});
-            text.setText(normalizedString);
-            assert Normalizer.isNormalized(text.getText(), form);
+                    new Object[] { textString, text.attr("#text") });
+            assert Normalizer.isNormalized(text.attr("#text"), form);
         }
     }
 
     private void removeSpareOperators(final Element element, final Collection<String> spareOperators) {
         assert element != null && spareOperators != null && !spareOperators.isEmpty();
-        final List<Element> children = element.getChildren();
+        final List<Element> children = element.children();
         for (int i = 0; i < children.size(); i++) {
             final Element actual = children.get(i); // actual element
             if (isOperator(actual)) {
-                //Keep special case where asterisk is by itself in a subscript
-                String parent = actual.getParentElement().getName();
+                // Keep special case where asterisk is by itself in a subscript
+                String parent = actual.parent().tagName();
                 if (isSpareOperator(actual, spareOperators) && !(parent.equals("msub"))
                         && !(parent.equals("msubsup") && !(parent.equals("msup")))) {
-                    actual.detach();
-                    i--; // move iterator back after detaching so it points to next element
+                    actual.remove();
                     LOGGER.log(Level.FINE, "Operator {0} removed", actual);
                 }
             } else {
@@ -169,38 +164,46 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
 
     private boolean isSpareOperator(final Element operator, final Collection<String> spareOperators) {
         assert operator != null && spareOperators != null && isOperator(operator);
-        return (isEnabled(REMOVE_EMPTY_OPERATORS) && operator.getText().isEmpty())
-                || (spareOperators.contains(operator.getTextTrim()));
+        if (!isEnabled(REMOVE_EMPTY_OPERATORS)) {
+            return false;
+        }
+        if (operator.textNodes().isEmpty()) {
+            return true;
+        }
+        String operatorText = "";
+        for (TextNode textNode : operator.textNodes()) {
+            operatorText += textNode.getWholeText().trim();
+        }
+        return spareOperators.contains(operatorText);
     }
 
     private void replaceOperators(final Element element, final Map<String, String> replacements) {
         assert element != null && replacements != null;
-        List<Element> operatorsToReplace = new ArrayList<>();
-        for (Element operator : element.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
-            if (replacements.containsKey(operator.getTextTrim())) {
-                operatorsToReplace.add(operator);
+        for (Element operator : element.getElementsByTag(OPERATOR)) {
+            for (TextNode textNode : operator.textNodes()) {
+                final String oldOperator = textNode.getWholeText().trim();
+                final String newOperator = replacements.get(oldOperator);
+                if (replacements.containsKey(oldOperator)) {
+                    operator.text(newOperator);
+                    LOGGER.log(Level.FINE, "Operator ''{0}'' was replaced by ''{1}''",
+                            new Object[] { oldOperator, newOperator });
+                    break;
+                }
             }
-        }
-        for (Element operator : operatorsToReplace) {
-            final String oldOperator = operator.getTextTrim();
-            final String newOperator = replacements.get(oldOperator);
-            operator.setText(newOperator);
-            LOGGER.log(Level.FINE, "Operator ''{0}'' was replaced by ''{1}''",
-                    new Object[]{oldOperator, newOperator});
         }
     }
 
     private void replaceIdentifiers(final Element ancestor, final Set<String> operators) {
         assert ancestor != null && operators != null;
         final List<Element> toReplace = new ArrayList<>();
-        for (Element element : ancestor.getDescendants(new ElementFilter(IDENTIFIER, MATHMLNS))) {
+        for (Element element : ancestor.getElementsByTag(IDENTIFIER)) {
             // TODO: control whole ranges of symbols rather than listed ones
-            if (operators.contains(element.getTextTrim())) {
+            if (operators.contains(element.ownText().trim())) {
                 toReplace.add(element);
             }
         }
         for (Element element : toReplace) {
-            LOGGER.log(Level.FINE, "Creating an operator from {0}", element.getText());
+            LOGGER.log(Level.FINE, "Creating an operator from {0}", element.ownText());
             replaceElement(element, OPERATOR);
         }
     }
@@ -208,13 +211,13 @@ public class OperatorNormalizer extends AbstractModule implements DOMModule {
     private void operatorsToIdentifiers(final Element ancestor, final Set<String> identifiers) {
         assert ancestor != null && identifiers != null;
         final List<Element> toReplace = new ArrayList<>();
-        for (Element element : ancestor.getDescendants(new ElementFilter(OPERATOR, MATHMLNS))) {
-            if (identifiers.contains(element.getTextTrim())) {
+        for (Element element : ancestor.getElementsByTag(OPERATOR)) {
+            if (identifiers.contains(element.ownText().trim())) {
                 toReplace.add(element);
             }
         }
         for (Element element : toReplace) {
-            LOGGER.log(Level.FINE, "Creating an identifier from {0}", element.getText());
+            LOGGER.log(Level.FINE, "Creating an identifier from {0}", element.ownText());
             replaceElement(element, IDENTIFIER);
         }
     }

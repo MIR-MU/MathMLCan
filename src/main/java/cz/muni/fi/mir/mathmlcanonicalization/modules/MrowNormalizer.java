@@ -15,14 +15,12 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import static cz.muni.fi.mir.mathmlcanonicalization.modules.AbstractModule.MATHMLNS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Parent;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Normalize the number of mrow elements in MathML.
@@ -31,21 +29,27 @@ import org.jdom2.Parent;
  * Well-formed MathML, already processed by other modules (especially
  * ElementMinimizer, MfencedReplacer and FunctionNormalizer)
  * <div class="simpleTagLabel">Output</div>
- * The original code with changes in mrow elements:<ul>
+ * The original code with changes in mrow elements:
+ * <ul>
  * <li>added mrow elements to places, where detected fenced formulae (and not
  * already encapsulated in mrow)</li>
  * <li>removed redundant mrow elements in unneeded grouping – e.q. parents
  * requiring only one child element accept any number of elements so the mrow
  * tag is not needed (see example) or grouping with only presentation purpose
- * </li></ul>
+ * </li>
+ * </ul>
  * <div class="simpleTagLabel">Example</div>
+ * 
  * <pre>{@code
  * <msqrt>
  *     <mrow>
  *         <mo>-</mo>
  *         <mn>1</mn>
  *     </mrow>
- * </msqrt>}</pre> is transformed to
+ * </msqrt>}</pre>
+ * 
+ * is transformed to
+ * 
  * <pre>{@code
  * <msqrt>
  *     <mo>-</mo>
@@ -95,8 +99,8 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         if (doc == null) {
             throw new NullPointerException("doc");
         }
-        traverseRemoval(doc.getRootElement());
-        traverseAddition(doc.getRootElement());
+        traverseRemoval(doc.root());
+        traverseAddition(doc.root());
     }
 
     /**
@@ -106,7 +110,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void traverseAddition(final Element element) {
         assert element != null;
-        final List<Element> children = new ArrayList<>(element.getChildren());
+        final List<Element> children = new ArrayList<>(element.children());
         for (Element child : children) {
             traverseAddition(child);
         }
@@ -120,11 +124,11 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void traverseRemoval(final Element element) {
         assert element != null;
-        final List<Element> children = new ArrayList<>(element.getChildren());
+        final List<Element> children = new ArrayList<>(element.children());
         for (Element child : children) {
             traverseRemoval(child);
         }
-        if (element.getName().equals(ROW)) {
+        if (element.tagName().equals(ROW)) {
             checkRemoval(element);
         }
     }
@@ -135,13 +139,12 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * @param mrowElement the mrow element
      */
     private void checkRemoval(final Element mrowElement) {
-        assert mrowElement != null && mrowElement.getName().equals(ROW);
-        final Parent parent = mrowElement.getParent();
-        if (!(parent instanceof Element)) {
+        assert mrowElement != null && mrowElement.tagName().equals(ROW);
+        if (!mrowElement.hasParent()) {
             return; // no parent element
         }
-        final Element parentElement = (Element) parent;
-        final List<Element> children = mrowElement.getChildren();
+        final Element parentElement = mrowElement.parent();
+        final List<Element> children = mrowElement.children();
 
         if (children.size() <= 1) {
             removeElement(mrowElement, parentElement);
@@ -149,7 +152,7 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             return;
         }
 
-        final String childCountPropertyName = CHILD_COUNT_PREFIX + parentElement.getName();
+        final String childCountPropertyName = CHILD_COUNT_PREFIX + parentElement.tagName();
         if (!isProperty(childCountPropertyName)) {
             return; // unknown parent element
         }
@@ -159,37 +162,38 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
             childCount = Integer.parseInt(childCountProperty);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING,
-                    "\"{0}\" is not an integer for \"" + childCountPropertyName + "\", property ignored", childCountProperty);
+                    "\"{0}\" is not an integer for \"" + childCountPropertyName + "\", property ignored",
+                    childCountProperty);
             return;
         }
 
         if (childCount == 1 || // parent can accept any number of elements so we can remove mrow
-                children.size() + parentElement.getChildren().size() - 1 == childCount) {
+                children.size() + parentElement.childNodeSize() - 1 == childCount) {
             removeElement(mrowElement, parentElement);
         }
     }
 
     private static void removeElement(final Element element, final Element parent) {
         assert element != null && parent != null;
-        parent.addContent(parent.indexOf(element), element.cloneContent());
-        element.detach();
+        parent.insertChildren(element.siblingIndex(), element.childNodes());
+        element.remove();
     }
 
     /**
      * Test if element is an operator representing an opening or closing
      * parenthesis according to properties
      *
-     * @param element element to test
+     * @param element      element to test
      * @param propertyName name of property specifiyng opening or closing
-     * parentheses
+     *                     parentheses
      * @return true if element is a parentheses according to propertyName
      */
     private Boolean isParenthesis(final Element element, final String propertyName) {
         assert element != null && propertyName != null && isProperty(propertyName);
-        if (!element.getName().equals(OPERATOR)) {
+        if (!element.tagName().equals(OPERATOR)) {
             return false;
         }
-        return getPropertySet(propertyName).contains(element.getTextNormalize());
+        return getPropertySet(propertyName).contains(element.ownText().trim());
     }
 
     /**
@@ -197,20 +201,17 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      * of MfencedReplacer
      *
      * @param siblings children of parent element
-     * @param fenced list of elements inside parentheses, children of parent
-     * element
-     * @param opening opening parenthesis, child of parent element
-     * @param closing closing parenthesis, child of parent element
+     * @param fenced   list of elements inside parentheses, children of parent
+     *                 element
+     * @param opening  opening parenthesis, child of parent element
+     * @param closing  closing parenthesis, child of parent element
      */
     private void wrapFenced(final List<Element> siblings, final List<Element> fenced,
             final Element opening, final Element closing) {
         assert siblings != null && fenced != null && opening != null;
-        final Element parent = opening.getParentElement();
-        assert closing != null && closing.getParentElement().equals(parent);
-        for (Element e : fenced) {
-            e.detach();
-        }
-        final int openingIndex = parent.indexOf(opening);
+        final Element parent = opening.parent();
+        assert closing != null && closing.parent().equals(parent);
+        final int openingIndex = opening.siblingIndex();
 
         // Element to be placed inside parentheses.
         // If null, the original 'fenced' list will be used.
@@ -220,35 +221,33 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
         } else if (fenced.size() == 1) {
             innerElement = fenced.get(0); // no need to wrap, just one element
         } else {
-            innerElement = new Element(ROW, MATHMLNS);
-            innerElement.addContent(fenced);
+            innerElement = new Element(ROW);
+            innerElement.appendChildren(fenced);
             LOGGER.fine("Inner mrow added");
         }
 
-        if (((parent.getName().equals(ROW)
+        if (((parent.tagName().equals(ROW)
                 && siblings.get(0) == opening
                 && siblings.get(siblings.size() - 1) == closing))
                 || !isEnabled(WRAP_OUTSIDE)) {
             // will not wrap outside in mrow
             if (innerElement == null) {
-                parent.addContent(openingIndex + 1, fenced);
+                parent.insertChildren(openingIndex + 1, fenced);
             } else {
-                parent.addContent(openingIndex + 1, innerElement);
+                parent.insertChildren(openingIndex + 1, innerElement);
             }
             return;
         }
         // wrap outside in mrow
-        opening.detach();
-        closing.detach();
-        final Element outerMrowElement = new Element(ROW, MATHMLNS);
-        outerMrowElement.addContent(opening);
+        final Element outerMrowElement = new Element(ROW);
+        outerMrowElement.appendChild(opening);
         if (innerElement != null) {
-            outerMrowElement.addContent(innerElement);
+            outerMrowElement.appendChild(innerElement);
         } else {
-            outerMrowElement.addContent(fenced);
+            outerMrowElement.appendChildren(fenced);
         }
-        outerMrowElement.addContent(closing);
-        parent.addContent(openingIndex, outerMrowElement);
+        outerMrowElement.appendChild(closing);
+        parent.insertChildren(openingIndex, outerMrowElement);
         LOGGER.fine("Outer mrow added");
     }
 
@@ -257,12 +256,11 @@ public class MrowNormalizer extends AbstractModule implements DOMModule {
      */
     private void checkAddition(final Element element) {
         assert element != null;
-        final Parent parent = element.getParent();
-        if (!(parent instanceof Element)) {
+        if (!element.hasParent()) {
             return;
         }
-        final Element parentElement = (Element) parent;
-        final List<Element> siblings = parentElement.getChildren();
+        final Element parentElement = element.parent();
+        final List<Element> siblings = parentElement.children();
 
         if (isParenthesis(element, OPENING)) {
             // Need to find matching closing par and register the elements between
