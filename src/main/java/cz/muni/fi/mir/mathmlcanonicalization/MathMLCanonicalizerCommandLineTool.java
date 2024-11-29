@@ -18,6 +18,7 @@ package cz.muni.fi.mir.mathmlcanonicalization;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,9 +66,16 @@ public final class MathMLCanonicalizerCommandLineTool {
     /**
      * @param args the command line arguments
      * @throws javax.xml.stream.XMLStreamException an error with XML processing
-     * occurs
+     *                                             occurs
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
      */
-    public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException {
+    public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException,
+            SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+            ConfigException, FileNotFoundException, JDOMException, ModuleException, XMLStreamException,
+            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         final Options options = createOptions();
         final CommandLineParser parser = new DefaultParser();
         CommandLine line = null;
@@ -147,46 +155,43 @@ public final class MathMLCanonicalizerCommandLineTool {
                 .desc("Load configuration file.")
                 .argName("arg")
                 .hasArg()
-                .build()
-        );
+                .build());
 
         options.addOption(Option
                 .builder(OPTION_INJECTION)
                 .longOpt(OPTION_INJECTION_LONG)
                 .desc("Enforce injection of XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference into input documents.")
                 .hasArg(false)
-                .build()
-        );
+                .build());
 
         options.addOption(Option
                 .builder(OPTION_OVERWRITE)
                 .longOpt(OPTION_OVERWRITE_LONG)
                 .desc("Overwrite input files by produced canonical outputs.")
                 .hasArg(false)
-                .build()
-        );
+                .build());
 
         options.addOption(Option
                 .builder(OPTION_PRINT_DEFAULT_CONFIG)
                 .longOpt(OPTION_PRINT_DEFAULT_CONFIG_LONG)
                 .desc("Print default configuration that will be used if no config file is supplied.")
                 .hasArg(false)
-                .build()
-        );
+                .build());
 
         options.addOption(Option
                 .builder(OPTION_HELP)
                 .longOpt(OPTION_HELP_LONG)
                 .desc("Print help (this screen).")
                 .hasArg(false)
-                .build()
-        );
+                .build());
 
         return options;
     }
 
-    private static void canonicalize(File file, InputStream config, boolean dtdInjectionMode, boolean overwrite) throws
-            ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException, XMLStreamException {
+    private static void canonicalize(File file, InputStream config, boolean dtdInjectionMode, boolean overwrite)
+            throws ConfigException, FileNotFoundException, JDOMException, IOException, ModuleException,
+            XMLStreamException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
+            SecurityException {
         assert file != null; // but config can be null
         MathMLCanonicalizer mlcan;
         if (config != null) {
@@ -255,7 +260,8 @@ public final class MathMLCanonicalizerCommandLineTool {
         formatter.printOptions(output, 80, options, 8, 8);
     }
 
-    private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private static void printDefaultConfig() throws ParserConfigurationException, SAXException, IOException,
+            ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         final InputSource src = new InputSource(Settings.getStreamFromProperty("defaultConfig"));
         final Document document = Settings.documentBuilderFactory().newDocumentBuilder().parse(src);

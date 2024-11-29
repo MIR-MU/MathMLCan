@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
@@ -47,8 +48,9 @@ public class MathMLCanonicalizerTest {
     }
 
     @Test
-    public void testLoadingProperties() throws
-            UnsupportedEncodingException, IOException, JDOMException, ModuleException {
+    public void testLoadingProperties()
+            throws UnsupportedEncodingException, IOException, JDOMException, ModuleException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
         final String config = XML_DECLARATION
                 + "<config>"
                 + " <property name=\"existing\">value</property>"
@@ -74,6 +76,7 @@ public class MathMLCanonicalizerTest {
         MathMLCanonicalizer canonicalizer = MathMLCanonicalizer.getDefaultCanonicalizer();
 
         for (InputStream resource : ModuleTestResources.getAllTestResources()) {
+            System.out.println(resource);
             canonicalizer.canonicalize(resource, new ByteArrayOutputStream());
             // we don't check result; it just should not throw an exception
         }

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,10 +36,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.commons.io.IOUtils;
-import org.jdom2.Document;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.XMLOutputter;
 import org.xml.sax.SAXException;
 
 import cz.muni.fi.mir.mathmlcanonicalization.modules.DOMModule;
@@ -46,6 +44,9 @@ import cz.muni.fi.mir.mathmlcanonicalization.modules.Module;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.ModuleException;
 import cz.muni.fi.mir.mathmlcanonicalization.modules.StreamModule;
 import cz.muni.fi.mir.mathmlcanonicalization.utils.DTDManipulator;
+
+import org.jsoup.*;
+import org.jsoup.nodes.Document;
 
 /**
  * An input class for MathML canonicalization.
@@ -65,8 +66,13 @@ public final class MathMLCanonicalizer {
      * Initializes canonicalizer with default settings
      *
      * @return itialized canonicalizer
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
      */
-    public static MathMLCanonicalizer getDefaultCanonicalizer() {
+    public static MathMLCanonicalizer getDefaultCanonicalizer()
+            throws IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         try {
             return new MathMLCanonicalizer(Settings.getStreamFromProperty("defaultConfig"));
         } catch (ConfigException ex) {
@@ -85,10 +91,17 @@ public final class MathMLCanonicalizer {
      * Initializes canonicalizer using configuration file
      *
      * @param xmlConfigurationStream XML configuration constrained by XML Schema
-     * in cz.muni.fi.mir.mathmlcanonicalization.configuration.xsd resource file
-     * @throws ConfigException when configuration cannot be loaded
+     *                               in
+     *                               cz.muni.fi.mir.mathmlcanonicalization.configuration.xsd
+     *                               resource file
+     * @throws ConfigException           when configuration cannot be loaded
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
      */
-    public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException {
+    public MathMLCanonicalizer(InputStream xmlConfigurationStream) throws ConfigException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
         if (xmlConfigurationStream == null) {
             throw new NullPointerException("xmlConfigurationStream is null");
         }
@@ -137,8 +150,13 @@ public final class MathMLCanonicalizer {
      *
      * @param moduleName the name of the module class
      * @return the canonizer object to allow adding more modules at once
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
      */
-    public MathMLCanonicalizer addModule(String moduleName) {
+    public MathMLCanonicalizer addModule(String moduleName)
+            throws IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         if (moduleName == null) {
             throw new NullPointerException("moduleName");
         }
@@ -150,7 +168,7 @@ public final class MathMLCanonicalizer {
                     + ".modules." + moduleName;
             Class<?> moduleClass = Class.forName(fullyQualified);
 
-            return addModule((Module) moduleClass.newInstance());
+            return addModule((Module) moduleClass.getDeclaredConstructor().newInstance());
         } catch (ClassNotFoundException ex) {
             LOGGER.log(Level.WARNING, "cannot load module " + moduleName, ex);
         } catch (InstantiationException ex) {
@@ -181,9 +199,15 @@ public final class MathMLCanonicalizer {
 
     /**
      * Loads configuration from XML file, overriding the properties.
+     * 
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
      */
     private void loadXMLConfiguration(InputStream xmlConfigurationStream)
-            throws ConfigException, XMLStreamException {
+            throws ConfigException, XMLStreamException, IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
         assert xmlConfigurationStream != null;
         final XMLInputFactory inputFactory = Settings.defaultXmlInputFactory();
         final XMLStreamReader reader = inputFactory.createXMLStreamReader(xmlConfigurationStream);
@@ -210,7 +234,7 @@ public final class MathMLCanonicalizer {
                                         + ".modules." + attributeValue;
                                 try {
                                     Class<?> moduleClass = Class.forName(fullyQualified);
-                                    module = (Module) moduleClass.newInstance();
+                                    module = (Module) moduleClass.getDeclaredConstructor().newInstance();
                                 } catch (InstantiationException ex) {
                                     LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                                     throw new ConfigException("cannot instantiate module "
@@ -275,13 +299,14 @@ public final class MathMLCanonicalizer {
     /**
      * Canonicalize an input MathML stream.
      *
-     * @param in input stream to be canonicalized
+     * @param in  input stream to be canonicalized
      * @param out canonical output stream of input
-     * @throws JDOMException problem with DOM
-     * @throws IOException problem with streams
-     * @throws ModuleException some module cannot canonicalize the input
+     * @throws JDOMException                       problem with DOM
+     * @throws IOException                         problem with streams
+     * @throws ModuleException                     some module cannot canonicalize
+     *                                             the input
      * @throws javax.xml.stream.XMLStreamException an error with XML processing
-     * occurs
+     *                                             occurs
      */
     public void canonicalize(final InputStream in, final OutputStream out)
             throws JDOMException, IOException, ModuleException, XMLStreamException {
@@ -303,13 +328,13 @@ public final class MathMLCanonicalizer {
             streamModulesResult.writeTo(out);
             return;
         }
-        final InputStream input = streamModulesResult == null ? in : new ByteArrayInputStream(streamModulesResult.toByteArray());
+        final InputStream input = streamModulesResult == null ? in
+                : new ByteArrayInputStream(streamModulesResult.toByteArray());
 
         final Document document = executeDomModules(input);
 
         // convertong the JDOM representation back to stream
-        final XMLOutputter serializer = new XMLOutputter();
-        serializer.output(document, out);
+        out.write(document.html().getBytes("UTF-8"));
     }
 
     /**
@@ -318,21 +343,22 @@ public final class MathMLCanonicalizer {
      *
      * NB: maybe add another method which returns {@link org.w3c.dom.Document}?
      */
-    public Document canonicalize(final InputStream in) throws ModuleException, IOException, XMLStreamException, JDOMException {
+    public Document canonicalize(final InputStream in)
+            throws ModuleException, IOException, XMLStreamException, JDOMException {
         if (in == null) {
             throw new NullPointerException("Input stream is null");
         }
 
         ByteArrayOutputStream streamModulesResult = executeStreamModules(in);
-        final InputStream input = streamModulesResult == null ? in : new ByteArrayInputStream(streamModulesResult.toByteArray());
+        final InputStream input = streamModulesResult == null ? in
+                : new ByteArrayInputStream(streamModulesResult.toByteArray());
 
         return executeDomModules(input);
     }
 
     private Document executeDomModules(final InputStream input) throws JDOMException, IOException, ModuleException {
         // creating the JDOM representation from the stream
-        final SAXBuilder builder = Settings.setupSAXBuilder();
-        final Document document = builder.build(input);
+        final Document document = Jsoup.parse(input, null, "");
 
         // calling JDOM modules
         for (DOMModule module : domModules) {
@@ -369,7 +395,8 @@ public final class MathMLCanonicalizer {
         return removeDtdsIfNecessary(outputStream);
     }
 
-    private ByteArrayOutputStream removeDtdsIfNecessary(final ByteArrayOutputStream outputStream) throws XMLStreamException {
+    private ByteArrayOutputStream removeDtdsIfNecessary(final ByteArrayOutputStream outputStream)
+            throws XMLStreamException {
         ByteArrayOutputStream result;
 
         if (enforcingXHTMLPlusMathMLDTD) {
@@ -398,7 +425,7 @@ public final class MathMLCanonicalizer {
      * document.
      *
      * @return XHTML 1.1 plus MathML 2.0 plus SVG 1.1 DTD reference enforcement
-     * setting
+     *         setting
      */
     public boolean isEnforcingXHTMLPlusMathMLDTD() {
 

@@ -15,22 +15,19 @@
  */
 package cz.muni.fi.mir.mathmlcanonicalization.modules;
 
-import cz.muni.fi.mir.mathmlcanonicalization.Settings;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.jdom2.Document;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.XMLOutputter;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import org.junit.jupiter.api.*;
-import org.xml.sax.SAXException;
 
 /**
  * Abstract class to allow descendants to simple compare desired and produced
@@ -50,42 +47,47 @@ abstract class AbstractModuleTest {
     }
 
     protected void testXML(Module instance, String testFile) {
-        testXML(instance, testFile, true);
+        testHTML(instance, testFile, true);
     }
 
-    protected void testXML(Module instance, String testFile, boolean testIdempotence) {
-        final InputStream processed = getProcessed(instance, testFile, shouldPrintProcessed);
-        final InputStream canonical = getCanonical(testFile);
-        XMLUnit.setIgnoreWhitespace(true);
+    protected void testHTML(Module instance, String testFile, boolean testIdempotence) {
         try {
-            new XMLTestCase() {
-            }.assertXMLEqual(getReader(canonical), getReader(processed));
-        } catch (SAXException ex) {
-            LOGGER.log(Level.SEVERE, "cannot compare XML streams", ex);
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "problem with streams", ex);
+            final String processed = new String(getProcessed(instance, testFile, shouldPrintProcessed).readAllBytes(),
+                    StandardCharsets.UTF_8);
+            final String canonical = new String(getCanonical(testFile).readAllBytes(), StandardCharsets.UTF_8);
+
+            assertEquals(normalize(canonical), normalize(processed));
+        } catch (IOException e) {
+
         }
+
         if (testIdempotence) {
             testIdempotence(instance, testFile);
         }
     }
 
     protected void testIdempotence(Module instance, String testFile) {
-        final InputStream processed = getProcessed(instance, testFile, false);
-        final InputStream processedTwice = getProcessed(
-                instance, getProcessed(instance, testFile, false), false);
         try {
-            new XMLTestCase() {
-            }.assertXMLEqual(getReader(processed), getReader(processedTwice));
-        } catch (SAXException ex) {
-            LOGGER.log(Level.SEVERE, "cannot compare XML streams", ex);
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "problem with streams", ex);
+            final String processed = new String(getProcessed(instance, testFile, false).readAllBytes(),
+                    StandardCharsets.UTF_8);
+            final String processedTwice = new String(
+                    getProcessed(instance, getProcessed(instance, testFile, false), false).readAllBytes(),
+                    StandardCharsets.UTF_8);
+
+            assertEquals(normalize(processed), normalize(processedTwice));
+        } catch (IOException e) {
+
         }
     }
 
+    private static String normalize(String original) {
+        return original.replaceAll("(^\\s+)|(\\s*\n+\\s+)", "") // remove whitespaces at line start & newlines
+                .replaceAll("(>)(\\s+)(<)", "$1$3") // remove white space between tags
+                .toLowerCase();
+    }
+
     private InputStream getProcessed(Module instance, String testFile, boolean shouldPrint) {
-        InputStream resourceStream = this.getClass().getResourceAsStream(testFile + ".original.xml");
+        InputStream resourceStream = this.getClass().getResourceAsStream(testFile + ".original.html");
         return getProcessed(instance, resourceStream, shouldPrint);
     }
 
@@ -93,7 +95,7 @@ abstract class AbstractModuleTest {
      * Get input processed by specified module.
      *
      * @param instance a configured instance of the tested module
-     * @param in input stream with original XML document
+     * @param in       input stream with original XML document
      * @return input stream with processed input
      */
     private InputStream getProcessed(Module instance, InputStream in, boolean shouldPrint) {
@@ -120,16 +122,12 @@ abstract class AbstractModuleTest {
     }
 
     private InputStream getProcessed(DOMModule instance, InputStream in, boolean shouldPrint) {
-        SAXBuilder builder = Settings.setupSAXBuilder();
         Document doc;
-        XMLOutputter serializer = new XMLOutputter();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            doc = builder.build(in);
+            doc = Jsoup.parse(in, null, "");
             instance.execute(doc);
-            serializer.output(doc, output);
-        } catch (JDOMException ex) {
-            LOGGER.log(Level.SEVERE, "cannot build document", ex);
+            output.write(doc.html().getBytes("UTF-8"));
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "cannot convert between stream and DOM", ex);
         } catch (ModuleException ex) {
@@ -142,11 +140,7 @@ abstract class AbstractModuleTest {
     }
 
     private InputStream getCanonical(String testFile) {
-        return this.getClass().getResourceAsStream(testFile + ".canonical.xml");
-    }
-
-    private InputStreamReader getReader(InputStream inputStream) {
-        return new InputStreamReader(inputStream);
+        return this.getClass().getResourceAsStream(testFile + ".canonical.html");
     }
 
     private InputStream getInputStream(ByteArrayOutputStream output) {

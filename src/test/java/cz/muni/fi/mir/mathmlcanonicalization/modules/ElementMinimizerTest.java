@@ -31,7 +31,7 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     @BeforeAll
     public static void setUpBeforeAll() {
         DEFAULT_INSTANCE.setProperty("remove", "mspace maligngroup malignmark mstyle mpadded menclose maction");
-        DEFAULT_INSTANCE.setProperty("remove_all", "mphantom merror");
+        DEFAULT_INSTANCE.setProperty("remove_all", "mphantom merror cerror");
         DEFAULT_INSTANCE.setProperty("keepAttributes", "mathvariant=bold encoding");
         DEFAULT_INSTANCE.setProperty("keepAttributes.mfrac", "linethickness=0");
         DEFAULT_INSTANCE.setProperty("keepAttributes.cn", "base type");
@@ -41,6 +41,7 @@ public class ElementMinimizerTest extends AbstractModuleTest {
         DEFAULT_INSTANCE.setProperty("keepAttributes.interval", "closure");
         DEFAULT_INSTANCE.setProperty("keepAttributes.declare", "nargs occurrence");
         DEFAULT_INSTANCE.setProperty("keepAttributes.mfenced", "open close");
+        DEFAULT_INSTANCE.setProperty("keepAttributes.math", "xmlns");
     }
 
     @Test
@@ -61,6 +62,11 @@ public class ElementMinimizerTest extends AbstractModuleTest {
     @Test
     public void testAttributes() {
         testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "attributes");
+    }
+
+    @Test
+    public void testMglyph() {
+        testXML(DEFAULT_INSTANCE, RESOURCE_SUBDIR + "mglyph");
     }
 
 }
